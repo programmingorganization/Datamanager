@@ -250,6 +250,7 @@
             chart1.Size = new Size(328, 244);
             chart1.TabIndex = 4;
             chart1.Text = "chart1";
+            chart1.Click += chart1_Click;
             // 
             // button5
             // 
