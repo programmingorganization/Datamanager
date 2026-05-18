@@ -31,8 +31,10 @@
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
+            button9 = new Button();
             pictureBox2 = new PictureBox();
             textBox1 = new TextBox();
             textBox2 = new TextBox();
@@ -50,6 +52,8 @@
             button5 = new Button();
             comboBox1 = new ComboBox();
             listBox1 = new ListBox();
+            button10 = new Button();
+            panel1 = new Panel();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -57,6 +61,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // tabControl1
@@ -72,15 +77,15 @@
             // tabPage1
             // 
             tabPage1.BackColor = Color.FromArgb(64, 64, 64);
+            tabPage1.Controls.Add(panel1);
+            tabPage1.Controls.Add(button10);
+            tabPage1.Controls.Add(button9);
             tabPage1.Controls.Add(pictureBox2);
-            tabPage1.Controls.Add(textBox1);
-            tabPage1.Controls.Add(textBox2);
             tabPage1.Controls.Add(button4);
             tabPage1.Controls.Add(button3);
-            tabPage1.Controls.Add(button2);
-            tabPage1.Controls.Add(button1);
             tabPage1.Controls.Add(trackBar1);
             tabPage1.Controls.Add(pictureBox1);
+            tabPage1.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
             tabPage1.ForeColor = SystemColors.ControlText;
             tabPage1.Location = new Point(4, 29);
             tabPage1.Name = "tabPage1";
@@ -90,12 +95,23 @@
             tabPage1.Text = "Data Manager";
             tabPage1.Click += tabPage1_Click;
             // 
+            // button9
+            // 
+            button9.BackColor = Color.FromArgb(64, 64, 64);
+            button9.BackgroundImage = (Image)resources.GetObject("button9.BackgroundImage");
+            button9.BackgroundImageLayout = ImageLayout.Stretch;
+            button9.Location = new Point(24, 353);
+            button9.Name = "button9";
+            button9.Size = new Size(63, 60);
+            button9.TabIndex = 9;
+            button9.UseVisualStyleBackColor = false;
+            // 
             // pictureBox2
             // 
             pictureBox2.Image = TeamApp.Properties.Resources.bf656515_bae2_4248_aa12_ec77ba243498__1_;
-            pictureBox2.Location = new Point(356, 192);
+            pictureBox2.Location = new Point(344, 236);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(180, 110);
+            pictureBox2.Size = new Size(192, 115);
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox2.TabIndex = 8;
             pictureBox2.TabStop = false;
@@ -103,28 +119,29 @@
             // textBox1
             // 
             textBox1.BackColor = Color.Gray;
-            textBox1.Font = new Font("맑은 고딕", 18F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            textBox1.Location = new Point(24, 366);
+            textBox1.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            textBox1.Location = new Point(3, 111);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(85, 47);
+            textBox1.Size = new Size(69, 38);
             textBox1.TabIndex = 6;
             textBox1.Text = " 앵글";
             // 
             // textBox2
             // 
             textBox2.BackColor = Color.Gray;
-            textBox2.Font = new Font("맑은 고딕", 18F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            textBox2.Location = new Point(255, 369);
+            textBox2.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            textBox2.Location = new Point(3, 155);
             textBox2.Name = "textBox2";
-            textBox2.Size = new Size(88, 47);
+            textBox2.Size = new Size(69, 38);
             textBox2.TabIndex = 7;
             textBox2.Text = " 속도";
+            textBox2.TextChanged += textBox2_TextChanged;
             // 
             // button4
             // 
             button4.BackColor = Color.Gray;
             button4.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button4.Location = new Point(676, 304);
+            button4.Location = new Point(676, 353);
             button4.Name = "button4";
             button4.Size = new Size(115, 60);
             button4.TabIndex = 5;
@@ -136,7 +153,7 @@
             // 
             button3.BackColor = Color.Gray;
             button3.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button3.Location = new Point(542, 304);
+            button3.Location = new Point(542, 353);
             button3.Name = "button3";
             button3.Size = new Size(115, 60);
             button3.TabIndex = 4;
@@ -147,9 +164,9 @@
             // 
             button2.BackColor = Color.Gray;
             button2.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button2.Location = new Point(542, 148);
+            button2.Location = new Point(3, 3);
             button2.Name = "button2";
-            button2.Size = new Size(158, 49);
+            button2.Size = new Size(133, 51);
             button2.TabIndex = 3;
             button2.Text = "프레임 삭제";
             button2.UseVisualStyleBackColor = false;
@@ -159,9 +176,9 @@
             // 
             button1.BackColor = Color.Gray;
             button1.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button1.Location = new Point(542, 232);
+            button1.Location = new Point(3, 55);
             button1.Name = "button1";
-            button1.Size = new Size(158, 50);
+            button1.Size = new Size(133, 50);
             button1.TabIndex = 2;
             button1.Text = "폴더 열기";
             button1.UseVisualStyleBackColor = false;
@@ -169,17 +186,18 @@
             // trackBar1
             // 
             trackBar1.BackColor = Color.Gray;
-            trackBar1.Location = new Point(24, 308);
+            trackBar1.Location = new Point(149, 357);
             trackBar1.Name = "trackBar1";
-            trackBar1.Size = new Size(512, 56);
+            trackBar1.Size = new Size(387, 56);
             trackBar1.TabIndex = 1;
+            trackBar1.Scroll += trackBar1_Scroll;
             // 
             // pictureBox1
             // 
             pictureBox1.BackColor = Color.White;
             pictureBox1.Location = new Point(24, 13);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(512, 289);
+            pictureBox1.Size = new Size(512, 338);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             pictureBox1.Click += pictureBox1_Click;
@@ -205,9 +223,9 @@
             // 
             button8.BackColor = Color.Gray;
             button8.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button8.Location = new Point(321, 331);
+            button8.Location = new Point(607, 207);
             button8.Name = "button8";
-            button8.Size = new Size(194, 46);
+            button8.Size = new Size(181, 46);
             button8.TabIndex = 7;
             button8.Text = "프레임 화질 조정";
             button8.UseVisualStyleBackColor = false;
@@ -216,7 +234,7 @@
             // 
             button7.BackColor = Color.Gray;
             button7.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button7.Location = new Point(185, 331);
+            button7.Location = new Point(633, 133);
             button7.Name = "button7";
             button7.Size = new Size(116, 46);
             button7.TabIndex = 6;
@@ -227,9 +245,9 @@
             // 
             button6.BackColor = Color.Gray;
             button6.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button6.Location = new Point(17, 331);
+            button6.Location = new Point(633, 60);
             button6.Name = "button6";
-            button6.Size = new Size(113, 46);
+            button6.Size = new Size(112, 46);
             button6.TabIndex = 5;
             button6.Text = "학습중단";
             button6.UseVisualStyleBackColor = false;
@@ -247,7 +265,7 @@
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             chart1.Series.Add(series1);
-            chart1.Size = new Size(328, 244);
+            chart1.Size = new Size(280, 324);
             chart1.TabIndex = 4;
             chart1.Text = "chart1";
             chart1.Click += chart1_Click;
@@ -276,8 +294,30 @@
             listBox1.FormattingEnabled = true;
             listBox1.Location = new Point(17, 60);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(284, 244);
+            listBox1.Size = new Size(284, 324);
             listBox1.TabIndex = 1;
+            // 
+            // button10
+            // 
+            button10.BackColor = Color.FromArgb(64, 64, 64);
+            button10.BackgroundImage = (Image)resources.GetObject("button10.BackgroundImage");
+            button10.BackgroundImageLayout = ImageLayout.Stretch;
+            button10.Location = new Point(83, 353);
+            button10.Name = "button10";
+            button10.Size = new Size(60, 60);
+            button10.TabIndex = 10;
+            button10.UseVisualStyleBackColor = false;
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(button2);
+            panel1.Controls.Add(button1);
+            panel1.Controls.Add(textBox1);
+            panel1.Controls.Add(textBox2);
+            panel1.Location = new Point(542, 93);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(250, 202);
+            panel1.TabIndex = 11;
             // 
             // Form1
             // 
@@ -295,6 +335,8 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             tabPage2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -319,5 +361,8 @@
         private Button button7;
         private Button button6;
         private PictureBox pictureBox2;
+        private Button button9;
+        private Button button10;
+        private Panel panel1;
     }
 }
