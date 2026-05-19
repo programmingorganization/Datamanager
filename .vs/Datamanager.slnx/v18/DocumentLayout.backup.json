@@ -35,14 +35,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Form1.cs [Design]",
+              "Title": "Form1.cs [\uB514\uC790\uC778]",
               "DocumentMoniker": "C:\\Users\\yhkim\\source\\repos\\Datamanager\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
-              "ToolTip": "C:\\Users\\yhkim\\source\\repos\\Datamanager\\Form1.cs [Design]",
-              "RelativeToolTip": "Form1.cs [Design]",
+              "ToolTip": "C:\\Users\\yhkim\\source\\repos\\Datamanager\\Form1.cs [\uB514\uC790\uC778]",
+              "RelativeToolTip": "Form1.cs [\uB514\uC790\uC778]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-16T06:11:14.723Z",
-              "EditorCaption": " [Design]"
+              "EditorCaption": " [\uB514\uC790\uC778]"
             }
           ]
         }

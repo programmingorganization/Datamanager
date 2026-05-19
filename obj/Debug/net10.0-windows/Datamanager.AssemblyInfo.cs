@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Datamanager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bef766753de763229db0bbeee578e06b78c410a0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+70d589a32cd2226f4884321477686a1e3f8550da")]
 [assembly: System.Reflection.AssemblyProductAttribute("Datamanager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Datamanager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
