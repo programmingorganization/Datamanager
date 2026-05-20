@@ -176,7 +176,7 @@
             // 
             // pictureBox2
             // 
-            pictureBox2.Image = TeamApp.Properties.Resources.bf656515_bae2_4248_aa12_ec77ba243498__1_;
+            pictureBox2.Image = Datamanager.Properties.Resources.bf656515_bae2_4248_aa12_ec77ba243498__1_;
             pictureBox2.Location = new Point(344, 236);
             pictureBox2.Name = "pictureBox2";
             pictureBox2.Size = new Size(192, 115);
