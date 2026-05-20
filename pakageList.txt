@@ -1,0 +1,4 @@
+WindowsForms.DataVisualization
+Emgu.CV
+Emgu.CV.Bitmap
+Emgu.CV.runtime.windows
