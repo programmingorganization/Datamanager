@@ -518,11 +518,10 @@ namespace Datamanager
         // catalog 파일 읽는 함수
         void LoadCatalog()
         {
-            string dataPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "..", "..", "..", "data"
-            );
-            dataPath = Path.GetFullPath(dataPath);
+            // 프로젝트 파일(.csproj) 위치 기준으로 data 폴더 찾기
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string dataPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "data"));
+            //예외처리: data 폴더가 없을 때
             if (!Directory.Exists(dataPath))
             {
                 MessageBox.Show("data 폴더를 찾을 수 없습니다: " + dataPath);
