@@ -209,7 +209,7 @@
             text_angle.Location = new Point(882, 231);
             text_angle.Margin = new Padding(2);
             text_angle.Name = "text_angle";
-            text_angle.Size = new Size(84, 32);
+            text_angle.Size = new Size(118, 32);
             text_angle.TabIndex = 6;
             text_angle.Text = " 앵글:";
             // 
@@ -231,7 +231,7 @@
             text_throttle.Location = new Point(702, 231);
             text_throttle.Margin = new Padding(2);
             text_throttle.Name = "text_throttle";
-            text_throttle.Size = new Size(92, 32);
+            text_throttle.Size = new Size(111, 32);
             text_throttle.TabIndex = 7;
             text_throttle.Text = " 속도:";
             text_throttle.TextChanged += textBox2_TextChanged;
