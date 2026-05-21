@@ -407,16 +407,7 @@ namespace Datamanager
 
         }
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-            currentIndex++;
-
-            if (currentIndex >= imageFiles.Length)
-                currentIndex = 0;
-
-            listImages.SelectedIndex =
-                currentIndex;
-        }
+       
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -502,6 +493,17 @@ namespace Datamanager
                 listImages.SelectedIndex;
 
             LoadImage();
+        }
+
+        private void btn_imgnext_Click(object sender, EventArgs e)
+        {
+            currentIndex++;
+
+            if (currentIndex >= imageFiles.Length)
+                currentIndex = 0;
+
+            listImages.SelectedIndex =
+                currentIndex;
         }
     }
 }
