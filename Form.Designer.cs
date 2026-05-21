@@ -30,9 +30,9 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             picEdge = new PictureBox();
@@ -47,8 +47,9 @@
             pictureBox2 = new PictureBox();
             text_throttle = new TextBox();
             btn_imgnext = new Button();
+            btn_changquality = new Button();
             btn_before = new Button();
-            trackBar1 = new TrackBar();
+            trackBar_frame = new TrackBar();
             picImage = new PictureBox();
             tabPage2 = new TabPage();
             panel2 = new Panel();
@@ -58,13 +59,12 @@
             combo_model = new ComboBox();
             list_log = new ListBox();
             timer1 = new System.Windows.Forms.Timer(components);
-            btn_changquality = new Button();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picEdge).BeginInit();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar_frame).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picImage).BeginInit();
             tabPage2.SuspendLayout();
             panel2.SuspendLayout();
@@ -95,7 +95,7 @@
             tabPage1.Controls.Add(btn_imgnext);
             tabPage1.Controls.Add(btn_changquality);
             tabPage1.Controls.Add(btn_before);
-            tabPage1.Controls.Add(trackBar1);
+            tabPage1.Controls.Add(trackBar_frame);
             tabPage1.Controls.Add(picImage);
             tabPage1.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
             tabPage1.ForeColor = SystemColors.ControlText;
@@ -110,10 +110,10 @@
             // picEdge
             // 
             picEdge.BackColor = Color.White;
-            picEdge.Location = new Point(317, 20);
+            picEdge.Location = new Point(345, 20);
             picEdge.Margin = new Padding(2);
             picEdge.Name = "picEdge";
-            picEdge.Size = new Size(268, 389);
+            picEdge.Size = new Size(308, 389);
             picEdge.SizeMode = PictureBoxSizeMode.Zoom;
             picEdge.TabIndex = 12;
             picEdge.TabStop = false;
@@ -249,6 +249,18 @@
             btn_imgnext.UseVisualStyleBackColor = false;
             btn_imgnext.Click += btn_imgnext_Click;
             // 
+            // btn_changquality
+            // 
+            btn_changquality.BackColor = Color.Gray;
+            btn_changquality.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btn_changquality.Location = new Point(354, 473);
+            btn_changquality.Margin = new Padding(2);
+            btn_changquality.Name = "btn_changquality";
+            btn_changquality.Size = new Size(154, 45);
+            btn_changquality.TabIndex = 4;
+            btn_changquality.Text = "프레임 화질 조정";
+            btn_changquality.UseVisualStyleBackColor = false;
+            // 
             // btn_before
             // 
             btn_before.BackColor = Color.Gray;
@@ -261,15 +273,15 @@
             btn_before.Text = "프레임 ◀";
             btn_before.UseVisualStyleBackColor = false;
             // 
-            // trackBar1
+            // trackBar_frame
             // 
-            trackBar1.BackColor = Color.Gray;
-            trackBar1.Location = new Point(129, 413);
-            trackBar1.Margin = new Padding(2);
-            trackBar1.Name = "trackBar1";
-            trackBar1.Size = new Size(456, 45);
-            trackBar1.TabIndex = 1;
-            trackBar1.Scroll += trackBar1_Scroll;
+            trackBar_frame.BackColor = Color.Gray;
+            trackBar_frame.Location = new Point(129, 413);
+            trackBar_frame.Margin = new Padding(2);
+            trackBar_frame.Name = "trackBar_frame";
+            trackBar_frame.Size = new Size(524, 45);
+            trackBar_frame.TabIndex = 1;
+            trackBar_frame.Scroll += trackBar_frame_Scroll;
             // 
             // picImage
             // 
@@ -277,7 +289,7 @@
             picImage.Location = new Point(19, 20);
             picImage.Margin = new Padding(2);
             picImage.Name = "picImage";
-            picImage.Size = new Size(280, 389);
+            picImage.Size = new Size(322, 389);
             picImage.SizeMode = PictureBoxSizeMode.Zoom;
             picImage.TabIndex = 0;
             picImage.TabStop = false;
@@ -322,18 +334,18 @@
             // 
             // chart1
             // 
-            chartArea2.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            chart1.Legends.Add(legend2);
+            chartArea1.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            chart1.Legends.Add(legend1);
             chart1.Location = new Point(437, 46);
             chart1.Margin = new Padding(2);
             chart1.Name = "chart1";
             chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            chart1.Series.Add(series2);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            chart1.Series.Add(series1);
             chart1.Size = new Size(218, 243);
             chart1.TabIndex = 4;
             chart1.Text = "chart1";
@@ -373,18 +385,6 @@
             // 
             timer1.Tick += timer1_Tick;
             // 
-            // btn_changquality
-            // 
-            btn_changquality.BackColor = Color.Gray;
-            btn_changquality.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_changquality.Location = new Point(354, 473);
-            btn_changquality.Margin = new Padding(2);
-            btn_changquality.Name = "btn_changquality";
-            btn_changquality.Size = new Size(154, 45);
-            btn_changquality.TabIndex = 4;
-            btn_changquality.Text = "프레임 화질 조정";
-            btn_changquality.UseVisualStyleBackColor = false;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -400,7 +400,7 @@
             ((System.ComponentModel.ISupportInitialize)picEdge).EndInit();
             panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar_frame).EndInit();
             ((System.ComponentModel.ISupportInitialize)picImage).EndInit();
             tabPage2.ResumeLayout(false);
             panel2.ResumeLayout(false);
@@ -417,7 +417,7 @@
         private Button btn_before;
         private Button btn_delete;
         private Button btn_openfolder;
-        private TrackBar trackBar1;
+        private TrackBar trackBar_frame;
         private PictureBox picImage;
         private TextBox text_throttle;
         private TextBox text_angle;
