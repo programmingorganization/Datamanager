@@ -500,6 +500,14 @@ namespace Datamanager
             trackBar_frame.Value = currentIndex;
 
             LoadImage();
+
+            // catalog 데이터 연동
+            if (catalogData.ContainsKey(currentIndex))
+            {
+                var entry = catalogData[currentIndex];
+                text_throttle.Text = $"속도: {entry.user_throttle:F3}";
+                text_angle.Text = $"앵글: {entry.user_angle:F3}";
+            }
         }
 
         private void btn_imgnext_Click(object sender, EventArgs e)
