@@ -60,7 +60,18 @@ namespace Datamanager
             {
                 listImages.SelectedIndex = 0;
             }
-
+            // 카탈로그 로드
+            try
+            {
+                LoadCatalog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("카탈로그 로드 오류: " + ex.Message);
+            }
+            trackBar_frame.Minimum = 0; //트랙바 초기화 코드
+            trackBar_frame.Maximum = imageFiles.Length - 1;
+            trackBar_frame.Value = 0;
         }
 
         void LoadImage()
@@ -407,7 +418,7 @@ namespace Datamanager
 
         }
 
-       
+
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -441,11 +452,6 @@ namespace Datamanager
         }
 
         private void chart1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void trackBar1_Scroll(object sender, EventArgs e)
         {
 
         }
@@ -491,8 +497,17 @@ namespace Datamanager
         {
             currentIndex =
                 listImages.SelectedIndex;
+            trackBar_frame.Value = currentIndex;
 
             LoadImage();
+
+            // catalog 데이터 연동
+            if (catalogData.ContainsKey(currentIndex))
+            {
+                var entry = catalogData[currentIndex];
+                text_throttle.Text = $"속도: {entry.user_throttle:F3}";
+                text_angle.Text = $"앵글: {entry.user_angle:F3}";
+            }
         }
 
         private void btn_imgnext_Click(object sender, EventArgs e)
@@ -505,5 +520,67 @@ namespace Datamanager
             listImages.SelectedIndex =
                 currentIndex;
         }
+        // catalog 데이터 저장할 딕셔너리
+        Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
+
+        // catalog 파일 읽는 함수
+        void LoadCatalog()
+        {
+            // 프로젝트 파일(.csproj) 위치 기준으로 data 폴더 찾기
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string dataPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "data"));
+            //예외처리: data 폴더가 없을 때
+            if (!Directory.Exists(dataPath))
+            {
+                MessageBox.Show("data 폴더를 찾을 수 없습니다: " + dataPath);
+                return;
+            }
+
+            string[] catalogFiles = Directory.GetFiles(dataPath, "*.catalog");
+
+            foreach (string file in catalogFiles)
+            {
+                if (file.EndsWith("_manifest")) continue;
+
+                string[] lines = File.ReadAllLines(file);
+                foreach (string line in lines)
+                {
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+
+                    var json = System.Text.Json.JsonDocument.Parse(line);
+                    var entry = new CatalogEntry
+                    {
+                        _index = json.RootElement.GetProperty("_index").GetInt32(),
+                        cam_image_array = json.RootElement.GetProperty("cam/image_array").GetString(),
+                        user_angle = json.RootElement.GetProperty("user/angle").GetDouble(),
+                        user_throttle = json.RootElement.GetProperty("user/throttle").GetDouble()
+                    };
+                    catalogData[entry._index] = entry;
+                }
+            }
+        }
+
+        private void trackBar_frame_Scroll(object sender, EventArgs e)
+        {
+            currentIndex = trackBar_frame.Value;
+            listImages.SelectedIndex = currentIndex;
+        }
+
+        private void btn_train_Click(object sender, EventArgs e)
+        {
+            // catalog 데이터에서 angle=0 이거나 throttle<=0인 데이터는 학습에서 제외하도록 필터링
+            var validTrainingData = catalogData
+                .Where(entry => entry.Value.user_angle != 0 && entry.Value.user_throttle > 0)
+                .ToList();
+        
+        }
+    }
+    // 데이터 구조 정의
+    public class CatalogEntry
+    {
+        public int _index { get; set; }
+        public string cam_image_array { get; set; }
+        public double user_angle { get; set; }
+        public double user_throttle { get; set; }
     }
 }
