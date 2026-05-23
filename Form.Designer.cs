@@ -29,9 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             panel1 = new Panel();
@@ -47,14 +44,13 @@
             trackBar1 = new TrackBar();
             pictureBox1 = new PictureBox();
             tabPage2 = new TabPage();
+            panel2 = new Panel();
+            button6 = new Button();
             button8 = new Button();
             button7 = new Button();
-            button6 = new Button();
-            chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             button5 = new Button();
             comboBox1 = new ComboBox();
             listBox1 = new ListBox();
-            panel2 = new Panel();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             panel1.SuspendLayout();
@@ -62,7 +58,6 @@
             ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
             panel2.SuspendLayout();
             SuspendLayout();
             // 
@@ -176,7 +171,6 @@
             // 
             // pictureBox2
             // 
-            pictureBox2.Image = TeamApp.Properties.Resources.bf656515_bae2_4248_aa12_ec77ba243498__1_;
             pictureBox2.Location = new Point(344, 236);
             pictureBox2.Name = "pictureBox2";
             pictureBox2.Size = new Size(192, 115);
@@ -230,7 +224,6 @@
             // 
             tabPage2.BackColor = Color.FromArgb(64, 64, 64);
             tabPage2.Controls.Add(panel2);
-            tabPage2.Controls.Add(chart1);
             tabPage2.Controls.Add(button5);
             tabPage2.Controls.Add(comboBox1);
             tabPage2.Controls.Add(listBox1);
@@ -240,6 +233,27 @@
             tabPage2.Size = new Size(794, 422);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "training";
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(button6);
+            panel2.Controls.Add(button8);
+            panel2.Controls.Add(button7);
+            panel2.Location = new Point(607, 60);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(191, 201);
+            panel2.TabIndex = 8;
+            // 
+            // button6
+            // 
+            button6.BackColor = Color.Gray;
+            button6.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            button6.Location = new Point(3, 44);
+            button6.Name = "button6";
+            button6.Size = new Size(112, 46);
+            button6.TabIndex = 5;
+            button6.Text = "학습중단";
+            button6.UseVisualStyleBackColor = false;
             // 
             // button8
             // 
@@ -263,35 +277,6 @@
             button7.Text = "화질 조절";
             button7.UseVisualStyleBackColor = false;
             button7.Click += button7_Click;
-            // 
-            // button6
-            // 
-            button6.BackColor = Color.Gray;
-            button6.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button6.Location = new Point(3, 44);
-            button6.Name = "button6";
-            button6.Size = new Size(112, 46);
-            button6.TabIndex = 5;
-            button6.Text = "학습중단";
-            button6.UseVisualStyleBackColor = false;
-            // 
-            // chart1
-            // 
-            chartArea2.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            chart1.Legends.Add(legend2);
-            chart1.Location = new Point(321, 60);
-            chart1.Name = "chart1";
-            chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            chart1.Series.Add(series2);
-            chart1.Size = new Size(280, 324);
-            chart1.TabIndex = 4;
-            chart1.Text = "chart1";
-            chart1.Click += chart1_Click;
             // 
             // button5
             // 
@@ -320,21 +305,11 @@
             listBox1.Size = new Size(284, 324);
             listBox1.TabIndex = 1;
             // 
-            // panel2
-            // 
-            panel2.Controls.Add(button6);
-            panel2.Controls.Add(button8);
-            panel2.Controls.Add(button7);
-            panel2.Location = new Point(607, 60);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(191, 201);
-            panel2.TabIndex = 8;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(801, 447);
             Controls.Add(tabControl1);
             Name = "Form1";
             Text = "Form1";
@@ -347,7 +322,6 @@
             ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             tabPage2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
             panel2.ResumeLayout(false);
             ResumeLayout(false);
         }
