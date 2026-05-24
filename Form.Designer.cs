@@ -168,8 +168,7 @@
             // 
             listImages.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point, 129);
             listImages.FormattingEnabled = true;
-            listImages.Location = new Point(4, 4);
-            listImages.Margin = new Padding(4);
+            listImages.Location = new Point(3, 3);
             listImages.Name = "listImages";
             listImages.Size = new Size(369, 199);
             listImages.TabIndex = 14;
@@ -260,20 +259,21 @@
             text_angle.Location = new Point(873, 217);
             text_angle.Margin = new Padding(2);
             text_angle.Name = "text_angle";
-            text_angle.Size = new Size(151, 38);
+            text_angle.Size = new Size(118, 32);
             text_angle.TabIndex = 6;
             text_angle.Text = " 앵글:";
             // 
             // picture_Gage
             // 
-            pictureBox2.Image = (Image)resources.GetObject("pictureBox2.Image");
-            pictureBox2.Location = new Point(874, 27);
-            pictureBox2.Margin = new Padding(3, 2, 3, 2);
-            pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(465, 261);
-            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
-            pictureBox2.TabIndex = 8;
-            pictureBox2.TabStop = false;
+            picture_Gage.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            picture_Gage.Image = (Image)resources.GetObject("picture_Gage.Image");
+            picture_Gage.Location = new Point(671, 6);
+            picture_Gage.Margin = new Padding(2);
+            picture_Gage.Name = "picture_Gage";
+            picture_Gage.Size = new Size(362, 199);
+            picture_Gage.SizeMode = PictureBoxSizeMode.StretchImage;
+            picture_Gage.TabIndex = 8;
+            picture_Gage.TabStop = false;
             // 
             // text_throttle
             // 
@@ -283,7 +283,7 @@
             text_throttle.Location = new Point(693, 217);
             text_throttle.Margin = new Padding(2);
             text_throttle.Name = "text_throttle";
-            text_throttle.Size = new Size(142, 38);
+            text_throttle.Size = new Size(111, 32);
             text_throttle.TabIndex = 7;
             text_throttle.Text = " 속도:";
             text_throttle.TextChanged += textBox2_TextChanged;
@@ -335,7 +335,7 @@
             trackBar_frame.Location = new Point(120, 399);
             trackBar_frame.Margin = new Padding(2);
             trackBar_frame.Name = "trackBar_frame";
-            trackBar_frame.Size = new Size(674, 56);
+            trackBar_frame.Size = new Size(524, 45);
             trackBar_frame.TabIndex = 1;
             trackBar_frame.Scroll += trackBar_frame_Scroll;
             // 
@@ -374,7 +374,7 @@
             panel2.Location = new Point(784, 45);
             panel2.Margin = new Padding(2);
             panel2.Name = "panel2";
-            panel2.Size = new Size(355, 326);
+            panel2.Size = new Size(276, 244);
             panel2.TabIndex = 8;
             // 
             // btn_stopTrain
@@ -391,19 +391,19 @@
             // 
             // chart1
             // 
-            chartArea2.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            chart1.Legends.Add(legend2);
-            chart1.Location = new Point(562, 61);
-            chart1.Margin = new Padding(3, 2, 3, 2);
+            chartArea1.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            chart1.Legends.Add(legend1);
+            chart1.Location = new Point(437, 46);
+            chart1.Margin = new Padding(2);
             chart1.Name = "chart1";
             chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            chart1.Series.Add(series2);
-            chart1.Size = new Size(280, 324);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            chart1.Series.Add(series1);
+            chart1.Size = new Size(218, 243);
             chart1.TabIndex = 4;
             chart1.Text = "chart1";
             chart1.Click += chart1_Click;
@@ -412,10 +412,10 @@
             // 
             btn_train.BackColor = Color.Gray;
             btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_train.Location = new Point(307, 16);
-            btn_train.Margin = new Padding(3, 2, 3, 2);
+            btn_train.Location = new Point(239, 12);
+            btn_train.Margin = new Padding(2);
             btn_train.Name = "btn_train";
-            btn_train.Size = new Size(116, 39);
+            btn_train.Size = new Size(90, 29);
             btn_train.TabIndex = 3;
             btn_train.Text = "train";
             btn_train.UseVisualStyleBackColor = false;
@@ -424,64 +424,28 @@
             // combo_model
             // 
             combo_model.FormattingEnabled = true;
-            combo_model.Location = new Point(17, 16);
-            combo_model.Margin = new Padding(3, 2, 3, 2);
+            combo_model.Location = new Point(13, 12);
+            combo_model.Margin = new Padding(2);
             combo_model.Name = "combo_model";
-            combo_model.Size = new Size(151, 28);
+            combo_model.Size = new Size(118, 23);
             combo_model.TabIndex = 2;
             // 
             // list_log
             // 
             list_log.FormattingEnabled = true;
-            list_log.Location = new Point(17, 60);
-            list_log.Margin = new Padding(3, 2, 3, 2);
+            list_log.Location = new Point(13, 45);
+            list_log.Margin = new Padding(2);
             list_log.Name = "list_log";
-            list_log.Size = new Size(466, 624);
+            list_log.Size = new Size(363, 469);
             list_log.TabIndex = 1;
             // 
             // timer1
             // 
             timer1.Tick += timer1_Tick;
             // 
-            // button1
-            // 
-            button1.BackColor = Color.Gray;
-            button1.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button1.Location = new Point(4, 323);
-            button1.Margin = new Padding(3, 2, 3, 2);
-            button1.Name = "button1";
-            button1.Size = new Size(182, 45);
-            button1.TabIndex = 15;
-            button1.Text = "시작 프레임 설정";
-            button1.UseVisualStyleBackColor = false;
-            // 
-            // button2
-            // 
-            button2.BackColor = Color.Gray;
-            button2.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button2.Location = new Point(325, 323);
-            button2.Margin = new Padding(3, 2, 3, 2);
-            button2.Name = "button2";
-            button2.Size = new Size(158, 45);
-            button2.TabIndex = 16;
-            button2.Text = "끝 프레임 설정";
-            button2.UseVisualStyleBackColor = false;
-            // 
-            // button3
-            // 
-            button3.BackColor = Color.Gray;
-            button3.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            button3.Location = new Point(189, 323);
-            button3.Margin = new Padding(3, 2, 3, 2);
-            button3.Name = "button3";
-            button3.Size = new Size(136, 45);
-            button3.TabIndex = 17;
-            button3.Text = "프레임 복구";
-            button3.UseVisualStyleBackColor = false;
-            // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(9F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1135, 585);
