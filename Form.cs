@@ -655,6 +655,15 @@ namespace Datamanager
             currentIndex = trackBar_frame.Value;
             listImages.SelectedIndex = currentIndex;
         }
+
+        private void btn_train_Click(object sender, EventArgs e)
+        {
+            // catalog 데이터에서 angle=0 이거나 throttle<=0인 데이터는 학습에서 제외하도록 필터링
+            var validTrainingData = catalogData
+                .Where(entry => entry.Value.user_angle != 0 && entry.Value.user_throttle > 0)
+                .ToList();
+        
+        }
     }
     // 데이터 구조 정의
     public class CatalogEntry
