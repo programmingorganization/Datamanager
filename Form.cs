@@ -36,96 +36,227 @@ namespace Datamanager
         public Form1()
         {
             InitializeComponent();
-            //UI 디자인
-            // Form1 속성
-            this.BackColor = Color.FromArgb(13, 13, 24);      // #0d0d18
-            this.ForeColor = Color.FromArgb(204, 204, 204);   // #cccccc
-            this.Font = new Font("Courier New", 9F);
 
-            // 탭 컨트롤 속성
-            tabControl.BackColor = Color.FromArgb(8, 8, 15);
-            tabControl.ForeColor = Color.FromArgb(79, 195, 247);  // 파란색
-            tabControl.Font = new Font("Courier New", 9F);
+            // ====================================================================
+            // 0. GDI+ 안티앨리어싱 설정 (그래픽 품질 최상으로 설정)
+            // ====================================================================
+            // 최적의 성능과 가독성을 위해 폼 자체의 기본 설정을 변경합니다.
+            this.Visible = true;
+            this.Opacity = 100;
+
+            // ====================================================================
+            // 1. FORM 및 기본 테마 속성 업그레이드
+            // ====================================================================
+            this.BackColor = Color.FromArgb(13, 13, 24);      // #0d0d18 (딥 스페이스 네이비)
+            this.ForeColor = Color.FromArgb(204, 204, 204);   // #cccccc (실버 그레이)
+            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+
+            // ====================================================================
+            // 2. TAB CONTROL 하이테크 스타일 매칭
+            // ====================================================================
+            tabControl.ItemSize = new Size(610, 35);           
             tabControl.Appearance = TabAppearance.FlatButtons;
+            tabControl.SizeMode = TabSizeMode.Fixed;
 
-            // 탭 페이지 배경
+            // 탭 페이지 배경색 일치
             tab_data.BackColor = Color.FromArgb(13, 13, 24);
             tab_train.BackColor = Color.FromArgb(13, 13, 24);
 
-            // 원본 / 전처리 이미지 공통
-            picImage.BackColor = Color.FromArgb(7, 7, 15);
-            picImage.BorderStyle = BorderStyle.FixedSingle;
-            picImage.SizeMode = PictureBoxSizeMode.Zoom;
+            // ====================================================================
+            // 3. PICTUREBOX & LISTBOX (어두운 톤 깊이감 및 테두리 글로우 효과)
+            // ====================================================================
+            // [UI 담당 치트키 1] PictureBox에 네온 글로우 테두리를 그립니다.
+            void StyleMonitorControl(Control control)
+            {
+                control.BackColor = Color.FromArgb(7, 7, 15);      // 내부 더 어둡게
+                                                                   // BorderStyle을 None으로 하고 Paint에서 글로우를 직접 그립니다.
+                if (control is PictureBox pb) pb.BorderStyle = BorderStyle.None;
+                if (control is ListBox lb) lb.BorderStyle = BorderStyle.None;
 
-            picEdge.BackColor = Color.FromArgb(7, 7, 15);
-            picEdge.BorderStyle = BorderStyle.FixedSingle;
+                control.Paint += (sender, e) =>
+                {
+                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
+                    {
+                        int r = 10; // 모서리 깎기
+                        path.AddArc(0, 0, r, r, 180, 90);
+                        path.AddArc(control.Width - r - 1, 0, r, r, 270, 90);
+                        path.AddArc(control.Width - r - 1, control.Height - r - 1, r, r, 0, 90);
+                        path.AddArc(0, control.Height - r - 1, r, r, 90, 90);
+                        path.CloseFigure();
+
+                        control.Region = new Region(path); // 둥글게 자르기
+
+                        // 네온 글로우 테두리 (사이언 블루 계열)
+                        using (Pen pen = new Pen(Color.FromArgb(79, 195, 247), 2f))
+                        {
+                            e.Graphics.DrawPath(pen, path);
+                        }
+                    }
+                };
+            }
+
+            StyleMonitorControl(picImage);
+            StyleMonitorControl(picEdge);
+            StyleMonitorControl(listImages);
+
+            picImage.SizeMode = PictureBoxSizeMode.Zoom;
             picEdge.SizeMode = PictureBoxSizeMode.Zoom;
 
-            // 이미지 리스트 속성
-            listImages.BackColor = Color.FromArgb(7, 7, 15);
-            listImages.ForeColor = Color.FromArgb(85, 85, 85);
-            listImages.BorderStyle = BorderStyle.FixedSingle;
-            listImages.Font = new Font("Courier New", 9F);
+            listImages.ForeColor = Color.FromArgb(0, 191, 255);
+            listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
 
-            // 버튼 스타일 공통
+            // ====================================================================
+            // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
+            // ====================================================================
+            // 속도 레이블 (네온 그린 글로우 효과)
+            text_throttle.BackColor = Color.FromArgb(13, 13, 24);
+            text_throttle.ForeColor = Color.FromArgb(32, 201, 151);
+            text_throttle.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+
+            // 앵글 레이블 (네온 블루 글로우 효과)
+            text_angle.BackColor = Color.FromArgb(13, 13, 24);
+            text_angle.ForeColor = Color.FromArgb(79, 195, 247);
+            text_angle.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+
+            // ====================================================================
+            // 5. BUTTONS FLAT & CYBER COLOR STYLING (네온 글로우 버튼 고도화)
+            // ====================================================================
             void StyleButton(Button btn, Color borderColor)
             {
                 btn.BackColor = Color.FromArgb(13, 13, 24);
                 btn.ForeColor = borderColor;
                 btn.FlatStyle = FlatStyle.Flat;
-                btn.FlatAppearance.BorderColor = borderColor;
-                btn.FlatAppearance.BorderSize = 1;
+
+                //Transparent 대신 0 지정을 통해 기본 테두리를 아예 두께 0으로 없애버립니다.
+                btn.FlatAppearance.BorderSize = 0;
+
+                // 마우스 이벤트에 따른 색상 변화
                 btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(20, 20, 40);
-                btn.Font = new Font("Courier New", 8F);
+                btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(7, 7, 15);
+
+                btn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
+
+                // 버튼 전체에 부드러운 둥근 모서리와 강한 네온 글로우를 그립니다.
+                btn.Paint += (sender, e) => {
+                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
+                    {
+                        int r = 8; // 둥글게 깎기 반지름
+                        path.AddArc(0, 0, r, r, 180, 90);
+                        path.AddArc(btn.Width - r - 1, 0, r, r, 270, 90);
+                        path.AddArc(btn.Width - r - 1, btn.Height - r - 1, r, r, 0, 90);
+                        path.AddArc(0, btn.Height - r - 1, r, r, 90, 90);
+                        path.CloseFigure();
+
+                        // 1. 강한 글로우 배경 그리기 (선택 사항 - 입체감 부여)
+                        using (System.Drawing.Drawing2D.PathGradientBrush glowBrush = new System.Drawing.Drawing2D.PathGradientBrush(path))
+                        {
+                            glowBrush.CenterColor = Color.FromArgb(50, borderColor);
+                            glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, borderColor) };
+                            e.Graphics.FillPath(glowBrush, path);
+                        }
+
+                        // 2. 형님이 원하시던 부드러운 네온 테두리 선 직접 그리기
+                        using (Pen pen = new Pen(borderColor, 1.8f))
+                        {
+                            e.Graphics.DrawPath(pen, path);
+                        }
+                    }
+                };
             }
 
-            // 적용
-            StyleButton(btn_delete, Color.FromArgb(239, 83, 80));   // 빨강 - 프레임 삭제
-            StyleButton(btn_restore, Color.FromArgb(204, 204, 204)); // 회색 - 프레임 복구
-            StyleButton(btnPlay, Color.FromArgb(102, 187, 106)); // 초록 - 재생
-            StyleButton(btn_openfolder, Color.FromArgb(204, 204, 204)); // 회색 - 폴더 열기
-            StyleButton(btnSetStart, Color.FromArgb(204, 204, 204)); // 회색 - 시작 프레임 설정
-            StyleButton(btnSetEnd, Color.FromArgb(204, 204, 204)); // 회색 - 끝 프레임 설정
-            StyleButton(btn_changquality, Color.FromArgb(255, 167, 38));  // 주황 - 화질 조정
-            StyleButton(btn_train, Color.FromArgb(79, 195, 247));  // 파랑 - train
-            StyleButton(btn_stopTrain, Color.FromArgb(239, 83, 80));   // 빨강 - 학습중단
-            StyleButton(btn_before, Color.FromArgb(102, 187, 106)); // 초록 - 이전 프레임
-            StyleButton(btn_imgnext, Color.FromArgb(102, 187, 106)); // 초록 - 다음 프레임
-            
-            // 트랙바 스타일
+            // 각 기능 버튼별 아이덴티티 컬러 매칭
+            StyleButton(btn_delete, Color.FromArgb(239, 83, 80));       // 핫 레드 - 삭제
+            StyleButton(btn_restore, Color.FromArgb(140, 140, 160));    // 차분한 그레이 - 복구
+            StyleButton(btnPlay, Color.FromArgb(102, 187, 106));       // 메트릭스 그린 - 재생/정지
+            StyleButton(btn_openfolder, Color.FromArgb(204, 204, 204)); // 기본 실버 - 폴더 열기
+            StyleButton(btnSetStart, Color.FromArgb(178, 223, 219));    // 소프트 민트 - 범위 시작
+            StyleButton(btnSetEnd, Color.FromArgb(178, 223, 219));      // 소프트 민트 - 범위 끝
+            StyleButton(btn_changquality, Color.FromArgb(255, 167, 38)); // 웜 오렌지 - 화질
+            StyleButton(btn_train, Color.FromArgb(79, 195, 247));       // 사이언 블루 - AI 학습
+            StyleButton(btn_stopTrain, Color.FromArgb(239, 83, 80));   // 핫 레드 - 학습 중단
+            StyleButton(btn_before, Color.FromArgb(102, 187, 106));    // 그린 - 이전 프레임
+            StyleButton(btn_imgnext, Color.FromArgb(102, 187, 106));   // 그린 - 다음 프레임
+
+            // ====================================================================
+            // 6. TRACKBAR (하이테크 네온 스타일로 드로잉)
+            // ====================================================================
             trackBar_frame.BackColor = Color.FromArgb(13, 13, 24);
-            trackBar_frame.ForeColor = Color.FromArgb(79, 195, 247);
             trackBar_frame.TickStyle = TickStyle.None;
+            // [UI 담당 치트키 2] TrackBar에 네온 트랙과 핸들을 그립니다.
+            trackBar_frame.Paint += (sender, e) => {
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                // 트랙 (어두운 배경)
+                using (Pen trackPen = new Pen(Color.FromArgb(40, 40, 60), 4f))
+                {
+                    e.Graphics.DrawLine(trackPen, 10, trackBar_frame.Height / 2, trackBar_frame.Width - 10, trackBar_frame.Height / 2);
+                }
+                // 현재 위치 핸들 (네온 사이언 블루 글로우)
+                int thumbWidth = 14;
+                int thumbHeight = 20;
+                int thumbX = (int)((float)trackBar_frame.Value / trackBar_frame.Maximum * (trackBar_frame.Width - thumbWidth)) + thumbWidth / 2;
+                Rectangle thumbRect = new Rectangle(thumbX - thumbWidth / 2, trackBar_frame.Height / 2 - thumbHeight / 2, thumbWidth, thumbHeight);
 
-            // Form1 생성자에서 PictureBox 설정
-            string gagePath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "속도_앵글_바늘없는버전.png"
-            );
+                using (System.Drawing.Drawing2D.GraphicsPath thumbPath = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    int r = 4;
+                    thumbPath.AddArc(thumbRect.X, thumbRect.Y, r, r, 180, 90);
+                    thumbPath.AddArc(thumbRect.Right - r, thumbRect.Y, r, r, 270, 90);
+                    thumbPath.AddArc(thumbRect.Right - r, thumbRect.Bottom - r, r, r, 0, 90);
+                    thumbPath.AddArc(thumbRect.X, thumbRect.Bottom - r, r, r, 90, 90);
+                    thumbPath.CloseFigure();
 
+                    using (System.Drawing.Drawing2D.PathGradientBrush glowBrush = new System.Drawing.Drawing2D.PathGradientBrush(thumbPath))
+                    {
+                        glowBrush.CenterColor = Color.FromArgb(79, 195, 247);
+                        glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, 79, 195, 247) };
+                        e.Graphics.FillPath(glowBrush, thumbPath);
+                    }
+                    using (Pen pen = new Pen(Color.FromArgb(79, 195, 247), 1.5f))
+                    {
+                        e.Graphics.DrawPath(pen, thumbPath);
+                    }
+                }
+            };
+
+            // ====================================================================
+            // 7. DASHBOARD BACKGROUND GAGE (계기판 투명 동화 및 네온 필터)
+            // ====================================================================
+            string gagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "2번.png");
             if (File.Exists(gagePath))
             {
                 Bitmap gageImg = new Bitmap(gagePath);
-
-                // picture_Gage의 실제 크기로 새 비트맵 생성
-                Bitmap result = new Bitmap(
-                    picture_Gage.Width,
-                    picture_Gage.Height
-                );
+                Bitmap result = new Bitmap(picture_Gage.Width, picture_Gage.Height);
 
                 using (Graphics g = Graphics.FromImage(result))
                 {
-                    g.Clear(Color.Black); // 완전 검정으로 시도
+                    g.Clear(Color.FromArgb(13, 13, 24)); // 폼 배경색과 동화
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                    // 계기판 그래픽 위에 네온 필터 효과 추가 (사이언 블루 광원 효과 원인 해결)
+                    using (System.Drawing.Drawing2D.GraphicsPath circlePath = new System.Drawing.Drawing2D.GraphicsPath())
+                    {
+                        circlePath.AddEllipse(new Rectangle(0, 0, picture_Gage.Width, picture_Gage.Height));
+
+                        // 괄호 안에 circlePath를 명시하여 CS0121 오류를 해결합니다.
+                        using (System.Drawing.Drawing2D.PathGradientBrush glowBrush = new System.Drawing.Drawing2D.PathGradientBrush(circlePath))
+                        {
+                            // SetSurroundColors 대신 SurroundColors 속성에 배열을 직접 대입하여 CS1061 오류를 해결합니다.
+                            glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, 79, 195, 247) };
+                            glowBrush.CenterColor = Color.FromArgb(30, 79, 195, 247); // 은은한 사이언 블루 글로우
+                            glowBrush.FocusScales = new PointF(0.8f, 0.8f);
+                            g.FillPath(glowBrush, circlePath);
+                        }
+                    }
                     g.DrawImage(gageImg, 0, 0, picture_Gage.Width, picture_Gage.Height);
                 }
 
                 picture_Gage.Image = result;
-                picture_Gage.SizeMode = PictureBoxSizeMode.Normal; // Normal로 변경!
-                picture_Gage.BackColor = Color.Black;
+                picture_Gage.SizeMode = PictureBoxSizeMode.Normal;
+                picture_Gage.BackColor = Color.Transparent;
             }
-
-
 
             string imageFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "images"); // 실행 파일 기준으로 images 폴더 경로 생성
 
@@ -595,8 +726,8 @@ namespace Datamanager
             if (catalogData.ContainsKey(currentIndex))
             {
                 var entry = catalogData[currentIndex];
-                text_throttle.Text = $"속도: {entry.user_throttle:F3}";
-                text_angle.Text = $"앵글: {entry.user_angle:F3}";
+                text_throttle.Text = $"{entry.user_throttle:F3}";
+                text_angle.Text = $"{entry.user_angle:F3}";
             }
         }
 
@@ -662,7 +793,7 @@ namespace Datamanager
             var validTrainingData = catalogData
                 .Where(entry => entry.Value.user_angle != 0 && entry.Value.user_throttle > 0)
                 .ToList();
-        
+
         }
     }
     // 데이터 구조 정의
