@@ -250,10 +250,10 @@
             text_throttle.BackColor = Color.FromArgb(13, 13, 24);
             text_throttle.BorderStyle = BorderStyle.None;
             text_throttle.Font = new Font("맑은 고딕", 20.25F, FontStyle.Bold);
-            text_throttle.Location = new Point(822, 295);
+            text_throttle.Location = new Point(816, 273);
             text_throttle.Margin = new Padding(2);
             text_throttle.Name = "text_throttle";
-            text_throttle.Size = new Size(61, 36);
+            text_throttle.Size = new Size(92, 36);
             text_throttle.TabIndex = 7;
             text_throttle.TextChanged += textBox2_TextChanged;
             // 
@@ -276,15 +276,15 @@
             text_angle.BackColor = Color.FromArgb(13, 13, 24);
             text_angle.BorderStyle = BorderStyle.None;
             text_angle.Font = new Font("맑은 고딕", 20.25F, FontStyle.Bold);
-            text_angle.Location = new Point(1051, 295);
+            text_angle.Location = new Point(1037, 273);
             text_angle.Margin = new Padding(2);
             text_angle.Name = "text_angle";
-            text_angle.Size = new Size(60, 36);
+            text_angle.Size = new Size(101, 36);
             text_angle.TabIndex = 6;
             // 
             // picture_Gage
             // 
-            picture_Gage.Image = Properties.Resources._2번;
+            picture_Gage.Image = Properties.Resources._5번;
             picture_Gage.Location = new Point(700, 28);
             picture_Gage.Margin = new Padding(2);
             picture_Gage.Name = "picture_Gage";

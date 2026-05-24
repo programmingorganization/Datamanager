@@ -112,12 +112,12 @@ namespace Datamanager
             // 속도 레이블 (네온 그린 글로우 효과)
             text_throttle.BackColor = Color.FromArgb(13, 13, 24);
             text_throttle.ForeColor = Color.FromArgb(32, 201, 151);
-            text_throttle.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+            text_throttle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
 
             // 앵글 레이블 (네온 블루 글로우 효과)
             text_angle.BackColor = Color.FromArgb(13, 13, 24);
             text_angle.ForeColor = Color.FromArgb(79, 195, 247);
-            text_angle.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+            text_angle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
 
             // ====================================================================
             // 5. BUTTONS FLAT & CYBER COLOR STYLING (네온 글로우 버튼 고도화)
