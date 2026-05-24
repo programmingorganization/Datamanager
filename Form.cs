@@ -36,6 +36,96 @@ namespace Datamanager
         public Form1()
         {
             InitializeComponent();
+            //UI 디자인
+            // Form1 속성
+            this.BackColor = Color.FromArgb(13, 13, 24);      // #0d0d18
+            this.ForeColor = Color.FromArgb(204, 204, 204);   // #cccccc
+            this.Font = new Font("Courier New", 9F);
+
+            // 탭 컨트롤 속성
+            tabControl.BackColor = Color.FromArgb(8, 8, 15);
+            tabControl.ForeColor = Color.FromArgb(79, 195, 247);  // 파란색
+            tabControl.Font = new Font("Courier New", 9F);
+            tabControl.Appearance = TabAppearance.FlatButtons;
+
+            // 탭 페이지 배경
+            tab_data.BackColor = Color.FromArgb(13, 13, 24);
+            tab_train.BackColor = Color.FromArgb(13, 13, 24);
+
+            // 원본 / 전처리 이미지 공통
+            picImage.BackColor = Color.FromArgb(7, 7, 15);
+            picImage.BorderStyle = BorderStyle.FixedSingle;
+            picImage.SizeMode = PictureBoxSizeMode.Zoom;
+
+            picEdge.BackColor = Color.FromArgb(7, 7, 15);
+            picEdge.BorderStyle = BorderStyle.FixedSingle;
+            picEdge.SizeMode = PictureBoxSizeMode.Zoom;
+
+            // 이미지 리스트 속성
+            listImages.BackColor = Color.FromArgb(7, 7, 15);
+            listImages.ForeColor = Color.FromArgb(85, 85, 85);
+            listImages.BorderStyle = BorderStyle.FixedSingle;
+            listImages.Font = new Font("Courier New", 9F);
+
+            // 버튼 스타일 공통
+            void StyleButton(Button btn, Color borderColor)
+            {
+                btn.BackColor = Color.FromArgb(13, 13, 24);
+                btn.ForeColor = borderColor;
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderColor = borderColor;
+                btn.FlatAppearance.BorderSize = 1;
+                btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(20, 20, 40);
+                btn.Font = new Font("Courier New", 8F);
+                btn.Cursor = Cursors.Hand;
+            }
+
+            // 적용
+            StyleButton(btn_delete, Color.FromArgb(239, 83, 80));   // 빨강 - 프레임 삭제
+            StyleButton(btn_restore, Color.FromArgb(204, 204, 204)); // 회색 - 프레임 복구
+            StyleButton(btnPlay, Color.FromArgb(102, 187, 106)); // 초록 - 재생
+            StyleButton(btn_openfolder, Color.FromArgb(204, 204, 204)); // 회색 - 폴더 열기
+            StyleButton(btnSetStart, Color.FromArgb(204, 204, 204)); // 회색 - 시작 프레임 설정
+            StyleButton(btnSetEnd, Color.FromArgb(204, 204, 204)); // 회색 - 끝 프레임 설정
+            StyleButton(btn_changquality, Color.FromArgb(255, 167, 38));  // 주황 - 화질 조정
+            StyleButton(btn_train, Color.FromArgb(79, 195, 247));  // 파랑 - train
+            StyleButton(btn_stopTrain, Color.FromArgb(239, 83, 80));   // 빨강 - 학습중단
+            StyleButton(btn_before, Color.FromArgb(102, 187, 106)); // 초록 - 이전 프레임
+            StyleButton(btn_imgnext, Color.FromArgb(102, 187, 106)); // 초록 - 다음 프레임
+            
+            // 트랙바 스타일
+            trackBar_frame.BackColor = Color.FromArgb(13, 13, 24);
+            trackBar_frame.ForeColor = Color.FromArgb(79, 195, 247);
+            trackBar_frame.TickStyle = TickStyle.None;
+
+            // Form1 생성자에서 PictureBox 설정
+            string gagePath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "속도_앵글_바늘없는버전.png"
+            );
+
+            if (File.Exists(gagePath))
+            {
+                Bitmap gageImg = new Bitmap(gagePath);
+
+                // picture_Gage의 실제 크기로 새 비트맵 생성
+                Bitmap result = new Bitmap(
+                    picture_Gage.Width,
+                    picture_Gage.Height
+                );
+
+                using (Graphics g = Graphics.FromImage(result))
+                {
+                    g.Clear(Color.Black); // 완전 검정으로 시도
+                    g.DrawImage(gageImg, 0, 0, picture_Gage.Width, picture_Gage.Height);
+                }
+
+                picture_Gage.Image = result;
+                picture_Gage.SizeMode = PictureBoxSizeMode.Normal; // Normal로 변경!
+                picture_Gage.BackColor = Color.Black;
+            }
+
+
 
             string imageFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "images"); // 실행 파일 기준으로 images 폴더 경로 생성
 
