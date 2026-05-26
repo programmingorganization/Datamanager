@@ -55,12 +55,14 @@
             picImage = new PictureBox();
             tab_train = new TabPage();
             panel2 = new Panel();
-            btn_stopTrain = new Button();
-            chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            chart_loss = new System.Windows.Forms.DataVisualization.Charting.Chart();
             btn_train = new Button();
+            btn_stopTrain = new Button();
             combo_model = new ComboBox();
             list_log = new ListBox();
             timer1 = new System.Windows.Forms.Timer(components);
+            picNeedleSpeed = new PictureBox();
+            picNeedleAngle = new PictureBox();
             tabControl.SuspendLayout();
             tab_data.SuspendLayout();
             panelTrackBarProgress.SuspendLayout();
@@ -71,7 +73,9 @@
             ((System.ComponentModel.ISupportInitialize)picImage).BeginInit();
             tab_train.SuspendLayout();
             panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)chart_loss).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).BeginInit();
             SuspendLayout();
             // 
             // tabControl
@@ -90,6 +94,8 @@
             // tab_data
             // 
             tab_data.BackColor = Color.FromArgb(64, 64, 64);
+            tab_data.Controls.Add(picNeedleAngle);
+            tab_data.Controls.Add(picNeedleSpeed);
             tab_data.Controls.Add(panelTrackBarProgress);
             tab_data.Controls.Add(picEdge);
             tab_data.Controls.Add(panel1);
@@ -135,10 +141,10 @@
             // picEdge
             // 
             picEdge.BackColor = Color.White;
-            picEdge.Location = new Point(372, 29);
+            picEdge.Location = new Point(357, 29);
             picEdge.Margin = new Padding(2);
             picEdge.Name = "picEdge";
-            picEdge.Size = new Size(308, 394);
+            picEdge.Size = new Size(323, 394);
             picEdge.SizeMode = PictureBoxSizeMode.Zoom;
             picEdge.TabIndex = 12;
             picEdge.TabStop = false;
@@ -218,7 +224,6 @@
             btn_delete.TabIndex = 3;
             btn_delete.Text = "프레임 삭제";
             btn_delete.UseVisualStyleBackColor = false;
-            btn_delete.Click += button2_Click;
             // 
             // listImages
             // 
@@ -250,7 +255,7 @@
             text_throttle.BackColor = Color.FromArgb(13, 13, 24);
             text_throttle.BorderStyle = BorderStyle.None;
             text_throttle.Font = new Font("맑은 고딕", 20.25F, FontStyle.Bold);
-            text_throttle.Location = new Point(816, 273);
+            text_throttle.Location = new Point(820, 273);
             text_throttle.Margin = new Padding(2);
             text_throttle.Name = "text_throttle";
             text_throttle.Size = new Size(92, 36);
@@ -343,14 +348,11 @@
             picImage.SizeMode = PictureBoxSizeMode.Zoom;
             picImage.TabIndex = 0;
             picImage.TabStop = false;
-            picImage.Click += pictureBox1_Click;
             // 
             // tab_train
             // 
             tab_train.BackColor = Color.FromArgb(64, 64, 64);
             tab_train.Controls.Add(panel2);
-            tab_train.Controls.Add(chart1);
-            tab_train.Controls.Add(btn_train);
             tab_train.Controls.Add(combo_model);
             tab_train.Controls.Add(list_log);
             tab_train.Location = new Point(4, 36);
@@ -364,58 +366,60 @@
             // panel2
             // 
             panel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            panel2.Controls.Add(chart_loss);
+            panel2.Controls.Add(btn_train);
             panel2.Controls.Add(btn_stopTrain);
-            panel2.Location = new Point(815, 65);
+            panel2.Location = new Point(442, 32);
             panel2.Margin = new Padding(2);
             panel2.Name = "panel2";
-            panel2.Size = new Size(276, 244);
+            panel2.Size = new Size(761, 652);
             panel2.TabIndex = 8;
             // 
-            // btn_stopTrain
+            // chart_loss
             // 
-            btn_stopTrain.BackColor = Color.Gray;
-            btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_stopTrain.Location = new Point(18, 33);
-            btn_stopTrain.Margin = new Padding(2);
-            btn_stopTrain.Name = "btn_stopTrain";
-            btn_stopTrain.Size = new Size(87, 34);
-            btn_stopTrain.TabIndex = 5;
-            btn_stopTrain.Text = "학습중단";
-            btn_stopTrain.UseVisualStyleBackColor = false;
-            // 
-            // chart1
-            // 
-            chart1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            chart_loss.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             chartArea1.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea1);
+            chart_loss.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
-            chart1.Legends.Add(legend1);
-            chart1.Location = new Point(468, 66);
-            chart1.Margin = new Padding(2);
-            chart1.Name = "chart1";
-            chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
+            chart_loss.Legends.Add(legend1);
+            chart_loss.Location = new Point(20, 136);
+            chart_loss.Margin = new Padding(2);
+            chart_loss.Name = "chart_loss";
+            chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
-            chart1.Series.Add(series1);
-            chart1.Size = new Size(218, 243);
-            chart1.TabIndex = 4;
-            chart1.Text = "chart1";
-            chart1.Click += chart1_Click;
+            chart_loss.Series.Add(series1);
+            chart_loss.Size = new Size(724, 413);
+            chart_loss.TabIndex = 4;
+            chart_loss.Text = "chart1";
+            chart_loss.Click += chart1_Click;
             // 
             // btn_train
             // 
             btn_train.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btn_train.BackColor = Color.Gray;
             btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_train.Location = new Point(270, 32);
+            btn_train.Location = new Point(20, 24);
             btn_train.Margin = new Padding(2);
             btn_train.Name = "btn_train";
-            btn_train.Size = new Size(90, 29);
+            btn_train.Size = new Size(98, 34);
             btn_train.TabIndex = 3;
-            btn_train.Text = "train";
+            btn_train.Text = "학습";
             btn_train.UseVisualStyleBackColor = false;
             btn_train.Click += btn_train_Click;
+            // 
+            // btn_stopTrain
+            // 
+            btn_stopTrain.BackColor = Color.Gray;
+            btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btn_stopTrain.Location = new Point(142, 24);
+            btn_stopTrain.Margin = new Padding(2);
+            btn_stopTrain.Name = "btn_stopTrain";
+            btn_stopTrain.Size = new Size(101, 34);
+            btn_stopTrain.TabIndex = 5;
+            btn_stopTrain.Text = "학습 중단";
+            btn_stopTrain.UseVisualStyleBackColor = false;
             // 
             // combo_model
             // 
@@ -434,12 +438,30 @@
             list_log.Location = new Point(44, 65);
             list_log.Margin = new Padding(2);
             list_log.Name = "list_log";
-            list_log.Size = new Size(363, 469);
+            list_log.Size = new Size(363, 619);
             list_log.TabIndex = 1;
             // 
             // timer1
             // 
             timer1.Tick += timer1_Tick;
+            // 
+            // picNeedleSpeed
+            // 
+            picNeedleSpeed.BackColor = Color.Transparent;
+            picNeedleSpeed.Location = new Point(802, 123);
+            picNeedleSpeed.Name = "picNeedleSpeed";
+            picNeedleSpeed.Size = new Size(100, 100);
+            picNeedleSpeed.TabIndex = 14;
+            picNeedleSpeed.TabStop = false;
+            // 
+            // picNeedleAngle
+            // 
+            picNeedleAngle.BackColor = Color.Transparent;
+            picNeedleAngle.Location = new Point(1029, 123);
+            picNeedleAngle.Name = "picNeedleAngle";
+            picNeedleAngle.Size = new Size(100, 100);
+            picNeedleAngle.TabIndex = 14;
+            picNeedleAngle.TabStop = false;
             // 
             // Form1
             // 
@@ -464,7 +486,9 @@
             ((System.ComponentModel.ISupportInitialize)picImage).EndInit();
             tab_train.ResumeLayout(false);
             panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)chart_loss).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).EndInit();
             ResumeLayout(false);
         }
 
@@ -484,7 +508,7 @@
         private Button btn_train;
         private ComboBox combo_model;
         private ListBox list_log;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart_loss;
         private Button btn_stopTrain;
         private PictureBox picture_Gage;
         private Panel panel1;
@@ -499,5 +523,7 @@
         private Button btnSetEnd;
         private Panel panelTrackBarProgress;
         private Label label1;
+        private PictureBox picNeedleAngle;
+        private PictureBox picNeedleSpeed;
     }
 }
