@@ -118,13 +118,31 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="free-icon-play-8029490" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\free-icon-play-8029490.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="donkeycar_dashboard.png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\donkeycar_dashboard.png.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="bf656515-bae2-4248-aa12-ec77ba243498 (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\bf656515-bae2-4248-aa12-ec77ba243498 (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="4번" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\4번.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="free-icon-play-8029490" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\free-icon-play-8029490.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="3번" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\3번.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="1번" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\1번.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="2번" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\2번.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="free-icon-play-6878705" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\free-icon-play-6878705.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="5번" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\5번.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

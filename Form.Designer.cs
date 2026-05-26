@@ -29,222 +29,284 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            tabControl1 = new TabControl();
-            tabPage1 = new TabPage();
+            tabControl = new TabControl();
+            tab_data = new TabPage();
+            panelTrackBarProgress = new Panel();
+            trackBar_frame = new TrackBar();
             picEdge = new PictureBox();
             panel1 = new Panel();
-            listImages = new ListBox();
-            btnPlay = new Button();
+            label1 = new Label();
+            btn_restore = new Button();
+            btnSetEnd = new Button();
+            btnSetStart = new Button();
             btn_delete = new Button();
+            listImages = new ListBox();
             btn_openfolder = new Button();
-            btn_stop = new Button();
-            btn_play_slider = new Button();
-            text_angle = new TextBox();
-            pictureBox2 = new PictureBox();
             text_throttle = new TextBox();
+            btnPlay = new Button();
+            text_angle = new TextBox();
+            picture_Gage = new PictureBox();
             btn_imgnext = new Button();
             btn_changquality = new Button();
             btn_before = new Button();
-            trackBar_frame = new TrackBar();
             picImage = new PictureBox();
-            tabPage2 = new TabPage();
+            tab_train = new TabPage();
             panel2 = new Panel();
-            btn_learingstop = new Button();
-            chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            chart_loss = new System.Windows.Forms.DataVisualization.Charting.Chart();
             btn_train = new Button();
+            btn_stopTrain = new Button();
             combo_model = new ComboBox();
             list_log = new ListBox();
             timer1 = new System.Windows.Forms.Timer(components);
-            tabControl1.SuspendLayout();
-            tabPage1.SuspendLayout();
+            picNeedleSpeed = new PictureBox();
+            picNeedleAngle = new PictureBox();
+            tabControl.SuspendLayout();
+            tab_data.SuspendLayout();
+            panelTrackBarProgress.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar_frame).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picEdge).BeginInit();
             panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar_frame).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picture_Gage).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picImage).BeginInit();
-            tabPage2.SuspendLayout();
+            tab_train.SuspendLayout();
             panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)chart_loss).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).BeginInit();
             SuspendLayout();
             // 
-            // tabControl1
+            // tabControl
             // 
-            tabControl1.Controls.Add(tabPage1);
-            tabControl1.Controls.Add(tabPage2);
-            tabControl1.Location = new Point(2, -6);
-            tabControl1.Margin = new Padding(4, 4, 4, 4);
-            tabControl1.Name = "tabControl1";
-            tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(2178, 1246);
-            tabControl1.TabIndex = 0;
+            tabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tabControl.Controls.Add(tab_data);
+            tabControl.Controls.Add(tab_train);
+            tabControl.ItemSize = new Size(120, 32);
+            tabControl.Location = new Point(1, -3);
+            tabControl.Margin = new Padding(2);
+            tabControl.Name = "tabControl";
+            tabControl.SelectedIndex = 0;
+            tabControl.Size = new Size(1248, 777);
+            tabControl.TabIndex = 0;
             // 
-            // tabPage1
+            // tab_data
             // 
-            tabPage1.BackColor = Color.FromArgb(64, 64, 64);
-            tabPage1.Controls.Add(picEdge);
-            tabPage1.Controls.Add(panel1);
-            tabPage1.Controls.Add(btn_stop);
-            tabPage1.Controls.Add(btn_play_slider);
-            tabPage1.Controls.Add(text_angle);
-            tabPage1.Controls.Add(pictureBox2);
-            tabPage1.Controls.Add(text_throttle);
-            tabPage1.Controls.Add(btn_imgnext);
-            tabPage1.Controls.Add(btn_changquality);
-            tabPage1.Controls.Add(btn_before);
-            tabPage1.Controls.Add(trackBar_frame);
-            tabPage1.Controls.Add(picImage);
-            tabPage1.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            tabPage1.ForeColor = SystemColors.ControlText;
-            tabPage1.Location = new Point(8, 46);
-            tabPage1.Margin = new Padding(4, 4, 4, 4);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(4, 4, 4, 4);
-            tabPage1.Size = new Size(2162, 1192);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "Data Manager";
+            tab_data.BackColor = Color.FromArgb(64, 64, 64);
+            tab_data.Controls.Add(picNeedleAngle);
+            tab_data.Controls.Add(picNeedleSpeed);
+            tab_data.Controls.Add(panelTrackBarProgress);
+            tab_data.Controls.Add(picEdge);
+            tab_data.Controls.Add(panel1);
+            tab_data.Controls.Add(btn_openfolder);
+            tab_data.Controls.Add(text_throttle);
+            tab_data.Controls.Add(btnPlay);
+            tab_data.Controls.Add(text_angle);
+            tab_data.Controls.Add(picture_Gage);
+            tab_data.Controls.Add(btn_imgnext);
+            tab_data.Controls.Add(btn_changquality);
+            tab_data.Controls.Add(btn_before);
+            tab_data.Controls.Add(picImage);
+            tab_data.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            tab_data.ForeColor = SystemColors.ControlText;
+            tab_data.Location = new Point(4, 36);
+            tab_data.Margin = new Padding(2);
+            tab_data.Name = "tab_data";
+            tab_data.Padding = new Padding(2);
+            tab_data.Size = new Size(1240, 737);
+            tab_data.TabIndex = 0;
+            tab_data.Text = "데이터 매니저";
+            // 
+            // panelTrackBarProgress
+            // 
+            panelTrackBarProgress.BackColor = Color.FromArgb(50, 50, 50);
+            panelTrackBarProgress.Controls.Add(trackBar_frame);
+            panelTrackBarProgress.Location = new Point(148, 442);
+            panelTrackBarProgress.Name = "panelTrackBarProgress";
+            panelTrackBarProgress.Size = new Size(524, 37);
+            panelTrackBarProgress.TabIndex = 13;
+            // 
+            // trackBar_frame
+            // 
+            trackBar_frame.BackColor = Color.FromArgb(79, 195, 247);
+            trackBar_frame.Dock = DockStyle.Left;
+            trackBar_frame.Location = new Point(0, 0);
+            trackBar_frame.Margin = new Padding(2);
+            trackBar_frame.Name = "trackBar_frame";
+            trackBar_frame.Size = new Size(524, 37);
+            trackBar_frame.TabIndex = 1;
+            trackBar_frame.Scroll += trackBar_frame_Scroll;
             // 
             // picEdge
             // 
             picEdge.BackColor = Color.White;
-            picEdge.Location = new Point(690, 43);
-            picEdge.Margin = new Padding(4, 4, 4, 4);
+            picEdge.Location = new Point(357, 29);
+            picEdge.Margin = new Padding(2);
             picEdge.Name = "picEdge";
-            picEdge.Size = new Size(616, 830);
+            picEdge.Size = new Size(323, 394);
             picEdge.SizeMode = PictureBoxSizeMode.Zoom;
             picEdge.TabIndex = 12;
             picEdge.TabStop = false;
             // 
             // panel1
             // 
-            panel1.Controls.Add(listImages);
-            panel1.Controls.Add(btnPlay);
+            panel1.Controls.Add(label1);
+            panel1.Controls.Add(btn_restore);
+            panel1.Controls.Add(btnSetEnd);
+            panel1.Controls.Add(btnSetStart);
             panel1.Controls.Add(btn_delete);
-            panel1.Controls.Add(btn_openfolder);
-            panel1.Location = new Point(1360, 595);
-            panel1.Margin = new Padding(4, 4, 4, 4);
+            panel1.Controls.Add(listImages);
+            panel1.Location = new Point(700, 325);
+            panel1.Margin = new Padding(2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(724, 582);
+            panel1.Size = new Size(510, 402);
             panel1.TabIndex = 11;
             // 
-            // listImages
+            // label1
             // 
-            listImages.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            listImages.FormattingEnabled = true;
-            listImages.Location = new Point(6, 6);
-            listImages.Margin = new Padding(6, 6, 6, 6);
-            listImages.Name = "listImages";
-            listImages.Size = new Size(708, 420);
-            listImages.TabIndex = 14;
-            listImages.SelectedIndexChanged += listImages_SelectedIndexChanged;
+            label1.AutoSize = true;
+            label1.ForeColor = SystemColors.ButtonHighlight;
+            label1.Location = new Point(24, 6);
+            label1.Name = "label1";
+            label1.Size = new Size(114, 25);
+            label1.TabIndex = 18;
+            label1.Text = "프레임 목록";
             // 
-            // btnPlay
+            // btn_restore
             // 
-            btnPlay.BackColor = Color.Gray;
-            btnPlay.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btnPlay.Location = new Point(522, 457);
-            btnPlay.Margin = new Padding(4, 4, 4, 4);
-            btnPlay.Name = "btnPlay";
-            btnPlay.Size = new Size(178, 96);
-            btnPlay.TabIndex = 13;
-            btnPlay.Text = "재생";
-            btnPlay.UseVisualStyleBackColor = false;
-            btnPlay.Click += btnPlay_Click;
+            btn_restore.BackColor = Color.Gray;
+            btn_restore.FlatStyle = FlatStyle.Flat;
+            btn_restore.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btn_restore.Location = new Point(96, 361);
+            btn_restore.Margin = new Padding(2);
+            btn_restore.Name = "btn_restore";
+            btn_restore.Size = new Size(142, 36);
+            btn_restore.TabIndex = 17;
+            btn_restore.Text = "프레임 복구";
+            btn_restore.UseVisualStyleBackColor = false;
+            // 
+            // btnSetEnd
+            // 
+            btnSetEnd.BackColor = Color.Gray;
+            btnSetEnd.FlatStyle = FlatStyle.Flat;
+            btnSetEnd.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btnSetEnd.Location = new Point(260, 316);
+            btnSetEnd.Margin = new Padding(2);
+            btnSetEnd.Name = "btnSetEnd";
+            btnSetEnd.Size = new Size(141, 39);
+            btnSetEnd.TabIndex = 16;
+            btnSetEnd.Text = "끝 프레임";
+            btnSetEnd.UseVisualStyleBackColor = false;
+            // 
+            // btnSetStart
+            // 
+            btnSetStart.BackColor = Color.Gray;
+            btnSetStart.FlatStyle = FlatStyle.Flat;
+            btnSetStart.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btnSetStart.Location = new Point(96, 316);
+            btnSetStart.Margin = new Padding(2);
+            btnSetStart.Name = "btnSetStart";
+            btnSetStart.Size = new Size(142, 39);
+            btnSetStart.TabIndex = 15;
+            btnSetStart.Text = "시작 프레임\r\n";
+            btnSetStart.UseVisualStyleBackColor = false;
             // 
             // btn_delete
             // 
             btn_delete.BackColor = Color.Gray;
+            btn_delete.FlatStyle = FlatStyle.Flat;
             btn_delete.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_delete.Location = new Point(44, 457);
-            btn_delete.Margin = new Padding(4, 4, 4, 4);
+            btn_delete.Location = new Point(260, 360);
+            btn_delete.Margin = new Padding(2);
             btn_delete.Name = "btn_delete";
-            btn_delete.Size = new Size(250, 96);
+            btn_delete.Size = new Size(141, 39);
             btn_delete.TabIndex = 3;
             btn_delete.Text = "프레임 삭제";
             btn_delete.UseVisualStyleBackColor = false;
-            btn_delete.Click += button2_Click;
+            // 
+            // listImages
+            // 
+            listImages.BackColor = Color.FromArgb(22, 27, 3);
+            listImages.BorderStyle = BorderStyle.FixedSingle;
+            listImages.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            listImages.FormattingEnabled = true;
+            listImages.Location = new Point(17, 36);
+            listImages.Name = "listImages";
+            listImages.Size = new Size(481, 272);
+            listImages.TabIndex = 14;
+            listImages.SelectedIndexChanged += listImages_SelectedIndexChanged;
             // 
             // btn_openfolder
             // 
             btn_openfolder.BackColor = Color.Gray;
+            btn_openfolder.FlatStyle = FlatStyle.Flat;
             btn_openfolder.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_openfolder.Location = new Point(302, 457);
-            btn_openfolder.Margin = new Padding(4, 4, 4, 4);
+            btn_openfolder.Location = new Point(481, 513);
+            btn_openfolder.Margin = new Padding(2);
             btn_openfolder.Name = "btn_openfolder";
-            btn_openfolder.Size = new Size(212, 96);
+            btn_openfolder.Size = new Size(129, 50);
             btn_openfolder.TabIndex = 2;
             btn_openfolder.Text = "폴더 열기";
             btn_openfolder.UseVisualStyleBackColor = false;
             // 
-            // btn_stop
+            // text_throttle
             // 
-            btn_stop.BackColor = Color.FromArgb(64, 64, 64);
-            btn_stop.BackgroundImage = (Image)resources.GetObject("btn_stop.BackgroundImage");
-            btn_stop.BackgroundImageLayout = ImageLayout.Stretch;
-            btn_stop.Location = new Point(144, 881);
-            btn_stop.Margin = new Padding(4, 4, 4, 4);
-            btn_stop.Name = "btn_stop";
-            btn_stop.Size = new Size(106, 96);
-            btn_stop.TabIndex = 10;
-            btn_stop.UseVisualStyleBackColor = false;
+            text_throttle.BackColor = Color.FromArgb(13, 13, 24);
+            text_throttle.BorderStyle = BorderStyle.None;
+            text_throttle.Font = new Font("맑은 고딕", 20.25F, FontStyle.Bold);
+            text_throttle.Location = new Point(820, 273);
+            text_throttle.Margin = new Padding(2);
+            text_throttle.Name = "text_throttle";
+            text_throttle.Size = new Size(92, 36);
+            text_throttle.TabIndex = 7;
+            text_throttle.TextChanged += textBox2_TextChanged;
             // 
-            // btn_play_slider
+            // btnPlay
             // 
-            btn_play_slider.BackColor = Color.FromArgb(64, 64, 64);
-            btn_play_slider.BackgroundImage = (Image)resources.GetObject("btn_play_slider.BackgroundImage");
-            btn_play_slider.BackgroundImageLayout = ImageLayout.Stretch;
-            btn_play_slider.Location = new Point(38, 881);
-            btn_play_slider.Margin = new Padding(4, 4, 4, 4);
-            btn_play_slider.Name = "btn_play_slider";
-            btn_play_slider.Size = new Size(98, 96);
-            btn_play_slider.TabIndex = 9;
-            btn_play_slider.UseVisualStyleBackColor = false;
+            btnPlay.BackColor = Color.Gray;
+            btnPlay.FlatStyle = FlatStyle.Flat;
+            btnPlay.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btnPlay.Location = new Point(36, 436);
+            btnPlay.Margin = new Padding(2);
+            btnPlay.Name = "btnPlay";
+            btnPlay.Size = new Size(108, 34);
+            btnPlay.TabIndex = 13;
+            btnPlay.Text = "▶";
+            btnPlay.UseVisualStyleBackColor = false;
+            btnPlay.Click += btnPlay_Click;
             // 
             // text_angle
             // 
-            text_angle.BackColor = Color.Gray;
-            text_angle.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            text_angle.Location = new Point(1764, 493);
-            text_angle.Margin = new Padding(4, 4, 4, 4);
+            text_angle.BackColor = Color.FromArgb(13, 13, 24);
+            text_angle.BorderStyle = BorderStyle.None;
+            text_angle.Font = new Font("맑은 고딕", 20.25F, FontStyle.Bold);
+            text_angle.Location = new Point(1037, 273);
+            text_angle.Margin = new Padding(2);
             text_angle.Name = "text_angle";
-            text_angle.Size = new Size(232, 56);
+            text_angle.Size = new Size(101, 36);
             text_angle.TabIndex = 6;
-            text_angle.Text = " 앵글:";
             // 
-            // pictureBox2
+            // picture_Gage
             // 
-            pictureBox2.Image = Properties.Resources.bf656515_bae2_4248_aa12_ec77ba243498__1_;
-            pictureBox2.Location = new Point(1360, 43);
-            pictureBox2.Margin = new Padding(4, 4, 4, 4);
-            pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(724, 418);
-            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
-            pictureBox2.TabIndex = 8;
-            pictureBox2.TabStop = false;
-            // 
-            // text_throttle
-            // 
-            text_throttle.BackColor = Color.Gray;
-            text_throttle.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            text_throttle.Location = new Point(1404, 493);
-            text_throttle.Margin = new Padding(4, 4, 4, 4);
-            text_throttle.Name = "text_throttle";
-            text_throttle.Size = new Size(218, 56);
-            text_throttle.TabIndex = 7;
-            text_throttle.Text = " 속도:";
-            text_throttle.TextChanged += textBox2_TextChanged;
+            picture_Gage.Image = Properties.Resources._5번;
+            picture_Gage.Location = new Point(700, 28);
+            picture_Gage.Margin = new Padding(2);
+            picture_Gage.Name = "picture_Gage";
+            picture_Gage.Size = new Size(531, 293);
+            picture_Gage.SizeMode = PictureBoxSizeMode.StretchImage;
+            picture_Gage.TabIndex = 8;
+            picture_Gage.TabStop = false;
             // 
             // btn_imgnext
             // 
             btn_imgnext.BackColor = Color.Gray;
+            btn_imgnext.FlatStyle = FlatStyle.Flat;
             btn_imgnext.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_imgnext.Location = new Point(504, 1009);
-            btn_imgnext.Margin = new Padding(4, 4, 4, 4);
+            btn_imgnext.Location = new Point(164, 513);
+            btn_imgnext.Margin = new Padding(2);
             btn_imgnext.Name = "btn_imgnext";
-            btn_imgnext.Size = new Size(178, 96);
+            btn_imgnext.Size = new Size(105, 50);
             btn_imgnext.TabIndex = 5;
             btn_imgnext.Text = "프레임 ▶";
             btn_imgnext.UseVisualStyleBackColor = false;
@@ -253,11 +315,12 @@
             // btn_changquality
             // 
             btn_changquality.BackColor = Color.Gray;
+            btn_changquality.FlatStyle = FlatStyle.Flat;
             btn_changquality.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_changquality.Location = new Point(708, 1009);
-            btn_changquality.Margin = new Padding(4, 4, 4, 4);
+            btn_changquality.Location = new Point(312, 513);
+            btn_changquality.Margin = new Padding(2);
             btn_changquality.Name = "btn_changquality";
-            btn_changquality.Size = new Size(308, 96);
+            btn_changquality.Size = new Size(154, 50);
             btn_changquality.TabIndex = 4;
             btn_changquality.Text = "프레임 화질 조정";
             btn_changquality.UseVisualStyleBackColor = false;
@@ -265,156 +328,175 @@
             // btn_before
             // 
             btn_before.BackColor = Color.Gray;
+            btn_before.FlatStyle = FlatStyle.Flat;
             btn_before.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_before.Location = new Point(296, 1009);
-            btn_before.Margin = new Padding(4, 4, 4, 4);
+            btn_before.Location = new Point(43, 513);
+            btn_before.Margin = new Padding(2);
             btn_before.Name = "btn_before";
-            btn_before.Size = new Size(178, 96);
+            btn_before.Size = new Size(99, 50);
             btn_before.TabIndex = 4;
             btn_before.Text = "프레임 ◀";
             btn_before.UseVisualStyleBackColor = false;
             // 
-            // trackBar_frame
-            // 
-            trackBar_frame.BackColor = Color.Gray;
-            trackBar_frame.Location = new Point(258, 881);
-            trackBar_frame.Margin = new Padding(4, 4, 4, 4);
-            trackBar_frame.Name = "trackBar_frame";
-            trackBar_frame.Size = new Size(1048, 90);
-            trackBar_frame.TabIndex = 1;
-            trackBar_frame.Scroll += trackBar_frame_Scroll;
-            // 
             // picImage
             // 
             picImage.BackColor = Color.White;
-            picImage.Location = new Point(38, 43);
-            picImage.Margin = new Padding(4, 4, 4, 4);
+            picImage.Location = new Point(31, 29);
+            picImage.Margin = new Padding(2);
             picImage.Name = "picImage";
-            picImage.Size = new Size(644, 830);
+            picImage.Size = new Size(322, 394);
             picImage.SizeMode = PictureBoxSizeMode.Zoom;
             picImage.TabIndex = 0;
             picImage.TabStop = false;
-            picImage.Click += pictureBox1_Click;
             // 
-            // tabPage2
+            // tab_train
             // 
-            tabPage2.BackColor = Color.FromArgb(64, 64, 64);
-            tabPage2.Controls.Add(panel2);
-            tabPage2.Controls.Add(chart1);
-            tabPage2.Controls.Add(btn_train);
-            tabPage2.Controls.Add(combo_model);
-            tabPage2.Controls.Add(list_log);
-            tabPage2.Location = new Point(8, 46);
-            tabPage2.Margin = new Padding(4, 4, 4, 4);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(4, 4, 4, 4);
-            tabPage2.Size = new Size(2162, 1192);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "training";
+            tab_train.BackColor = Color.FromArgb(64, 64, 64);
+            tab_train.Controls.Add(panel2);
+            tab_train.Controls.Add(combo_model);
+            tab_train.Controls.Add(list_log);
+            tab_train.Location = new Point(4, 36);
+            tab_train.Margin = new Padding(2);
+            tab_train.Name = "tab_train";
+            tab_train.Padding = new Padding(2);
+            tab_train.Size = new Size(1240, 737);
+            tab_train.TabIndex = 1;
+            tab_train.Text = "학습";
             // 
             // panel2
             // 
-            panel2.Controls.Add(btn_learingstop);
-            panel2.Location = new Point(1568, 96);
-            panel2.Margin = new Padding(4, 4, 4, 4);
+            panel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            panel2.Controls.Add(chart_loss);
+            panel2.Controls.Add(btn_train);
+            panel2.Controls.Add(btn_stopTrain);
+            panel2.Location = new Point(442, 32);
+            panel2.Margin = new Padding(2);
             panel2.Name = "panel2";
-            panel2.Size = new Size(552, 521);
+            panel2.Size = new Size(761, 652);
             panel2.TabIndex = 8;
             // 
-            // btn_learingstop
+            // chart_loss
             // 
-            btn_learingstop.BackColor = Color.Gray;
-            btn_learingstop.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_learingstop.Location = new Point(36, 70);
-            btn_learingstop.Margin = new Padding(4, 4, 4, 4);
-            btn_learingstop.Name = "btn_learingstop";
-            btn_learingstop.Size = new Size(174, 73);
-            btn_learingstop.TabIndex = 5;
-            btn_learingstop.Text = "학습중단";
-            btn_learingstop.UseVisualStyleBackColor = false;
-            // 
-            // chart1
-            // 
+            chart_loss.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             chartArea1.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea1);
+            chart_loss.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
-            chart1.Legends.Add(legend1);
-            chart1.Location = new Point(874, 98);
-            chart1.Margin = new Padding(4, 4, 4, 4);
-            chart1.Name = "chart1";
-            chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
+            chart_loss.Legends.Add(legend1);
+            chart_loss.Location = new Point(20, 136);
+            chart_loss.Margin = new Padding(2);
+            chart_loss.Name = "chart_loss";
+            chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
-            chart1.Series.Add(series1);
-            chart1.Size = new Size(436, 518);
-            chart1.TabIndex = 4;
-            chart1.Text = "chart1";
-            chart1.Click += chart1_Click;
+            chart_loss.Series.Add(series1);
+            chart_loss.Size = new Size(724, 413);
+            chart_loss.TabIndex = 4;
+            chart_loss.Text = "chart1";
+            chart_loss.Click += chart1_Click;
             // 
             // btn_train
             // 
+            btn_train.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btn_train.BackColor = Color.Gray;
             btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_train.Location = new Point(478, 26);
-            btn_train.Margin = new Padding(4, 4, 4, 4);
+            btn_train.Location = new Point(20, 24);
+            btn_train.Margin = new Padding(2);
             btn_train.Name = "btn_train";
-            btn_train.Size = new Size(180, 62);
+            btn_train.Size = new Size(98, 34);
             btn_train.TabIndex = 3;
-            btn_train.Text = "train";
+            btn_train.Text = "학습";
             btn_train.UseVisualStyleBackColor = false;
             btn_train.Click += btn_train_Click;
             // 
+            // btn_stopTrain
+            // 
+            btn_stopTrain.BackColor = Color.Gray;
+            btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btn_stopTrain.Location = new Point(142, 24);
+            btn_stopTrain.Margin = new Padding(2);
+            btn_stopTrain.Name = "btn_stopTrain";
+            btn_stopTrain.Size = new Size(101, 34);
+            btn_stopTrain.TabIndex = 5;
+            btn_stopTrain.Text = "학습 중단";
+            btn_stopTrain.UseVisualStyleBackColor = false;
+            // 
             // combo_model
             // 
+            combo_model.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             combo_model.FormattingEnabled = true;
-            combo_model.Location = new Point(26, 26);
-            combo_model.Margin = new Padding(4, 4, 4, 4);
+            combo_model.Location = new Point(44, 32);
+            combo_model.Margin = new Padding(2);
             combo_model.Name = "combo_model";
-            combo_model.Size = new Size(232, 40);
+            combo_model.Size = new Size(118, 23);
             combo_model.TabIndex = 2;
             // 
             // list_log
             // 
+            list_log.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             list_log.FormattingEnabled = true;
-            list_log.Location = new Point(26, 96);
-            list_log.Margin = new Padding(4, 4, 4, 4);
+            list_log.Location = new Point(44, 65);
+            list_log.Margin = new Padding(2);
             list_log.Name = "list_log";
-            list_log.Size = new Size(722, 996);
+            list_log.Size = new Size(363, 619);
             list_log.TabIndex = 1;
             // 
             // timer1
             // 
             timer1.Tick += timer1_Tick;
             // 
+            // picNeedleSpeed
+            // 
+            picNeedleSpeed.BackColor = Color.Transparent;
+            picNeedleSpeed.Location = new Point(802, 123);
+            picNeedleSpeed.Name = "picNeedleSpeed";
+            picNeedleSpeed.Size = new Size(100, 100);
+            picNeedleSpeed.TabIndex = 14;
+            picNeedleSpeed.TabStop = false;
+            // 
+            // picNeedleAngle
+            // 
+            picNeedleAngle.BackColor = Color.Transparent;
+            picNeedleAngle.Location = new Point(1029, 123);
+            picNeedleAngle.Name = "picNeedleAngle";
+            picNeedleAngle.Size = new Size(100, 100);
+            picNeedleAngle.TabIndex = 14;
+            picNeedleAngle.TabStop = false;
+            // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(14F, 32F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(2184, 1263);
-            Controls.Add(tabControl1);
-            Margin = new Padding(4, 4, 4, 4);
+            BackColor = Color.White;
+            ClientSize = new Size(1247, 771);
+            Controls.Add(tabControl);
+            Margin = new Padding(2);
             Name = "Form1";
-            Text = "Form1";
-            tabControl1.ResumeLayout(false);
-            tabPage1.ResumeLayout(false);
-            tabPage1.PerformLayout();
+            Text = "데이터 매니저v1.0";
+            tabControl.ResumeLayout(false);
+            tab_data.ResumeLayout(false);
+            tab_data.PerformLayout();
+            panelTrackBarProgress.ResumeLayout(false);
+            panelTrackBarProgress.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar_frame).EndInit();
             ((System.ComponentModel.ISupportInitialize)picEdge).EndInit();
             panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar_frame).EndInit();
+            panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)picture_Gage).EndInit();
             ((System.ComponentModel.ISupportInitialize)picImage).EndInit();
-            tabPage2.ResumeLayout(false);
+            tab_train.ResumeLayout(false);
             panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)chart_loss).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private TabControl tabControl1;
-        private TabPage tabPage1;
-        private TabPage tabPage2;
+        private TabControl tabControl;
+        private TabPage tab_data;
+        private TabPage tab_train;
         private Button btn_imgnext;
         private Button btn_before;
         private Button btn_delete;
@@ -426,11 +508,9 @@
         private Button btn_train;
         private ComboBox combo_model;
         private ListBox list_log;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
-        private Button btn_learingstop;
-        private PictureBox pictureBox2;
-        private Button btn_play_slider;
-        private Button btn_stop;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart_loss;
+        private Button btn_stopTrain;
+        private PictureBox picture_Gage;
         private Panel panel1;
         private Panel panel2;
         private PictureBox picEdge;
@@ -438,5 +518,12 @@
         private System.Windows.Forms.Timer timer1;
         private ListBox listImages;
         private Button btn_changquality;
+        private Button btnSetStart;
+        private Button btn_restore;
+        private Button btnSetEnd;
+        private Panel panelTrackBarProgress;
+        private Label label1;
+        private PictureBox picNeedleAngle;
+        private PictureBox picNeedleSpeed;
     }
 }

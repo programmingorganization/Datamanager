@@ -3,10 +3,16 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Microsoft.VisualBasic.ApplicationServices;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Datamanager
 {
-
     public partial class Form1 : Form
     {
         private bool isSliderDragging = false;
@@ -33,11 +39,233 @@ namespace Datamanager
 
         bool leftDetected = false;
         bool rightDetected = false;
+
+        // catalog 데이터 저장할 딕셔너리
+        Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
+
         public Form1()
         {
             InitializeComponent();
 
-            string imageFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "images"); // 실행 파일 기준으로 images 폴더 경로 생성
+            // 0. 기본 폼 세팅
+            this.Visible = true;
+            this.Opacity = 100;
+
+            // 1. FORM 및 기본 테마 속성 업그레이드
+            this.BackColor = Color.FromArgb(13, 13, 24);      // #0d0d18 (딥 스페이스 네이비)
+            this.ForeColor = Color.FromArgb(204, 204, 204);   // #cccccc (실버 그레이)
+            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+
+            // 2. TAB CONTROL 하이테크 스타일 매칭
+            tabControl.ItemSize = new Size(610, 35);
+            tabControl.Appearance = TabAppearance.FlatButtons;
+            tabControl.SizeMode = TabSizeMode.Fixed;
+
+            tab_data.BackColor = Color.FromArgb(13, 13, 24);
+            tab_train.BackColor = Color.FromArgb(13, 13, 24);
+
+            // 3. PICTUREBOX & LISTBOX (어두운 톤 깊이감 및 테두리 글로우 효과)
+            void StyleMonitorControl(Control control)
+            {
+                control.BackColor = Color.FromArgb(7, 7, 15);
+                if (control is PictureBox pb) pb.BorderStyle = BorderStyle.None;
+                if (control is ListBox lb) lb.BorderStyle = BorderStyle.None;
+
+                control.Paint += (sender, e) =>
+                {
+                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
+                    {
+                        int r = 10;
+                        path.AddArc(0, 0, r, r, 180, 90);
+                        path.AddArc(control.Width - r - 1, 0, r, r, 270, 90);
+                        path.AddArc(control.Width - r - 1, control.Height - r - 1, r, r, 0, 90);
+                        path.AddArc(0, control.Height - r - 1, r, r, 90, 90);
+                        path.CloseFigure();
+
+                        control.Region = new Region(path);
+
+                        using (Pen pen = new Pen(Color.FromArgb(79, 195, 247), 2f))
+                        {
+                            e.Graphics.DrawPath(pen, path);
+                        }
+                    }
+                };
+            }
+
+            StyleMonitorControl(picImage);
+            StyleMonitorControl(picEdge);
+            StyleMonitorControl(listImages);
+
+            picImage.SizeMode = PictureBoxSizeMode.Zoom;
+            picEdge.SizeMode = PictureBoxSizeMode.Zoom;
+
+            listImages.ForeColor = Color.FromArgb(0, 191, 255);
+            listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
+
+            // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
+            text_throttle.BackColor = Color.FromArgb(13, 13, 24);
+            text_throttle.ForeColor = Color.FromArgb(32, 201, 151);
+            text_throttle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+
+            text_angle.BackColor = Color.FromArgb(13, 13, 24);
+            text_angle.ForeColor = Color.FromArgb(79, 195, 247);
+            text_angle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+
+            // 5. BUTTONS FLAT & CYBER COLOR STYLING (네온 글로우 버튼 고도화)
+            void StyleButton(System.Windows.Forms.Button btn, Color borderColor)
+            {
+                btn.BackColor = Color.FromArgb(13, 13, 24);
+                btn.ForeColor = borderColor;
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderSize = 0;
+
+                btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(20, 20, 40);
+                btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(7, 7, 15);
+
+                btn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+                btn.Cursor = Cursors.Hand;
+
+                btn.Paint += (sender, e) => {
+                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
+                    {
+                        int r = 8;
+                        path.AddArc(0, 0, r, r, 180, 90);
+                        path.AddArc(btn.Width - r - 1, 0, r, r, 270, 90);
+                        path.AddArc(btn.Width - r - 1, btn.Height - r - 1, r, r, 0, 90);
+                        path.AddArc(0, btn.Height - r - 1, r, r, 90, 90);
+                        path.CloseFigure();
+
+                        using (System.Drawing.Drawing2D.PathGradientBrush glowBrush = new System.Drawing.Drawing2D.PathGradientBrush(path))
+                        {
+                            glowBrush.CenterColor = Color.FromArgb(50, borderColor);
+                            glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, borderColor) };
+                            e.Graphics.FillPath(glowBrush, path);
+                        }
+
+                        using (Pen pen = new Pen(borderColor, 1.8f))
+                        {
+                            e.Graphics.DrawPath(pen, path);
+                        }
+                    }
+                };
+            }
+
+            StyleButton(btn_delete, Color.FromArgb(239, 83, 80));
+            StyleButton(btn_restore, Color.FromArgb(140, 140, 160));
+            StyleButton(btnPlay, Color.FromArgb(102, 187, 106));
+            StyleButton(btn_openfolder, Color.FromArgb(204, 204, 204));
+            StyleButton(btnSetStart, Color.FromArgb(178, 223, 219));
+            StyleButton(btnSetEnd, Color.FromArgb(178, 223, 219));
+            StyleButton(btn_changquality, Color.FromArgb(255, 167, 38));
+            StyleButton(btn_train, Color.FromArgb(79, 195, 247));
+            StyleButton(btn_stopTrain, Color.FromArgb(239, 83, 80));
+            StyleButton(btn_before, Color.FromArgb(102, 187, 106));
+            StyleButton(btn_imgnext, Color.FromArgb(102, 187, 106));
+
+            // 6. TRACKBAR (순정 스타일 제거 후 네온 렌더링 세팅)
+            typeof(TrackBar)
+                .GetMethod("SetStyle", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.Invoke(trackBar_frame, new object[] { ControlStyles.UserPaint, true });
+
+            trackBar_frame.BackColor = Color.FromArgb(13, 13, 24);
+            trackBar_frame.TickStyle = TickStyle.None;
+            trackBar_frame.ValueChanged += (sender, e) => trackBar_frame.Invalidate();
+
+            trackBar_frame.Paint += (sender, e) => {
+                Graphics g = e.Graphics;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                int trackY = trackBar_frame.Height / 2;
+                using (Pen bgTrackPen = new Pen(Color.FromArgb(40, 40, 60), 5f))
+                {
+                    bgTrackPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+                    bgTrackPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                    g.DrawLine(bgTrackPen, 15, trackY, trackBar_frame.Width - 15, trackY);
+                }
+
+                float valRatio = (float)(trackBar_frame.Value - trackBar_frame.Minimum) / (trackBar_frame.Maximum - trackBar_frame.Minimum);
+                int usableWidth = trackBar_frame.Width - 30;
+                int thumbX = 15 + (int)(valRatio * usableWidth);
+
+                if (thumbX > 15)
+                {
+                    using (Pen glowTrackPen = new Pen(Color.FromArgb(50, 79, 195, 247), 9f))
+                    {
+                        glowTrackPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+                        glowTrackPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                        g.DrawLine(glowTrackPen, 15, trackY, thumbX, trackY);
+                    }
+                    using (Pen activeTrackPen = new Pen(Color.FromArgb(79, 195, 247), 4f))
+                    {
+                        activeTrackPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+                        activeTrackPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                        g.DrawLine(activeTrackPen, 15, trackY, thumbX, trackY);
+                    }
+                }
+
+                int radius = 8;
+                Rectangle thumbRect = new Rectangle(thumbX - radius, trackY - radius, radius * 2, radius * 2);
+
+                using (System.Drawing.Drawing2D.GraphicsPath thumbPath = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    thumbPath.AddEllipse(thumbRect);
+                    using (System.Drawing.Drawing2D.PathGradientBrush glowBrush = new System.Drawing.Drawing2D.PathGradientBrush(thumbPath))
+                    {
+                        glowBrush.CenterColor = Color.FromArgb(255, 79, 195, 247);
+                        glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, 79, 195, 247) };
+                        g.FillPath(glowBrush, thumbPath);
+                    }
+                    using (Pen thumbPen = new Pen(Color.FromArgb(180, 255, 255, 255), 2f))
+                    {
+                        g.DrawEllipse(thumbPen, thumbRect);
+                    }
+                }
+            };
+
+            // 8. 학습 탭 하이테크 테마 디자인
+            list_log.BackColor = Color.FromArgb(7, 7, 15);
+            list_log.ForeColor = Color.FromArgb(0, 191, 255);
+            list_log.BorderStyle = BorderStyle.FixedSingle;
+            list_log.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
+
+            combo_model.FlatStyle = FlatStyle.Flat;
+            combo_model.BackColor = Color.FromArgb(18, 18, 32);
+            combo_model.ForeColor = Color.FromArgb(204, 204, 204);
+            combo_model.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+
+            if (chart_loss != null)
+            {
+                chart_loss.BackColor = Color.FromArgb(13, 13, 24);
+
+                foreach (var area in chart_loss.ChartAreas)
+                {
+                    area.BackColor = Color.FromArgb(7, 7, 15);
+                    area.AxisX.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
+                    area.AxisY.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
+
+                    area.AxisX.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
+                    area.AxisY.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
+
+                    area.AxisX.LineColor = Color.FromArgb(79, 195, 247);
+                    area.AxisY.LineColor = Color.FromArgb(79, 195, 247);
+                }
+
+                foreach (var legend in chart_loss.Legends)
+                {
+                    legend.BackColor = Color.Transparent;
+                    legend.ForeColor = Color.FromArgb(204, 204, 204);
+                }
+
+                if (chart_loss.Series.Count > 0)
+                {
+                    chart_loss.Series[0].Color = Color.FromArgb(32, 201, 151);
+                }
+            }
+
+            // 데이터 경로 로드
+            string imageFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "images");
 
             if (Directory.Exists(imageFolderPath))
             {
@@ -49,18 +277,16 @@ namespace Datamanager
                 imageFiles = new string[0];
             }
 
-            foreach (string file in imageFiles)   // 이미지 파일을 리스트에 추가
+            foreach (string file in imageFiles)
             {
-                listImages.Items.Add(
-                    Path.GetFileName(file)
-                );
+                listImages.Items.Add(Path.GetFileName(file));
             }
 
             if (listImages.Items.Count > 0)
             {
                 listImages.SelectedIndex = 0;
             }
-            // 카탈로그 로드
+
             try
             {
                 LoadCatalog();
@@ -69,23 +295,149 @@ namespace Datamanager
             {
                 MessageBox.Show("카탈로그 로드 오류: " + ex.Message);
             }
-            trackBar_frame.Minimum = 0; //트랙바 초기화 코드
+
+            trackBar_frame.Minimum = 0;
             trackBar_frame.Maximum = imageFiles.Length - 1;
             trackBar_frame.Value = 0;
+
+            // 부모-자식 관계를 설정하여 완전한 투명(유리판) 효과를 구현
+            picNeedleSpeed.Parent = picture_Gage;
+            picNeedleAngle.Parent = picture_Gage;
+
+            // 디자인 창에서 얹어둔 상대 위치에 맞게 좌표를 자동으로 재계산
+            picNeedleSpeed.Location = new Point(picNeedleSpeed.Left - picture_Gage.Left, picNeedleSpeed.Top - picture_Gage.Top);
+            picNeedleAngle.Location = new Point(picNeedleAngle.Left - picture_Gage.Left, picNeedleAngle.Top - picture_Gage.Top);
+            picNeedleSpeed.BackColor = Color.Transparent;
+            picNeedleAngle.BackColor = Color.Transparent;
+
+            // 계기판 초기 바늘 렌더링
+            DrawDashboardNeedles(0.0, 0.0);
+        }
+
+        // 10. CONTROL-BASED NEEDLE DRAWING 
+        public void DrawDashboardNeedles(double speed, double angle)
+        {
+            // 1. 왼쪽 속도 바늘 드로잉 (picNeedleSpeed)
+            if (picNeedleSpeed.Width > 0 && picNeedleSpeed.Height > 0)
+            {
+                Bitmap bmpSpeed = new Bitmap(picNeedleSpeed.Width, picNeedleSpeed.Height);
+                using (Graphics g = Graphics.FromImage(bmpSpeed))
+                {
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    g.Clear(Color.Transparent);
+
+                    int cx = picNeedleSpeed.Width / 2;
+                    int cy = picNeedleSpeed.Height / 2;
+                    int len = (int)(picNeedleSpeed.Height * 0.88);
+
+                    float speedAngle = (float)(360 + (speed * 135));
+                    DrawNeonNeedleControl(g, cx, cy, speedAngle, len, Color.FromArgb(32, 201, 151));
+                }
+                if (picNeedleSpeed.Image != null) picNeedleSpeed.Image.Dispose();
+                picNeedleSpeed.Image = bmpSpeed;
+            }
+
+            // 2. 오른쪽 앵글 바늘 드로잉 (picNeedleAngle)
+            if (picNeedleAngle.Width > 0 && picNeedleAngle.Height > 0)
+            {
+                Bitmap bmpAngle = new Bitmap(picNeedleAngle.Width, picNeedleAngle.Height);
+                using (Graphics g = Graphics.FromImage(bmpAngle))
+                {
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    g.Clear(Color.Transparent);
+
+                    int cx = picNeedleAngle.Width / 2;
+                    int cy = picNeedleAngle.Height / 2;
+                    int len = (int)(picNeedleAngle.Height * 0.88);
+
+                    // 마찬가지로 베이스 각도를 360으로 보정하여 90도 시계 방향 회전을 매핑합니다.
+                    float angleRot = (float)(360 + (angle * 135));
+                    DrawNeonNeedleControl(g, cx, cy, angleRot, len, Color.FromArgb(79, 195, 247));
+                }
+                if (picNeedleAngle.Image != null) picNeedleAngle.Image.Dispose();
+                picNeedleAngle.Image = bmpAngle;
+            }
+        }
+
+        // 네온 바늘을 그리는 메서드입니다.
+        private void DrawNeonNeedleControl(Graphics g, int cx, int cy, float angleInDegrees, int length, Color needleColor)
+        {
+            double radians = (angleInDegrees - 90) * Math.PI / 180.0;
+
+            // 바늘 끝 (길게)
+            int endX = cx + (int)(length * Math.Cos(radians));
+            int endY = cy + (int)(length * Math.Sin(radians));
+
+            // 바늘 뒤쪽 (반대 방향 짧게 - 실제 계기판처럼)
+            int tailX = cx - (int)(length * 0.2 * Math.Cos(radians));
+            int tailY = cy - (int)(length * 0.2 * Math.Sin(radians));
+
+            // 바늘 좌우 폭 (끝은 뾰족하게, 중간은 살짝 굵게)
+            double perpRadians = radians + Math.PI / 2;
+            int halfWidth = 4;
+            PointF tipPoint = new PointF(endX, endY);  // 뾰족한 끝
+            PointF leftBase = new PointF(
+                tailX + (int)(halfWidth * Math.Cos(perpRadians)),
+                tailY + (int)(halfWidth * Math.Sin(perpRadians))
+            );
+            PointF rightBase = new PointF(
+                tailX - (int)(halfWidth * Math.Cos(perpRadians)),
+                tailY - (int)(halfWidth * Math.Sin(perpRadians))
+            );
+
+            PointF[] needleShape = { tipPoint, leftBase, rightBase };
+
+            // 글로우 효과 (외곽 퍼짐)
+            using (Pen glowPen = new Pen(Color.FromArgb(40, needleColor), 10f))
+            {
+                glowPen.LineJoin = System.Drawing.Drawing2D.LineJoin.Round;
+                g.DrawPolygon(glowPen, needleShape);
+            }
+
+            // 바늘 채우기
+            using (System.Drawing.Drawing2D.PathGradientBrush brush =
+                new System.Drawing.Drawing2D.PathGradientBrush(needleShape))
+            {
+                brush.CenterColor = Color.White;
+                brush.SurroundColors = new Color[] { needleColor, needleColor, needleColor };
+                g.FillPolygon(brush, needleShape);
+            }
+
+            // 바늘 테두리
+            using (Pen outlinePen = new Pen(Color.FromArgb(200, needleColor), 1f))
+            {
+                g.DrawPolygon(outlinePen, needleShape);
+            }
+
+            // 중심 캡 (작고 깔끔하게)
+            int capR = 6;
+            using (System.Drawing.Drawing2D.GraphicsPath capPath = new System.Drawing.Drawing2D.GraphicsPath())
+            {
+                capPath.AddEllipse(cx - capR, cy - capR, capR * 2, capR * 2);
+                using (System.Drawing.Drawing2D.PathGradientBrush capBrush =
+                    new System.Drawing.Drawing2D.PathGradientBrush(capPath))
+                {
+                    capBrush.CenterColor = Color.White;
+                    capBrush.SurroundColors = new Color[] { needleColor };
+                    g.FillEllipse(capBrush, cx - capR, cy - capR, capR * 2, capR * 2);
+                }
+            }
+            using (Pen capPen = new Pen(Color.FromArgb(180, needleColor), 1.5f))
+            {
+                g.DrawEllipse(capPen, cx - capR, cy - capR, capR * 2, capR * 2);
+            }
         }
 
         void LoadImage()
         {
-            Mat frame = CvInvoke.Imread(
-                imageFiles[currentIndex]
-            );
+            if (imageFiles == null || imageFiles.Length == 0) return;
 
+            Mat frame = CvInvoke.Imread(imageFiles[currentIndex]);
             if (frame.IsEmpty)
             {
                 MessageBox.Show("이미지 로드 실패");
                 return;
             }
-
             ProcessFrame(frame);
         }
 
@@ -93,50 +445,29 @@ namespace Datamanager
         {
             leftDetected = false;
             rightDetected = false;
-            // 전처리용 Mat
             Mat edge = new Mat();
-
             Mat hsv = new Mat();
 
-            CvInvoke.CvtColor(
-                frame,
-                hsv,
-                ColorConversion.Bgr2Hsv
-            );
+            CvInvoke.CvtColor(frame, hsv, ColorConversion.Bgr2Hsv);
 
             Mat whiteMask = new Mat();
-
             CvInvoke.InRange(
                 hsv,
-                new ScalarArray(new MCvScalar(0, 0, 160)),  // 흰색 범위 하한
-                new ScalarArray(new MCvScalar(180, 80, 255)),   // 흰색 범위 상한
+                new ScalarArray(new MCvScalar(0, 0, 160)),
+                new ScalarArray(new MCvScalar(180, 80, 255)),
                 whiteMask
             );
 
             int centerX = frame.Width / 2;
+            List<Point> leftPoints = new List<Point>();
+            List<Point> rightPoints = new List<Point>();
 
-            List<Point> leftPoints =
-                new List<Point>();
+            CvInvoke.Canny(whiteMask, edge, 50, 150);
 
-            List<Point> rightPoints =
-                new List<Point>();
-
-            // 엣지 검출
-            CvInvoke.Canny(
-                whiteMask,
-                edge,
-                50,
-                150
-            );
-
-            Mat mask = new Mat(     // 인식 영역
-                edge.Size,
-                DepthType.Cv8U,
-                1
-            );
+            Mat mask = new Mat(edge.Size, DepthType.Cv8U, 1);
             mask.SetTo(new MCvScalar(0));
 
-            Point[] points =    // 사다리꼴 모양
+            Point[] points =
             {
                 new Point(100, edge.Rows),
                 new Point(250, edge.Rows / 2),
@@ -144,180 +475,72 @@ namespace Datamanager
                 new Point(edge.Cols - 100, edge.Rows)
             };
 
-            VectorOfPoint polygon =
-                new VectorOfPoint(points);
-
-            CvInvoke.FillConvexPoly(
-                mask,
-                polygon,
-                new MCvScalar(255)
-            );
+            VectorOfPoint polygon = new VectorOfPoint(points);
+            CvInvoke.FillConvexPoly(mask, polygon, new MCvScalar(255));
 
             Mat roiEdge = new Mat();
+            CvInvoke.BitwiseAnd(edge, mask, roiEdge);
 
-            CvInvoke.BitwiseAnd(
-                edge,
-                mask,
-                roiEdge
-            );
+            LineSegment2D[] lines = CvInvoke.HoughLinesP(roiEdge, 1, Math.PI / 180, 15, 15, 10);
 
-            // 직선 검출
-            LineSegment2D[] lines =
-                CvInvoke.HoughLinesP(
-                    roiEdge,
-                    1,
-                    Math.PI / 180,
-                    15, // threshold
-                    15, // minLineLength
-                    10  // maxGap
-                );
-
-            // 검출된 선 그리기
             foreach (LineSegment2D line in lines)
             {
                 double dx = line.P2.X - line.P1.X;
                 double dy = line.P2.Y - line.P1.Y;
-
-                if (dx == 0)
-                    continue;
+                if (dx == 0) continue;
 
                 double slope = dy / dx;
-
                 Point p1 = line.P1;
                 Point p2 = line.P2;
 
-                // 왼쪽 차선
-                if (slope < -0.3 &&
-                    p1.X < centerX &&
-                    p2.X < centerX)
+                if (slope < -0.3 && p1.X < centerX && p2.X < centerX)
                 {
                     leftPoints.Add(p1);
                     leftPoints.Add(p2);
                 }
-
-                // 오른쪽 차선
-                else if (slope > 0.3 &&
-                    p1.X > centerX &&
-                    p2.X > centerX)
+                else if (slope > 0.3 && p1.X > centerX && p2.X > centerX)
                 {
                     rightPoints.Add(p1);
                     rightPoints.Add(p2);
                 }
             }
 
-            DrawFitLine(
-                frame,
-                leftPoints,
-                new MCvScalar(255, 0, 0),
-                true
-            );
-
-            DrawFitLine(
-                frame,
-                rightPoints,
-                new MCvScalar(0, 0, 255),
-                false
-            );
+            DrawFitLine(frame, leftPoints, new MCvScalar(255, 0, 0), true);
+            DrawFitLine(frame, rightPoints, new MCvScalar(0, 0, 255), false);
 
             if (leftDetected && rightDetected)
             {
-                bottomWidth =
-                    rightBottomX - leftBottomX;
-
-                topWidth =
-                    rightTopX - leftTopX;
+                bottomWidth = rightBottomX - leftBottomX;
+                topWidth = rightTopX - leftTopX;
             }
 
-            if (leftDetected && !rightDetected) // 한쪽 차선이 안 보이는 경우
+            if (leftDetected && !rightDetected)
             {
-                int fakeRightBottom =
-                    leftBottomX + bottomWidth;
-
-                int fakeRightTop =
-                    leftTopX + topWidth;
-
-                CvInvoke.Line(
-                    frame,
-                    new Point(fakeRightBottom, frame.Rows),
-                    new Point(fakeRightTop, frame.Rows / 2),
-                    new MCvScalar(0, 255, 255),
-                    5
-                );
+                int fakeRightBottom = leftBottomX + bottomWidth;
+                int fakeRightTop = leftTopX + topWidth;
+                CvInvoke.Line(frame, new Point(fakeRightBottom, frame.Rows), new Point(fakeRightTop, frame.Rows / 2), new MCvScalar(0, 255, 255), 5);
             }
             else if (!leftDetected && rightDetected)
             {
-                int fakeLeftBottom =
-                    rightBottomX - bottomWidth;
-
-                int fakeLeftTop =
-                    rightTopX - topWidth;
-
-                CvInvoke.Line(
-                    frame,
-                    new Point(fakeLeftBottom, frame.Rows),
-                    new Point(fakeLeftTop, frame.Rows / 2),
-                    new MCvScalar(0, 255, 255),
-                    3
-                );
+                int fakeLeftBottom = rightBottomX - bottomWidth;
+                int fakeLeftTop = rightTopX - topWidth;
+                CvInvoke.Line(frame, new Point(fakeLeftBottom, frame.Rows), new Point(fakeLeftTop, frame.Rows / 2), new MCvScalar(0, 255, 255), 3);
             }
 
-            //if (leftDetected && rightDetected)
-            //{
-            //    int newWidth =
-            //        rightLaneX - leftLaneX;
-
-            //    if (newWidth > 200 &&
-            //        newWidth < 500)
-            //    {
-            //        laneWidth = newWidth;
-            //    }
-            //}
-
-            // 마지막 가로선
-            //CvInvoke.Line(
-            //    frame,
-            //    new Point(leftLaneX, frame.Rows - 50),
-            //    new Point(rightLaneX, frame.Rows - 50),
-            //    new MCvScalar(0, 255, 255),
-            //    3
-            //);
-
-            //txtLeftLaneX.Text = $"Left : {leftBottomX}";
-            //txtRightLaneX.Text = $"Right : {rightBottomX}";
-            //txtLaneWidth.Text = $"Width : {topWidth}";
-
-
-            // 출력
             picImage.Image = frame.ToBitmap();
             picEdge.Image = roiEdge.ToBitmap();
         }
 
         void DrawFitLine(Mat frame, List<Point> points, MCvScalar color, bool isLeft)
         {
-            if (points.Count < 2)
-                return;
+            if (points.Count < 2) return;
 
-            PointF[] pts =
-                points.Select(p =>
-                    new PointF(p.X, p.Y)
-                ).ToArray();
-
-            VectorOfPointF vec =
-                new VectorOfPointF(pts);
-
+            PointF[] pts = points.Select(p => new PointF(p.X, p.Y)).ToArray();
+            VectorOfPointF vec = new VectorOfPointF(pts);
             Mat line = new Mat();
 
-            CvInvoke.FitLine(
-                vec,
-                line,
-                DistType.L2,
-                0,
-                0.01,
-                0.01
-            );
-
+            CvInvoke.FitLine(vec, line, DistType.L2, 0, 0.01, 0.01);
             float[] data = new float[4];
-
             line.CopyTo(data);
 
             float vx = data[0];
@@ -325,8 +548,7 @@ namespace Datamanager
             float x = data[2];
             float y = data[3];
 
-            if (Math.Abs(vy) < 0.0001)
-                return;
+            if (Math.Abs(vy) < 0.0001) return;
 
             int y1 = frame.Rows;
             int y2 = frame.Rows / 2;
@@ -334,202 +556,31 @@ namespace Datamanager
             int x1 = (int)(x + (y1 - y) * vx / vy);
             int x2 = (int)(x + (y2 - y) * vx / vy);
 
-            if (isLeft) // 왼쪽
-            {
-                if (leftX1Ema == 0)
-                {
-                    leftX1Ema = x1;
-                    leftX2Ema = x2;
-                }
-
-                leftX1Ema =
-                    alpha * x1 +
-                    (1 - alpha) * leftX1Ema;
-
-                leftX2Ema =
-                    alpha * x2 +
-                    (1 - alpha) * leftX2Ema;
-
-                x1 = (int)leftX1Ema;
-                x2 = (int)leftX2Ema;
-            }
-            else    // 오른쪽
-            {
-                if (rightX1Ema == 0)
-                {
-                    rightX1Ema = x1;
-                    rightX2Ema = x2;
-                }
-
-                rightX1Ema =
-                    alpha * x1 +
-                    (1 - alpha) * rightX1Ema;
-
-                rightX2Ema =
-                    alpha * x2 +
-                    (1 - alpha) * rightX2Ema;
-
-                x1 = (int)rightX1Ema;
-                x2 = (int)rightX2Ema;
-            }
-
             if (isLeft)
             {
-                leftBottomX = x1;
-                leftTopX = x2;
-                leftDetected = true;
+                if (leftX1Ema == 0) { leftX1Ema = x1; leftX2Ema = x2; }
+                leftX1Ema = alpha * x1 + (1 - alpha) * leftX1Ema;
+                leftX2Ema = alpha * x2 + (1 - alpha) * leftX2Ema;
+                x1 = (int)leftX1Ema; x2 = (int)leftX2Ema;
             }
             else
             {
-                rightBottomX = x1;
-                rightTopX = x2;
-                rightDetected = true;
+                if (rightX1Ema == 0) { rightX1Ema = x1; rightX2Ema = x2; }
+                rightX1Ema = alpha * x1 + (1 - alpha) * rightX1Ema;
+                rightX2Ema = alpha * x2 + (1 - alpha) * rightX2Ema;
+                x1 = (int)rightX1Ema; x2 = (int)rightX2Ema;
             }
 
+            if (isLeft) { leftBottomX = x1; leftTopX = x2; leftDetected = true; }
+            else { rightBottomX = x1; rightTopX = x2; rightDetected = true; }
 
-            CvInvoke.Line(
-                frame,
-                new Point(x1, y1),
-                new Point(x2, y2),
-                color,
-                5
-            );
+            CvInvoke.Line(frame, new Point(x1, y1), new Point(x2, y2), color, 5);
         }
 
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-
-        }
-
-
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            currentIndex--;
-
-            if (currentIndex < 0)
-                currentIndex = imageFiles.Length - 1;
-
-            listImages.SelectedIndex =
-                currentIndex;
-        }
-
-        private void panelCustomSlider_MouseDown(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void panelCustomSlider_MouseMove(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void panelCustomSlider_MouseUp(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void panelCustomSlider_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void chart1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button7_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            currentIndex++;
-
-            if (currentIndex >= imageFiles.Length)
-            {
-                currentIndex = 0;
-            }
-
-            listImages.SelectedIndex =
-                currentIndex;
-        }
-
-        private void btnPlay_Click(object sender, EventArgs e)
-        {
-            if (timer1.Enabled)
-            {
-                timer1.Stop();
-                btnPlay.Text = "재생";
-            }
-            else
-            {
-                timer1.Start();
-                btnPlay.Text = "정지";
-            }
-        }
-
-        private void listImages_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            currentIndex =
-                listImages.SelectedIndex;
-            trackBar_frame.Value = currentIndex;
-
-            LoadImage();
-
-            // catalog 데이터 연동
-            if (catalogData.ContainsKey(currentIndex))
-            {
-                var entry = catalogData[currentIndex];
-                text_throttle.Text = $"속도: {entry.user_throttle:F3}";
-                text_angle.Text = $"앵글: {entry.user_angle:F3}";
-            }
-        }
-
-        private void btn_imgnext_Click(object sender, EventArgs e)
-        {
-            currentIndex++;
-
-            if (currentIndex >= imageFiles.Length)
-                currentIndex = 0;
-
-            listImages.SelectedIndex =
-                currentIndex;
-        }
-        // catalog 데이터 저장할 딕셔너리
-        Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
-
-        // catalog 파일 읽는 함수
         void LoadCatalog()
         {
-            // 프로젝트 파일(.csproj) 위치 기준으로 data 폴더 찾기
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string dataPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "data"));
-            //예외처리: data 폴더가 없을 때
             if (!Directory.Exists(dataPath))
             {
                 MessageBox.Show("data 폴더를 찾을 수 없습니다: " + dataPath);
@@ -560,22 +611,74 @@ namespace Datamanager
             }
         }
 
+        private void listImages_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            currentIndex = listImages.SelectedIndex;
+            trackBar_frame.Value = currentIndex;
+
+            LoadImage();
+
+            // 데이터 연동 및 계기판 네온 바늘 실시간 호출 연계
+            if (catalogData.ContainsKey(currentIndex))
+            {
+                var entry = catalogData[currentIndex];
+                text_throttle.Text = $"{entry.user_throttle:F3}";
+                text_angle.Text = $"{entry.user_angle:F3}";
+
+                //데이터 인덱스 변화에 맞춰 계기판 바늘을 갱신합니다.
+                DrawDashboardNeedles(entry.user_throttle, entry.user_angle);
+            }
+        }
+
         private void trackBar_frame_Scroll(object sender, EventArgs e)
         {
             currentIndex = trackBar_frame.Value;
             listImages.SelectedIndex = currentIndex;
         }
 
+        private void btn_before_Click(object sender, EventArgs e)
+        {
+            currentIndex--;
+            if (currentIndex < 0) currentIndex = imageFiles.Length - 1;
+            listImages.SelectedIndex = currentIndex;
+        }
+
+        private void btn_imgnext_Click(object sender, EventArgs e)
+        {
+            currentIndex++;
+            if (currentIndex >= imageFiles.Length) currentIndex = 0;
+            listImages.SelectedIndex = currentIndex;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            currentIndex++;
+            if (currentIndex >= imageFiles.Length) currentIndex = 0;
+            listImages.SelectedIndex = currentIndex;
+        }
+
+        private void btnPlay_Click(object sender, EventArgs e)
+        {
+            if (timer1.Enabled) { timer1.Stop(); btnPlay.Text = "재생"; }
+            else { timer1.Start(); btnPlay.Text = "정지"; }
+        }
+
         private void btn_train_Click(object sender, EventArgs e)
         {
-            // catalog 데이터에서 angle=0 이거나 throttle<=0인 데이터는 학습에서 제외하도록 필터링
             var validTrainingData = catalogData
                 .Where(entry => entry.Value.user_angle != 0 && entry.Value.user_throttle > 0)
                 .ToList();
-        
         }
+
+        private void panelCustomSlider_MouseDown(object sender, MouseEventArgs e) { }
+        private void panelCustomSlider_MouseMove(object sender, MouseEventArgs e) { }
+        private void panelCustomSlider_MouseUp(object sender, MouseEventArgs e) { }
+        private void panelCustomSlider_Paint(object sender, PaintEventArgs e) { }
+        private void chart1_Click(object sender, EventArgs e) { }
+        private void textBox2_TextChanged(object sender, EventArgs e) { }
+        private void button7_Click(object sender, EventArgs e) { }
     }
-    // 데이터 구조 정의
+
     public class CatalogEntry
     {
         public int _index { get; set; }
