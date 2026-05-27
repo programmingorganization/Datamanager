@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="images\" />
+    <Folder Include="trash\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,9 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="images\334_cam_image_array_.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="images\335_cam_image_array_.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -34,6 +34,8 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl = new TabControl();
             tab_data = new TabPage();
+            picNeedleAngle = new PictureBox();
+            picNeedleSpeed = new PictureBox();
             panelTrackBarProgress = new Panel();
             trackBar_frame = new TrackBar();
             picEdge = new PictureBox();
@@ -61,10 +63,10 @@
             combo_model = new ComboBox();
             list_log = new ListBox();
             timer1 = new System.Windows.Forms.Timer(components);
-            picNeedleSpeed = new PictureBox();
-            picNeedleAngle = new PictureBox();
             tabControl.SuspendLayout();
             tab_data.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).BeginInit();
             panelTrackBarProgress.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar_frame).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picEdge).BeginInit();
@@ -74,8 +76,6 @@
             tab_train.SuspendLayout();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)chart_loss).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).BeginInit();
             SuspendLayout();
             // 
             // tabControl
@@ -117,6 +117,24 @@
             tab_data.Size = new Size(1240, 737);
             tab_data.TabIndex = 0;
             tab_data.Text = "데이터 매니저";
+            // 
+            // picNeedleAngle
+            // 
+            picNeedleAngle.BackColor = Color.Transparent;
+            picNeedleAngle.Location = new Point(1029, 123);
+            picNeedleAngle.Name = "picNeedleAngle";
+            picNeedleAngle.Size = new Size(100, 100);
+            picNeedleAngle.TabIndex = 14;
+            picNeedleAngle.TabStop = false;
+            // 
+            // picNeedleSpeed
+            // 
+            picNeedleSpeed.BackColor = Color.Transparent;
+            picNeedleSpeed.Location = new Point(802, 123);
+            picNeedleSpeed.Name = "picNeedleSpeed";
+            picNeedleSpeed.Size = new Size(100, 100);
+            picNeedleSpeed.TabIndex = 14;
+            picNeedleSpeed.TabStop = false;
             // 
             // panelTrackBarProgress
             // 
@@ -185,6 +203,7 @@
             btn_restore.TabIndex = 17;
             btn_restore.Text = "프레임 복구";
             btn_restore.UseVisualStyleBackColor = false;
+            btn_restore.Click += btn_restore_Click;
             // 
             // btnSetEnd
             // 
@@ -198,6 +217,7 @@
             btnSetEnd.TabIndex = 16;
             btnSetEnd.Text = "끝 프레임";
             btnSetEnd.UseVisualStyleBackColor = false;
+            btnSetEnd.Click += btnSetEnd_Click;
             // 
             // btnSetStart
             // 
@@ -211,6 +231,7 @@
             btnSetStart.TabIndex = 15;
             btnSetStart.Text = "시작 프레임\r\n";
             btnSetStart.UseVisualStyleBackColor = false;
+            btnSetStart.Click += btnSetStart_Click;
             // 
             // btn_delete
             // 
@@ -224,6 +245,7 @@
             btn_delete.TabIndex = 3;
             btn_delete.Text = "프레임 삭제";
             btn_delete.UseVisualStyleBackColor = false;
+            btn_delete.Click += btn_delete_Click;
             // 
             // listImages
             // 
@@ -249,6 +271,7 @@
             btn_openfolder.TabIndex = 2;
             btn_openfolder.Text = "폴더 열기";
             btn_openfolder.UseVisualStyleBackColor = false;
+            btn_openfolder.Click += btn_openfolder_Click;
             // 
             // text_throttle
             // 
@@ -324,6 +347,7 @@
             btn_changquality.TabIndex = 4;
             btn_changquality.Text = "프레임 화질 조정";
             btn_changquality.UseVisualStyleBackColor = false;
+            btn_changquality.Click += btn_changquality_Click;
             // 
             // btn_before
             // 
@@ -337,6 +361,7 @@
             btn_before.TabIndex = 4;
             btn_before.Text = "프레임 ◀";
             btn_before.UseVisualStyleBackColor = false;
+            btn_before.Click += btn_before_Click;
             // 
             // picImage
             // 
@@ -445,24 +470,6 @@
             // 
             timer1.Tick += timer1_Tick;
             // 
-            // picNeedleSpeed
-            // 
-            picNeedleSpeed.BackColor = Color.Transparent;
-            picNeedleSpeed.Location = new Point(802, 123);
-            picNeedleSpeed.Name = "picNeedleSpeed";
-            picNeedleSpeed.Size = new Size(100, 100);
-            picNeedleSpeed.TabIndex = 14;
-            picNeedleSpeed.TabStop = false;
-            // 
-            // picNeedleAngle
-            // 
-            picNeedleAngle.BackColor = Color.Transparent;
-            picNeedleAngle.Location = new Point(1029, 123);
-            picNeedleAngle.Name = "picNeedleAngle";
-            picNeedleAngle.Size = new Size(100, 100);
-            picNeedleAngle.TabIndex = 14;
-            picNeedleAngle.TabStop = false;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -476,6 +483,8 @@
             tabControl.ResumeLayout(false);
             tab_data.ResumeLayout(false);
             tab_data.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).EndInit();
             panelTrackBarProgress.ResumeLayout(false);
             panelTrackBarProgress.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar_frame).EndInit();
@@ -487,8 +496,6 @@
             tab_train.ResumeLayout(false);
             panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)chart_loss).EndInit();
-            ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).EndInit();
-            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).EndInit();
             ResumeLayout(false);
         }
 
