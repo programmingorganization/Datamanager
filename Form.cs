@@ -2,6 +2,7 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
+using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.ApplicationServices;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using Microsoft.VisualBasic;
 
 namespace Datamanager
 {
@@ -17,8 +19,20 @@ namespace Datamanager
     {
         private bool isSliderDragging = false;
 
+        string baseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));   //  프로젝트 루트 경로
+
         string[] imageFiles;
         int currentIndex = 0;
+
+        string currentFolderPath = "";  // 현재 이미지 폴더 경로
+        string trashFolderPath = "";    // 삭제된 이미지 보관 폴더 경로
+        Stack<string> deletedFiles = new Stack<string>();   // 삭제된 파일 순서를 저장하는 스택
+        List<string> deletedHistory = new List<string>();
+        string backupFolderPath;    // 압축 전 원본 이미지를 보관하는 폴더 경로
+
+        string historyPath;
+
+        bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
 
         float leftX1Ema = 0;
         float leftX2Ema = 0;
@@ -46,6 +60,19 @@ namespace Datamanager
         public Form1()
         {
             InitializeComponent();
+
+            historyPath = Path.Combine(baseDir, "deleted_history.json");
+
+            if (File.Exists(historyPath))   //  삭제 기록이 존재하면 로드
+            {
+                string json = File.ReadAllText(historyPath);
+
+                deletedHistory =
+                    System.Text.Json.JsonSerializer.Deserialize<List<string>>(json);
+
+                if (deletedHistory == null)
+                    deletedHistory = new List<string>();
+            }
 
             // 0. 기본 폼 세팅
             this.Visible = true;
@@ -126,7 +153,8 @@ namespace Datamanager
                 btn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
 
-                btn.Paint += (sender, e) => {
+                btn.Paint += (sender, e) =>
+                {
                     e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
                     {
@@ -164,65 +192,11 @@ namespace Datamanager
             StyleButton(btn_before, Color.FromArgb(102, 187, 106));
             StyleButton(btn_imgnext, Color.FromArgb(102, 187, 106));
 
-            // 6. TRACKBAR (순정 스타일 제거 후 네온 렌더링 세팅)
-            typeof(TrackBar)
-                .GetMethod("SetStyle", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                ?.Invoke(trackBar_frame, new object[] { ControlStyles.UserPaint, true });
+            //6.TRACKBAR(순정 스타일 제거 후 네온 렌더링 세팅)
 
             trackBar_frame.BackColor = Color.FromArgb(13, 13, 24);
             trackBar_frame.TickStyle = TickStyle.None;
             trackBar_frame.ValueChanged += (sender, e) => trackBar_frame.Invalidate();
-
-            trackBar_frame.Paint += (sender, e) => {
-                Graphics g = e.Graphics;
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-
-                int trackY = trackBar_frame.Height / 2;
-                using (Pen bgTrackPen = new Pen(Color.FromArgb(40, 40, 60), 5f))
-                {
-                    bgTrackPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
-                    bgTrackPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                    g.DrawLine(bgTrackPen, 15, trackY, trackBar_frame.Width - 15, trackY);
-                }
-
-                float valRatio = (float)(trackBar_frame.Value - trackBar_frame.Minimum) / (trackBar_frame.Maximum - trackBar_frame.Minimum);
-                int usableWidth = trackBar_frame.Width - 30;
-                int thumbX = 15 + (int)(valRatio * usableWidth);
-
-                if (thumbX > 15)
-                {
-                    using (Pen glowTrackPen = new Pen(Color.FromArgb(50, 79, 195, 247), 9f))
-                    {
-                        glowTrackPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
-                        glowTrackPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                        g.DrawLine(glowTrackPen, 15, trackY, thumbX, trackY);
-                    }
-                    using (Pen activeTrackPen = new Pen(Color.FromArgb(79, 195, 247), 4f))
-                    {
-                        activeTrackPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
-                        activeTrackPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                        g.DrawLine(activeTrackPen, 15, trackY, thumbX, trackY);
-                    }
-                }
-
-                int radius = 8;
-                Rectangle thumbRect = new Rectangle(thumbX - radius, trackY - radius, radius * 2, radius * 2);
-
-                using (System.Drawing.Drawing2D.GraphicsPath thumbPath = new System.Drawing.Drawing2D.GraphicsPath())
-                {
-                    thumbPath.AddEllipse(thumbRect);
-                    using (System.Drawing.Drawing2D.PathGradientBrush glowBrush = new System.Drawing.Drawing2D.PathGradientBrush(thumbPath))
-                    {
-                        glowBrush.CenterColor = Color.FromArgb(255, 79, 195, 247);
-                        glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, 79, 195, 247) };
-                        g.FillPath(glowBrush, thumbPath);
-                    }
-                    using (Pen thumbPen = new Pen(Color.FromArgb(180, 255, 255, 255), 2f))
-                    {
-                        g.DrawEllipse(thumbPen, thumbRect);
-                    }
-                }
-            };
 
             // 8. 학습 탭 하이테크 테마 디자인
             list_log.BackColor = Color.FromArgb(7, 7, 15);
@@ -265,27 +239,20 @@ namespace Datamanager
             }
 
             // 데이터 경로 로드
-            string imageFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "images");
 
-            if (Directory.Exists(imageFolderPath))
-            {
-                imageFiles = Directory.GetFiles(imageFolderPath, "*.jpg");
-            }
-            else
-            {
-                MessageBox.Show("images 폴더를 찾을 수 없습니다. 속성창에서 '출력 디렉터리로 복사'를 확인하세요.");
-                imageFiles = new string[0];
-            }
+            string imageFolderPath = Path.Combine(baseDir, "images");
 
-            foreach (string file in imageFiles)
-            {
-                listImages.Items.Add(Path.GetFileName(file));
-            }
+            historyPath = Path.Combine(baseDir, "deleted_history.json");
 
-            if (listImages.Items.Count > 0)
-            {
-                listImages.SelectedIndex = 0;
-            }
+            trashFolderPath = Path.Combine(baseDir, "trash");
+
+            backupFolderPath = Path.Combine(baseDir, "backup");
+
+            Directory.CreateDirectory(backupFolderPath);
+
+            Directory.CreateDirectory(trashFolderPath);
+
+            LoadImageFolder(imageFolderPath);
 
             try
             {
@@ -428,6 +395,161 @@ namespace Datamanager
             }
         }
 
+        void LoadImageFolder(string folderPath) // 이미지 폴더 로드 및 초기화
+        {
+            if (!Directory.Exists(folderPath))
+            {
+                MessageBox.Show("폴더가 존재하지 않습니다.");
+                return;
+            }
+
+            currentFolderPath = folderPath;
+
+            imageFiles = Directory.GetFiles(folderPath, "*.jpg");
+
+            listImages.Items.Clear();
+
+            foreach (string file in imageFiles)
+            {
+                listImages.Items.Add(
+                    Path.GetFileName(file)
+                );
+            }
+
+            if (imageFiles.Length > 0)
+            {
+                trackBar_frame.Enabled = true;
+
+                trackBar_frame.Minimum = 0;
+                trackBar_frame.Maximum = imageFiles.Length - 1;
+
+                SetCurrentIndex(0);
+            }
+            else
+            {
+                trackBar_frame.Enabled = false;
+            }
+        }
+
+        void CompressAllImages(int quality, double scale)
+        {
+            foreach (string imagePath in imageFiles)
+            {
+                string fileName = Path.GetFileName(imagePath);
+
+                string backupPath =
+                    Path.Combine(backupFolderPath, fileName);
+
+                // 최초 1회만 원본 백업
+                if (!File.Exists(backupPath))
+                {
+                    File.Copy(imagePath, backupPath);
+                }
+
+                // 항상 원본(back up) 기준으로 읽기
+                Mat img = CvInvoke.Imread(backupPath);
+
+                if (img.IsEmpty)
+                    continue;
+
+                Mat resized = new Mat();
+
+                CvInvoke.Resize(
+                    img,
+                    resized,
+                    Size.Empty,
+                    scale,
+                    scale,
+                    Inter.Area
+                );
+
+                var param = new KeyValuePair<ImwriteFlags, int>[]
+                {
+            new KeyValuePair<ImwriteFlags, int>(
+                ImwriteFlags.JpegQuality,
+                quality
+            )
+                };
+
+                // 작업 폴더(images)에 저장
+                CvInvoke.Imwrite(imagePath, resized, param);
+            }
+
+            ReloadCurrentFolder();
+
+            MessageBox.Show("전체 이미지 압축 완료");
+        }
+        void SaveDeleteHistory()    //  삭제 기록을 JSON 파일로 저장
+        {
+            string json =
+                System.Text.Json.JsonSerializer.Serialize(
+                    deletedHistory,
+                    new System.Text.Json.JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    });
+
+            File.WriteAllText(historyPath, json);
+        }
+        void RestoreOriginalImages()    //  백업 폴더에서 원본 이미지 복구
+        {
+            string[] backupFiles =
+                Directory.GetFiles(backupFolderPath, "*.jpg");
+
+            foreach (string backupPath in backupFiles)
+            {
+                string fileName = Path.GetFileName(backupPath);
+
+                string restorePath =
+                    Path.Combine(currentFolderPath, fileName);
+
+                File.Copy(backupPath, restorePath, true);
+            }
+
+            ReloadCurrentFolder();
+
+            MessageBox.Show("원본 이미지 복구 완료");
+        }
+        void ReloadCurrentFolder()
+        {
+            LoadImageFolder(currentFolderPath);
+        }
+
+        void SetCurrentIndex(int index) // 인덱스 설정 및 이미지 로드
+        {
+            if (imageFiles.Length == 0)
+                return;
+
+            if (index < 0)
+                index = imageFiles.Length - 1;
+
+            if (index >= imageFiles.Length)
+                index = 0;
+
+            currentIndex = index;
+
+            // 이벤트 중복 방지
+            isScrolling = true;
+
+            listImages.SelectedIndex = currentIndex;
+            trackBar_frame.Value = currentIndex;
+
+            isScrolling = false;
+
+            LoadImage();
+
+            // 데이터 연동 및 계기판 네온 바늘 실시간 호출 연계
+            if (catalogData.ContainsKey(currentIndex))
+            {
+                var entry = catalogData[currentIndex];
+                text_throttle.Text = $"{entry.user_throttle:F3}";
+                text_angle.Text = $"{entry.user_angle:F3}";
+
+                //데이터 인덱스 변화에 맞춰 계기판 바늘을 갱신합니다.
+                DrawDashboardNeedles(entry.user_throttle, entry.user_angle);
+            }
+        }
+
         void LoadImage()
         {
             if (imageFiles == null || imageFiles.Length == 0) return;
@@ -527,6 +649,19 @@ namespace Datamanager
                 CvInvoke.Line(frame, new Point(fakeLeftBottom, frame.Rows), new Point(fakeLeftTop, frame.Rows / 2), new MCvScalar(0, 255, 255), 3);
             }
 
+            // 기존 이미지 해제
+            if (picImage.Image != null)
+            {
+                picImage.Image.Dispose();
+                picImage.Image = null;
+            }
+
+            if (picEdge.Image != null)
+            {
+                picEdge.Image.Dispose();
+                picEdge.Image = null;
+            }
+
             picImage.Image = frame.ToBitmap();
             picEdge.Image = roiEdge.ToBitmap();
         }
@@ -613,48 +748,33 @@ namespace Datamanager
 
         private void listImages_SelectedIndexChanged(object sender, EventArgs e)
         {
-            currentIndex = listImages.SelectedIndex;
-            trackBar_frame.Value = currentIndex;
+            if (isScrolling)
+                return;
 
-            LoadImage();
-
-            // 데이터 연동 및 계기판 네온 바늘 실시간 호출 연계
-            if (catalogData.ContainsKey(currentIndex))
-            {
-                var entry = catalogData[currentIndex];
-                text_throttle.Text = $"{entry.user_throttle:F3}";
-                text_angle.Text = $"{entry.user_angle:F3}";
-
-                //데이터 인덱스 변화에 맞춰 계기판 바늘을 갱신합니다.
-                DrawDashboardNeedles(entry.user_throttle, entry.user_angle);
-            }
+            SetCurrentIndex(listImages.SelectedIndex);
         }
 
         private void trackBar_frame_Scroll(object sender, EventArgs e)
         {
-            currentIndex = trackBar_frame.Value;
-            listImages.SelectedIndex = currentIndex;
+            if (isScrolling)
+                return;
+
+            SetCurrentIndex(trackBar_frame.Value);
         }
 
         private void btn_before_Click(object sender, EventArgs e)
         {
-            currentIndex--;
-            if (currentIndex < 0) currentIndex = imageFiles.Length - 1;
-            listImages.SelectedIndex = currentIndex;
+            SetCurrentIndex(currentIndex - 1);
         }
 
         private void btn_imgnext_Click(object sender, EventArgs e)
         {
-            currentIndex++;
-            if (currentIndex >= imageFiles.Length) currentIndex = 0;
-            listImages.SelectedIndex = currentIndex;
+            SetCurrentIndex(currentIndex + 1);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            currentIndex++;
-            if (currentIndex >= imageFiles.Length) currentIndex = 0;
-            listImages.SelectedIndex = currentIndex;
+            SetCurrentIndex(currentIndex + 1);
         }
 
         private void btnPlay_Click(object sender, EventArgs e)
@@ -677,7 +797,143 @@ namespace Datamanager
         private void chart1_Click(object sender, EventArgs e) { }
         private void textBox2_TextChanged(object sender, EventArgs e) { }
         private void button7_Click(object sender, EventArgs e) { }
+
+        private void btn_openfolder_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog dialog = new FolderBrowserDialog())
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    LoadImageFolder(dialog.SelectedPath);
+                }
+            }
+        }
+
+        private void btn_delete_Click(object sender, EventArgs e)
+        {
+            if (imageFiles.Length == 0)
+                return;
+
+            // 현재 표시 이미지 해제
+            if (picImage.Image != null)
+            {
+                picImage.Image.Dispose();
+                picImage.Image = null;
+            }
+
+            if (picEdge.Image != null)
+            {
+                picEdge.Image.Dispose();
+                picEdge.Image = null;
+            }
+
+            string sourcePath = imageFiles[currentIndex];
+
+            string fileName = Path.GetFileName(sourcePath);
+
+            string destPath = Path.Combine(trashFolderPath, fileName);
+
+            deletedFiles.Push(destPath);
+            deletedHistory.Add(destPath);
+            SaveDeleteHistory();
+
+            // 이미 trash에 같은 파일이 있으면 삭제
+            if (File.Exists(destPath))
+            {
+                File.Delete(destPath);
+            }
+
+            File.Move(sourcePath, destPath);
+
+            ReloadCurrentFolder();
+        }
+
+        private void btn_restore_Click(object sender, EventArgs e)
+        {
+            string lastFile;
+
+            // 실행 중 삭제 기록 사용
+            if (deletedFiles.Count > 0)
+            {
+                lastFile = deletedFiles.Pop();
+
+                // JSON 기록에서도 제거
+                if (deletedHistory.Count > 0)
+                {
+                    deletedHistory.RemoveAt(deletedHistory.Count - 1);
+                    SaveDeleteHistory();
+                }
+            }
+            else
+            {
+                // JSON 기록 사용
+                if (deletedHistory.Count == 0)
+                {
+                    MessageBox.Show("복구할 파일 없음");
+                    return;
+                }
+
+                lastFile = deletedHistory.Last();
+
+                deletedHistory.RemoveAt(deletedHistory.Count - 1);
+
+                SaveDeleteHistory();
+            }
+
+            string fileName = Path.GetFileName(lastFile);
+
+            string restorePath = Path.Combine(currentFolderPath, fileName);
+
+            // 이미 있으면 덮어쓰기 위해 삭제
+            if (File.Exists(restorePath))
+            {
+                File.Delete(restorePath);
+            }
+
+            File.Move(lastFile, restorePath);
+
+            ReloadCurrentFolder();
+        }
+
+        private void btnSetStart_Click(object sender, EventArgs e)
+        {
+            SetCurrentIndex(0);
+        }
+
+        private void btnSetEnd_Click(object sender, EventArgs e)
+        {
+            SetCurrentIndex(imageFiles.Length - 1);
+        }
+
+        private void btn_changquality_Click(object sender, EventArgs e)
+        {
+            string input = Interaction.InputBox(
+                "JPEG 품질을 입력하세요 (10~100)",
+                "화질 조정",
+                "70"
+            );
+
+            if (string.IsNullOrWhiteSpace(input))
+                return;
+
+            if (!int.TryParse(input, out int quality))
+            {
+                MessageBox.Show("숫자만 입력하세요.");
+                return;
+            }
+
+            if (quality < 10 || quality > 100)
+            {
+                MessageBox.Show("10~100 사이만 가능합니다.");
+                return;
+            }
+
+            CompressAllImages(quality, 1.0);
+
+            MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
+        }
     }
+
 
     public class CatalogEntry
     {
