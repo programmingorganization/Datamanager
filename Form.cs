@@ -812,9 +812,44 @@ namespace Datamanager
 
         private void btn_train_Click(object sender, EventArgs e)
         {
-            var validTrainingData = catalogData
-                .Where(entry => entry.Value.user_angle != 0 && entry.Value.user_throttle > 0)
-                .ToList();
+            // 1. 데이터 검증
+            if (imageFiles == null || imageFiles.Length == 0)
+            {
+                MessageBox.Show("학습할 이미지가 없습니다.\n\n폴더를 먼저 열어주세요.", "데이터 없음", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (catalogData.Count == 0)
+            {
+                MessageBox.Show("카탈로그 데이터가 없습니다.\n\ndata 폴더에 .catalog 파일이 있는지 확인하세요.", "카탈로그 없음", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 2. 초기화
+            string imagesPath = Path.Combine(baseDir, "data", "images");
+            string wbImagesPath = Path.Combine(baseDir, "data", "wbimages");
+
+            Directory.CreateDirectory(wbImagesPath);
+
+            btn_train.Enabled = false;
+            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔍 원본 이미지 스캔 시작...");
+            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 카탈로그 레코드: {catalogData.Count}개");
+
+            try
+            {
+                // TODO: Step 3-2에서 전처리 루프 추가 예정
+
+                MessageBox.Show("Step 3-1 완료!\n\n초기화 및 검증 성공", "테스트", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ 오류:\n{ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 오류: {ex.Message}");
+            }
+            finally
+            {
+                btn_train.Enabled = true;
+            }
         }
 
         private void panelCustomSlider_MouseDown(object sender, MouseEventArgs e) { }
