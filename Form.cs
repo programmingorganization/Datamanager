@@ -131,13 +131,13 @@ namespace Datamanager
             listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
 
             // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
-            text_throttle.BackColor = Color.FromArgb(13, 13, 24);
-            text_throttle.ForeColor = Color.FromArgb(32, 201, 151);
-            text_throttle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+            label_throttle.BackColor = Color.FromArgb(13, 13, 24);
+            label_throttle.ForeColor = Color.FromArgb(32, 201, 151);
+            label_throttle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
 
-            text_angle.BackColor = Color.FromArgb(13, 13, 24);
-            text_angle.ForeColor = Color.FromArgb(79, 195, 247);
-            text_angle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+            label_angle.BackColor = Color.FromArgb(13, 13, 24);
+            label_angle.ForeColor = Color.FromArgb(79, 195, 247);
+            label_angle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
 
             // 5. BUTTONS FLAT & CYBER COLOR STYLING (네온 글로우 버튼 고도화)
             void StyleButton(System.Windows.Forms.Button btn, Color borderColor)
@@ -275,6 +275,19 @@ namespace Datamanager
 
             // 계기판 초기 바늘 렌더링
             DrawDashboardNeedles(0.0, 0.0);
+
+            //label 계기판 위 표시
+            label_throttle.Parent = picture_Gage;
+            label_angle.Parent = picture_Gage;
+
+            label_throttle.Location = new Point(label_throttle.Left - picture_Gage.Left, label_throttle.Top - picture_Gage.Top);
+            label_angle.Location = new Point(label_angle.Left - picture_Gage.Left, label_angle.Top - picture_Gage.Top);
+
+            label_throttle.BackColor = Color.Transparent;
+            label_angle.BackColor = Color.Transparent;
+
+            // imageFiles 로드 후 아래에 추가
+            LoadThumbnails(currentIndex);
         }
 
         // 10. CONTROL-BASED NEEDLE DRAWING 
@@ -407,7 +420,10 @@ namespace Datamanager
 
             currentFolderPath = folderPath;
 
-            imageFiles = Directory.GetFiles(folderPath, "*.jpg");
+            imageFiles = Directory
+                .GetFiles(folderPath, "*.jpg")
+                .OrderBy(f => ExtractNumber(Path.GetFileNameWithoutExtension(f)))
+                .ToArray();
 
             listImages.Items.Clear();
 
@@ -431,6 +447,17 @@ namespace Datamanager
             {
                 trackBar_frame.Enabled = false;
             }
+        }
+
+        int ExtractNumber(string name)
+        {
+            string number =
+                new string(name.Where(char.IsDigit).ToArray());
+
+            if (int.TryParse(number, out int result))
+                return result;
+
+            return int.MaxValue;
         }
 
         void CompressAllImages(int quality, double scale)
@@ -544,8 +571,8 @@ namespace Datamanager
             if (catalogData.ContainsKey(currentIndex))
             {
                 var entry = catalogData[currentIndex];
-                text_throttle.Text = $"{entry.user_throttle:F3}";
-                text_angle.Text = $"{entry.user_angle:F3}";
+                label_throttle.Text = $"{entry.user_throttle:F3}";
+                label_angle.Text = $"{entry.user_angle:F3}";
 
                 //데이터 인덱스 변화에 맞춰 계기판 바늘을 갱신합니다.
                 DrawDashboardNeedles(entry.user_throttle, entry.user_angle);
@@ -754,6 +781,15 @@ namespace Datamanager
                 return;
 
             SetCurrentIndex(listImages.SelectedIndex);
+
+            // 썸네일 강조
+            for (int i = 0; i < flowPanel_thumbnails.Controls.Count; i++)
+            {
+                var thumb = (PictureBox)flowPanel_thumbnails.Controls[i];
+                thumb.BorderStyle = i == currentIndex
+                    ? BorderStyle.Fixed3D
+                    : BorderStyle.FixedSingle;
+            }
         }
 
         private void trackBar_frame_Scroll(object sender, EventArgs e)
@@ -792,12 +828,54 @@ namespace Datamanager
                 .ToList();
         }
 
+        void LoadThumbnails(int centerIndex)
+        {
+            flowPanel_thumbnails.Controls.Clear();
+
+            // 현재 프레임 기준 앞뒤 10개씩만 표시
+            int start = Math.Max(0, centerIndex - 10);
+            int end = Math.Min(imageFiles.Length - 1, centerIndex + 10);
+
+            for (int i = start; i <= end; i++)
+            {
+                PictureBox thumb = new PictureBox();
+                thumb.Size = new Size(80, 60);
+                thumb.SizeMode = PictureBoxSizeMode.Zoom;
+                thumb.BackColor = Color.FromArgb(7, 7, 15);
+                thumb.Cursor = Cursors.Hand;
+                thumb.Tag = i;
+
+                // 현재 선택된 것 강조
+                thumb.BorderStyle = i == centerIndex
+                    ? BorderStyle.Fixed3D
+                    : BorderStyle.FixedSingle;
+
+                try { thumb.Image = Image.FromFile(imageFiles[i]); }
+                catch { }
+
+                thumb.Click += (sender, e) =>
+                {
+                    currentIndex = (int)((PictureBox)sender).Tag;
+                    listImages.SelectedIndex = currentIndex;
+                };
+
+                flowPanel_thumbnails.Controls.Add(thumb);
+            }
+
+            // 현재 선택된 썸네일로 스크롤
+            int selectedThumbIndex = centerIndex - start;
+            if (selectedThumbIndex >= 0 && selectedThumbIndex < flowPanel_thumbnails.Controls.Count)
+            {
+                flowPanel_thumbnails.ScrollControlIntoView(
+                    flowPanel_thumbnails.Controls[selectedThumbIndex]
+                );
+            }
+        }
         private void panelCustomSlider_MouseDown(object sender, MouseEventArgs e) { }
         private void panelCustomSlider_MouseMove(object sender, MouseEventArgs e) { }
         private void panelCustomSlider_MouseUp(object sender, MouseEventArgs e) { }
         private void panelCustomSlider_Paint(object sender, PaintEventArgs e) { }
         private void chart1_Click(object sender, EventArgs e) { }
-        private void textBox2_TextChanged(object sender, EventArgs e) { }
         private void button7_Click(object sender, EventArgs e) { }
 
         private void btn_openfolder_Click(object sender, EventArgs e)
