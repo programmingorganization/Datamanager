@@ -594,41 +594,12 @@ namespace Datamanager
         {
             leftDetected = false;
             rightDetected = false;
-            Mat edge = new Mat();
-            Mat hsv = new Mat();
-
-            CvInvoke.CvtColor(frame, hsv, ColorConversion.Bgr2Hsv);
-
-            Mat whiteMask = new Mat();
-            CvInvoke.InRange(
-                hsv,
-                new ScalarArray(new MCvScalar(0, 0, 160)),
-                new ScalarArray(new MCvScalar(180, 80, 255)),
-                whiteMask
-            );
 
             int centerX = frame.Width / 2;
             List<Point> leftPoints = new List<Point>();
             List<Point> rightPoints = new List<Point>();
 
-            CvInvoke.Canny(whiteMask, edge, 50, 150);
-
-            Mat mask = new Mat(edge.Size, DepthType.Cv8U, 1);
-            mask.SetTo(new MCvScalar(0));
-
-            Point[] points =
-            {
-                new Point(100, edge.Rows),
-                new Point(250, edge.Rows / 2),
-                new Point(edge.Cols - 250, edge.Rows / 2),
-                new Point(edge.Cols - 100, edge.Rows)
-            };
-
-            VectorOfPoint polygon = new VectorOfPoint(points);
-            CvInvoke.FillConvexPoly(mask, polygon, new MCvScalar(255));
-
-            Mat roiEdge = new Mat();
-            CvInvoke.BitwiseAnd(edge, mask, roiEdge);
+            Mat roiEdge = CreateRoiEdge(frame);
 
             LineSegment2D[] lines = CvInvoke.HoughLinesP(roiEdge, 1, Math.PI / 180, 15, 15, 10);
 
@@ -739,7 +710,7 @@ namespace Datamanager
             CvInvoke.Line(frame, new Point(x1, y1), new Point(x2, y2), color, 5);
         }
 
-        Mat ApplyRoiPreprocessing(Mat frame)
+        Mat CreateRoiEdge(Mat frame)
         {
             Mat hsv = new Mat();
             CvInvoke.CvtColor(frame, hsv, ColorConversion.Bgr2Hsv);
@@ -761,8 +732,8 @@ namespace Datamanager
             Point[] points =
             {
                 new Point(100, edge.Rows),
-                new Point(250, edge.Rows * 3 / 7),
-                new Point(edge.Cols - 250, edge.Rows * 3 / 7),
+                new Point(250, edge.Rows / 2),
+                new Point(edge.Cols - 250, edge.Rows / 2),
                 new Point(edge.Cols - 100, edge.Rows)
             };
 
@@ -922,7 +893,7 @@ namespace Datamanager
                             {
                                 if (!frame.IsEmpty)
                                 {
-                                    using (Mat processedRoi = ApplyRoiPreprocessing(frame))
+                                    using (Mat processedRoi = CreateRoiEdge(frame))
                                     {
                                         using (Mat finalImage = new Mat())
                                         {
