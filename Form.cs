@@ -31,6 +31,7 @@ namespace Datamanager
         string backupFolderPath;    // 압축 전 원본 이미지를 보관하는 폴더 경로
 
         string historyPath;
+        string resultPath = null;  // 전처리 결과 저장 경로
 
         bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
 
@@ -279,6 +280,16 @@ namespace Datamanager
 
             // 계기판 초기 바늘 렌더링
             DrawDashboardNeedles(0.0, 0.0);
+
+            // 전처리 결과 저장 경로 초기화
+            string projectPath = Directory.GetParent(Application.StartupPath)
+                .Parent.Parent.Parent.FullName;
+
+            resultPath = Path.Combine(projectPath, "result");
+
+            Directory.CreateDirectory(resultPath);
+
+            MessageBox.Show($"전처리 결과 저장 경로:\n{resultPath}");
         }
 
         // 10. CONTROL-BASED NEEDLE DRAWING 
