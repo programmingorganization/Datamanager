@@ -120,7 +120,6 @@
             // 
             // picNeedleAngle
             // 
-            picNeedleAngle.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             picNeedleAngle.BackColor = Color.Transparent;
             picNeedleAngle.Location = new Point(1029, 123);
             picNeedleAngle.Name = "picNeedleAngle";
@@ -130,7 +129,6 @@
             // 
             // picNeedleSpeed
             // 
-            picNeedleSpeed.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             picNeedleSpeed.BackColor = Color.Transparent;
             picNeedleSpeed.Location = new Point(802, 123);
             picNeedleSpeed.Name = "picNeedleSpeed";
@@ -149,12 +147,12 @@
             // 
             // trackBar_frame
             // 
-            trackBar_frame.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             trackBar_frame.BackColor = Color.FromArgb(79, 195, 247);
+            trackBar_frame.Dock = DockStyle.Left;
             trackBar_frame.Location = new Point(0, 0);
             trackBar_frame.Margin = new Padding(2);
             trackBar_frame.Name = "trackBar_frame";
-            trackBar_frame.Size = new Size(524, 45);
+            trackBar_frame.Size = new Size(524, 37);
             trackBar_frame.TabIndex = 1;
             trackBar_frame.Scroll += trackBar_frame_Scroll;
             // 
@@ -171,7 +169,6 @@
             // 
             // panel1
             // 
-            panel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             panel1.Controls.Add(label1);
             panel1.Controls.Add(btn_restore);
             panel1.Controls.Add(btnSetEnd);
@@ -206,6 +203,7 @@
             btn_restore.TabIndex = 17;
             btn_restore.Text = "프레임 복구";
             btn_restore.UseVisualStyleBackColor = false;
+            btn_restore.Click += btn_restore_Click;
             // 
             // btnSetEnd
             // 
@@ -219,6 +217,7 @@
             btnSetEnd.TabIndex = 16;
             btnSetEnd.Text = "끝 프레임";
             btnSetEnd.UseVisualStyleBackColor = false;
+            btnSetEnd.Click += btnSetEnd_Click;
             // 
             // btnSetStart
             // 
@@ -232,6 +231,7 @@
             btnSetStart.TabIndex = 15;
             btnSetStart.Text = "시작 프레임\r\n";
             btnSetStart.UseVisualStyleBackColor = false;
+            btnSetStart.Click += btnSetStart_Click;
             // 
             // btn_delete
             // 
@@ -245,6 +245,7 @@
             btn_delete.TabIndex = 3;
             btn_delete.Text = "프레임 삭제";
             btn_delete.UseVisualStyleBackColor = false;
+            btn_delete.Click += btn_delete_Click;
             // 
             // listImages
             // 
@@ -270,10 +271,10 @@
             btn_openfolder.TabIndex = 2;
             btn_openfolder.Text = "폴더 열기";
             btn_openfolder.UseVisualStyleBackColor = false;
+            btn_openfolder.Click += btn_openfolder_Click;
             // 
             // text_throttle
             // 
-            text_throttle.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             text_throttle.BackColor = Color.FromArgb(13, 13, 24);
             text_throttle.BorderStyle = BorderStyle.None;
             text_throttle.Font = new Font("맑은 고딕", 20.25F, FontStyle.Bold);
@@ -300,7 +301,6 @@
             // 
             // text_angle
             // 
-            text_angle.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             text_angle.BackColor = Color.FromArgb(13, 13, 24);
             text_angle.BorderStyle = BorderStyle.None;
             text_angle.Font = new Font("맑은 고딕", 20.25F, FontStyle.Bold);
@@ -312,7 +312,6 @@
             // 
             // picture_Gage
             // 
-            picture_Gage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             picture_Gage.Image = Properties.Resources._5번;
             picture_Gage.Location = new Point(700, 28);
             picture_Gage.Margin = new Padding(2);
@@ -348,6 +347,7 @@
             btn_changquality.TabIndex = 4;
             btn_changquality.Text = "프레임 화질 조정";
             btn_changquality.UseVisualStyleBackColor = false;
+            btn_changquality.Click += btn_changquality_Click;
             // 
             // btn_before
             // 
@@ -361,6 +361,7 @@
             btn_before.TabIndex = 4;
             btn_before.Text = "프레임 ◀";
             btn_before.UseVisualStyleBackColor = false;
+            btn_before.Click += btn_before_Click;
             // 
             // picImage
             // 
