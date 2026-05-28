@@ -407,7 +407,10 @@ namespace Datamanager
 
             currentFolderPath = folderPath;
 
-            imageFiles = Directory.GetFiles(folderPath, "*.jpg");
+            imageFiles = Directory
+                .GetFiles(folderPath, "*.jpg")
+                .OrderBy(f => ExtractNumber(Path.GetFileNameWithoutExtension(f)))
+                .ToArray();
 
             listImages.Items.Clear();
 
@@ -431,6 +434,17 @@ namespace Datamanager
             {
                 trackBar_frame.Enabled = false;
             }
+        }
+
+        int ExtractNumber(string name)
+        {
+            string number =
+                new string(name.Where(char.IsDigit).ToArray());
+
+            if (int.TryParse(number, out int result))
+                return result;
+
+            return int.MaxValue;
         }
 
         void CompressAllImages(int quality, double scale)
