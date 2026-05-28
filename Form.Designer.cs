@@ -29,11 +29,13 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea7 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend7 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl = new TabControl();
             tab_data = new TabPage();
+            label5 = new Label();
+            label4 = new Label();
             checkBox2 = new CheckBox();
             checkBox1 = new CheckBox();
             label3 = new Label();
@@ -72,8 +74,8 @@
             combo_model = new ComboBox();
             list_log = new ListBox();
             timer1 = new System.Windows.Forms.Timer(components);
-            label4 = new Label();
-            label5 = new Label();
+            listBox2 = new ListBox();
+            progressBar1 = new ProgressBar();
             tabControl.SuspendLayout();
             tab_data.SuspendLayout();
             panel2.SuspendLayout();
@@ -99,7 +101,7 @@
             tabControl.Margin = new Padding(2);
             tabControl.Name = "tabControl";
             tabControl.SelectedIndex = 0;
-            tabControl.Size = new Size(1322, 967);
+            tabControl.Size = new Size(1393, 967);
             tabControl.TabIndex = 0;
             // 
             // tab_data
@@ -131,9 +133,27 @@
             tab_data.Margin = new Padding(2);
             tab_data.Name = "tab_data";
             tab_data.Padding = new Padding(2);
-            tab_data.Size = new Size(1314, 927);
+            tab_data.Size = new Size(1385, 927);
             tab_data.TabIndex = 0;
             tab_data.Text = "데이터 매니저";
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(182, 427);
+            label5.Name = "label5";
+            label5.Size = new Size(114, 25);
+            label5.TabIndex = 19;
+            label5.Text = "프레임 시작";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(487, 425);
+            label4.Name = "label4";
+            label4.Size = new Size(95, 25);
+            label4.TabIndex = 18;
+            label4.Text = "프레임 끝";
             // 
             // checkBox2
             // 
@@ -510,6 +530,8 @@
             // tab_train
             // 
             tab_train.BackColor = Color.FromArgb(64, 64, 64);
+            tab_train.Controls.Add(progressBar1);
+            tab_train.Controls.Add(listBox2);
             tab_train.Controls.Add(chart_loss);
             tab_train.Controls.Add(btn_stopTrain);
             tab_train.Controls.Add(btn_train);
@@ -519,26 +541,26 @@
             tab_train.Margin = new Padding(2);
             tab_train.Name = "tab_train";
             tab_train.Padding = new Padding(2);
-            tab_train.Size = new Size(1314, 927);
+            tab_train.Size = new Size(1385, 927);
             tab_train.TabIndex = 1;
             tab_train.Text = "학습";
             // 
             // chart_loss
             // 
             chart_loss.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            chartArea7.Name = "ChartArea1";
-            chart_loss.ChartAreas.Add(chartArea7);
-            legend7.Name = "Legend1";
-            chart_loss.Legends.Add(legend7);
-            chart_loss.Location = new Point(44, 349);
+            chartArea1.Name = "ChartArea1";
+            chart_loss.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            chart_loss.Legends.Add(legend1);
+            chart_loss.Location = new Point(44, 252);
             chart_loss.Margin = new Padding(2);
             chart_loss.Name = "chart_loss";
             chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series7.ChartArea = "ChartArea1";
-            series7.Legend = "Legend1";
-            series7.Name = "Series1";
-            chart_loss.Series.Add(series7);
-            chart_loss.Size = new Size(1109, 551);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            chart_loss.Series.Add(series1);
+            chart_loss.Size = new Size(938, 643);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
             chart_loss.Click += chart1_Click;
@@ -547,7 +569,7 @@
             // 
             btn_stopTrain.BackColor = Color.Gray;
             btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_stopTrain.Location = new Point(319, 21);
+            btn_stopTrain.Location = new Point(44, 149);
             btn_stopTrain.Margin = new Padding(2);
             btn_stopTrain.Name = "btn_stopTrain";
             btn_stopTrain.Size = new Size(101, 34);
@@ -560,7 +582,7 @@
             btn_train.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btn_train.BackColor = Color.Gray;
             btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_train.Location = new Point(192, 23);
+            btn_train.Location = new Point(44, 86);
             btn_train.Margin = new Padding(2);
             btn_train.Name = "btn_train";
             btn_train.Size = new Size(98, 34);
@@ -583,40 +605,37 @@
             // 
             list_log.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             list_log.FormattingEnabled = true;
-            list_log.Location = new Point(44, 65);
+            list_log.Location = new Point(259, 32);
             list_log.Margin = new Padding(2);
             list_log.Name = "list_log";
-            list_log.Size = new Size(1109, 259);
+            list_log.Size = new Size(1098, 184);
             list_log.TabIndex = 1;
             // 
             // timer1
             // 
             timer1.Tick += timer1_Tick;
             // 
-            // label4
+            // listBox2
             // 
-            label4.AutoSize = true;
-            label4.Location = new Point(487, 425);
-            label4.Name = "label4";
-            label4.Size = new Size(95, 25);
-            label4.TabIndex = 18;
-            label4.Text = "프레임 끝";
+            listBox2.FormattingEnabled = true;
+            listBox2.Location = new Point(1013, 438);
+            listBox2.Name = "listBox2";
+            listBox2.Size = new Size(344, 409);
+            listBox2.TabIndex = 6;
             // 
-            // label5
+            // progressBar1
             // 
-            label5.AutoSize = true;
-            label5.Location = new Point(182, 427);
-            label5.Name = "label5";
-            label5.Size = new Size(114, 25);
-            label5.TabIndex = 19;
-            label5.Text = "프레임 시작";
+            progressBar1.Location = new Point(1013, 301);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(344, 45);
+            progressBar1.TabIndex = 7;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1321, 960);
+            ClientSize = new Size(1392, 960);
             Controls.Add(tabControl);
             Margin = new Padding(2);
             Name = "Form1";
@@ -685,5 +704,7 @@
         private CheckBox checkBox1;
         private Label label5;
         private Label label4;
+        private ProgressBar progressBar1;
+        private ListBox listBox2;
     }
 }
