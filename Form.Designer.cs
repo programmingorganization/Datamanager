@@ -34,6 +34,18 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl = new TabControl();
             tab_data = new TabPage();
+            label5 = new Label();
+            label4 = new Label();
+            checkBox2 = new CheckBox();
+            checkBox1 = new CheckBox();
+            label3 = new Label();
+            panel2 = new Panel();
+            label2 = new Label();
+            button1 = new Button();
+            button2 = new Button();
+            button3 = new Button();
+            button4 = new Button();
+            listBox1 = new ListBox();
             picNeedleAngle = new PictureBox();
             picNeedleSpeed = new PictureBox();
             panelTrackBarProgress = new Panel();
@@ -56,15 +68,17 @@
             btn_before = new Button();
             picImage = new PictureBox();
             tab_train = new TabPage();
-            panel2 = new Panel();
             chart_loss = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            btn_train = new Button();
             btn_stopTrain = new Button();
+            btn_train = new Button();
             combo_model = new ComboBox();
             list_log = new ListBox();
             timer1 = new System.Windows.Forms.Timer(components);
+            listBox2 = new ListBox();
+            progressBar1 = new ProgressBar();
             tabControl.SuspendLayout();
             tab_data.SuspendLayout();
+            panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picNeedleAngle).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).BeginInit();
             panelTrackBarProgress.SuspendLayout();
@@ -74,7 +88,6 @@
             ((System.ComponentModel.ISupportInitialize)picture_Gage).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picImage).BeginInit();
             tab_train.SuspendLayout();
-            panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)chart_loss).BeginInit();
             SuspendLayout();
             // 
@@ -88,12 +101,18 @@
             tabControl.Margin = new Padding(2);
             tabControl.Name = "tabControl";
             tabControl.SelectedIndex = 0;
-            tabControl.Size = new Size(1248, 777);
+            tabControl.Size = new Size(1393, 967);
             tabControl.TabIndex = 0;
             // 
             // tab_data
             // 
             tab_data.BackColor = Color.FromArgb(64, 64, 64);
+            tab_data.Controls.Add(label5);
+            tab_data.Controls.Add(label4);
+            tab_data.Controls.Add(checkBox2);
+            tab_data.Controls.Add(checkBox1);
+            tab_data.Controls.Add(label3);
+            tab_data.Controls.Add(panel2);
             tab_data.Controls.Add(picNeedleAngle);
             tab_data.Controls.Add(picNeedleSpeed);
             tab_data.Controls.Add(panelTrackBarProgress);
@@ -114,9 +133,143 @@
             tab_data.Margin = new Padding(2);
             tab_data.Name = "tab_data";
             tab_data.Padding = new Padding(2);
-            tab_data.Size = new Size(1240, 737);
+            tab_data.Size = new Size(1385, 927);
             tab_data.TabIndex = 0;
             tab_data.Text = "데이터 매니저";
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(182, 427);
+            label5.Name = "label5";
+            label5.Size = new Size(114, 25);
+            label5.TabIndex = 19;
+            label5.Text = "프레임 시작";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(487, 425);
+            label4.Name = "label4";
+            label4.Size = new Size(95, 25);
+            label4.TabIndex = 18;
+            label4.Text = "프레임 끝";
+            // 
+            // checkBox2
+            // 
+            checkBox2.AutoSize = true;
+            checkBox2.Location = new Point(36, 539);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(127, 29);
+            checkBox2.TabIndex = 17;
+            checkBox2.Text = "checkBox1";
+            checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(36, 497);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(127, 29);
+            checkBox1.TabIndex = 17;
+            checkBox1.Text = "checkBox1";
+            checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(289, 520);
+            label3.Name = "label3";
+            label3.Size = new Size(88, 25);
+            label3.TabIndex = 16;
+            label3.Text = "썸네ㅣ일";
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(label2);
+            panel2.Controls.Add(button1);
+            panel2.Controls.Add(button2);
+            panel2.Controls.Add(button3);
+            panel2.Controls.Add(button4);
+            panel2.Controls.Add(listBox1);
+            panel2.Location = new Point(687, 497);
+            panel2.Margin = new Padding(2);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(618, 402);
+            panel2.TabIndex = 15;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.ForeColor = SystemColors.ButtonHighlight;
+            label2.Location = new Point(23, 6);
+            label2.Name = "label2";
+            label2.Size = new Size(159, 25);
+            label2.TabIndex = 18;
+            label2.Text = "삭제 프레임 목록";
+            // 
+            // button1
+            // 
+            button1.BackColor = Color.Gray;
+            button1.FlatStyle = FlatStyle.Flat;
+            button1.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            button1.Location = new Point(375, 211);
+            button1.Margin = new Padding(2);
+            button1.Name = "button1";
+            button1.Size = new Size(142, 36);
+            button1.TabIndex = 17;
+            button1.Text = "프레임 복구";
+            button1.UseVisualStyleBackColor = false;
+            // 
+            // button2
+            // 
+            button2.BackColor = Color.Gray;
+            button2.FlatStyle = FlatStyle.Flat;
+            button2.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            button2.Location = new Point(376, 151);
+            button2.Margin = new Padding(2);
+            button2.Name = "button2";
+            button2.Size = new Size(141, 39);
+            button2.TabIndex = 16;
+            button2.Text = "끝 프레임";
+            button2.UseVisualStyleBackColor = false;
+            // 
+            // button3
+            // 
+            button3.BackColor = Color.Gray;
+            button3.FlatStyle = FlatStyle.Flat;
+            button3.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            button3.Location = new Point(375, 84);
+            button3.Margin = new Padding(2);
+            button3.Name = "button3";
+            button3.Size = new Size(142, 39);
+            button3.TabIndex = 15;
+            button3.Text = "시작 프레임\r\n";
+            button3.UseVisualStyleBackColor = false;
+            // 
+            // button4
+            // 
+            button4.BackColor = Color.Gray;
+            button4.FlatStyle = FlatStyle.Flat;
+            button4.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            button4.Location = new Point(375, 284);
+            button4.Margin = new Padding(2);
+            button4.Name = "button4";
+            button4.Size = new Size(141, 39);
+            button4.TabIndex = 3;
+            button4.Text = "프레임 삭제";
+            button4.UseVisualStyleBackColor = false;
+            // 
+            // listBox1
+            // 
+            listBox1.BackColor = Color.FromArgb(22, 27, 3);
+            listBox1.BorderStyle = BorderStyle.FixedSingle;
+            listBox1.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            listBox1.FormattingEnabled = true;
+            listBox1.Location = new Point(17, 36);
+            listBox1.Name = "listBox1";
+            listBox1.Size = new Size(337, 347);
+            listBox1.TabIndex = 14;
             // 
             // picNeedleAngle
             // 
@@ -140,7 +293,7 @@
             // 
             panelTrackBarProgress.BackColor = Color.FromArgb(50, 50, 50);
             panelTrackBarProgress.Controls.Add(trackBar_frame);
-            panelTrackBarProgress.Location = new Point(148, 442);
+            panelTrackBarProgress.Location = new Point(148, 454);
             panelTrackBarProgress.Name = "panelTrackBarProgress";
             panelTrackBarProgress.Size = new Size(524, 37);
             panelTrackBarProgress.TabIndex = 13;
@@ -175,7 +328,7 @@
             panel1.Controls.Add(btnSetStart);
             panel1.Controls.Add(btn_delete);
             panel1.Controls.Add(listImages);
-            panel1.Location = new Point(700, 325);
+            panel1.Location = new Point(42, 630);
             panel1.Margin = new Padding(2);
             panel1.Name = "panel1";
             panel1.Size = new Size(510, 402);
@@ -264,7 +417,7 @@
             btn_openfolder.BackColor = Color.Gray;
             btn_openfolder.FlatStyle = FlatStyle.Flat;
             btn_openfolder.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_openfolder.Location = new Point(481, 513);
+            btn_openfolder.Location = new Point(483, 570);
             btn_openfolder.Margin = new Padding(2);
             btn_openfolder.Name = "btn_openfolder";
             btn_openfolder.Size = new Size(129, 50);
@@ -290,7 +443,7 @@
             btnPlay.BackColor = Color.Gray;
             btnPlay.FlatStyle = FlatStyle.Flat;
             btnPlay.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btnPlay.Location = new Point(36, 436);
+            btnPlay.Location = new Point(36, 448);
             btnPlay.Margin = new Padding(2);
             btnPlay.Name = "btnPlay";
             btnPlay.Size = new Size(108, 34);
@@ -326,7 +479,7 @@
             btn_imgnext.BackColor = Color.Gray;
             btn_imgnext.FlatStyle = FlatStyle.Flat;
             btn_imgnext.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_imgnext.Location = new Point(164, 513);
+            btn_imgnext.Location = new Point(166, 570);
             btn_imgnext.Margin = new Padding(2);
             btn_imgnext.Name = "btn_imgnext";
             btn_imgnext.Size = new Size(105, 50);
@@ -340,7 +493,7 @@
             btn_changquality.BackColor = Color.Gray;
             btn_changquality.FlatStyle = FlatStyle.Flat;
             btn_changquality.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_changquality.Location = new Point(312, 513);
+            btn_changquality.Location = new Point(314, 570);
             btn_changquality.Margin = new Padding(2);
             btn_changquality.Name = "btn_changquality";
             btn_changquality.Size = new Size(154, 50);
@@ -354,7 +507,7 @@
             btn_before.BackColor = Color.Gray;
             btn_before.FlatStyle = FlatStyle.Flat;
             btn_before.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_before.Location = new Point(43, 513);
+            btn_before.Location = new Point(45, 570);
             btn_before.Margin = new Padding(2);
             btn_before.Name = "btn_before";
             btn_before.Size = new Size(99, 50);
@@ -377,28 +530,20 @@
             // tab_train
             // 
             tab_train.BackColor = Color.FromArgb(64, 64, 64);
-            tab_train.Controls.Add(panel2);
+            tab_train.Controls.Add(progressBar1);
+            tab_train.Controls.Add(listBox2);
+            tab_train.Controls.Add(chart_loss);
+            tab_train.Controls.Add(btn_stopTrain);
+            tab_train.Controls.Add(btn_train);
             tab_train.Controls.Add(combo_model);
             tab_train.Controls.Add(list_log);
             tab_train.Location = new Point(4, 36);
             tab_train.Margin = new Padding(2);
             tab_train.Name = "tab_train";
             tab_train.Padding = new Padding(2);
-            tab_train.Size = new Size(1240, 737);
+            tab_train.Size = new Size(1385, 927);
             tab_train.TabIndex = 1;
             tab_train.Text = "학습";
-            // 
-            // panel2
-            // 
-            panel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            panel2.Controls.Add(chart_loss);
-            panel2.Controls.Add(btn_train);
-            panel2.Controls.Add(btn_stopTrain);
-            panel2.Location = new Point(442, 32);
-            panel2.Margin = new Padding(2);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(761, 652);
-            panel2.TabIndex = 8;
             // 
             // chart_loss
             // 
@@ -407,7 +552,7 @@
             chart_loss.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             chart_loss.Legends.Add(legend1);
-            chart_loss.Location = new Point(20, 136);
+            chart_loss.Location = new Point(44, 252);
             chart_loss.Margin = new Padding(2);
             chart_loss.Name = "chart_loss";
             chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
@@ -415,17 +560,29 @@
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             chart_loss.Series.Add(series1);
-            chart_loss.Size = new Size(724, 413);
+            chart_loss.Size = new Size(938, 643);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
             chart_loss.Click += chart1_Click;
+            // 
+            // btn_stopTrain
+            // 
+            btn_stopTrain.BackColor = Color.Gray;
+            btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btn_stopTrain.Location = new Point(44, 149);
+            btn_stopTrain.Margin = new Padding(2);
+            btn_stopTrain.Name = "btn_stopTrain";
+            btn_stopTrain.Size = new Size(101, 34);
+            btn_stopTrain.TabIndex = 5;
+            btn_stopTrain.Text = "학습 중단";
+            btn_stopTrain.UseVisualStyleBackColor = false;
             // 
             // btn_train
             // 
             btn_train.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btn_train.BackColor = Color.Gray;
             btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_train.Location = new Point(20, 24);
+            btn_train.Location = new Point(44, 86);
             btn_train.Margin = new Padding(2);
             btn_train.Name = "btn_train";
             btn_train.Size = new Size(98, 34);
@@ -433,18 +590,6 @@
             btn_train.Text = "학습";
             btn_train.UseVisualStyleBackColor = false;
             btn_train.Click += btn_train_Click;
-            // 
-            // btn_stopTrain
-            // 
-            btn_stopTrain.BackColor = Color.Gray;
-            btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_stopTrain.Location = new Point(142, 24);
-            btn_stopTrain.Margin = new Padding(2);
-            btn_stopTrain.Name = "btn_stopTrain";
-            btn_stopTrain.Size = new Size(101, 34);
-            btn_stopTrain.TabIndex = 5;
-            btn_stopTrain.Text = "학습 중단";
-            btn_stopTrain.UseVisualStyleBackColor = false;
             // 
             // combo_model
             // 
@@ -460,22 +605,37 @@
             // 
             list_log.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             list_log.FormattingEnabled = true;
-            list_log.Location = new Point(44, 65);
+            list_log.Location = new Point(259, 32);
             list_log.Margin = new Padding(2);
             list_log.Name = "list_log";
-            list_log.Size = new Size(363, 619);
+            list_log.Size = new Size(1098, 184);
             list_log.TabIndex = 1;
             // 
             // timer1
             // 
             timer1.Tick += timer1_Tick;
             // 
+            // listBox2
+            // 
+            listBox2.FormattingEnabled = true;
+            listBox2.Location = new Point(1013, 438);
+            listBox2.Name = "listBox2";
+            listBox2.Size = new Size(344, 409);
+            listBox2.TabIndex = 6;
+            // 
+            // progressBar1
+            // 
+            progressBar1.Location = new Point(1013, 301);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(344, 45);
+            progressBar1.TabIndex = 7;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1247, 771);
+            ClientSize = new Size(1392, 960);
             Controls.Add(tabControl);
             Margin = new Padding(2);
             Name = "Form1";
@@ -483,6 +643,8 @@
             tabControl.ResumeLayout(false);
             tab_data.ResumeLayout(false);
             tab_data.PerformLayout();
+            panel2.ResumeLayout(false);
+            panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)picNeedleAngle).EndInit();
             ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).EndInit();
             panelTrackBarProgress.ResumeLayout(false);
@@ -494,7 +656,6 @@
             ((System.ComponentModel.ISupportInitialize)picture_Gage).EndInit();
             ((System.ComponentModel.ISupportInitialize)picImage).EndInit();
             tab_train.ResumeLayout(false);
-            panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)chart_loss).EndInit();
             ResumeLayout(false);
         }
@@ -515,11 +676,9 @@
         private Button btn_train;
         private ComboBox combo_model;
         private ListBox list_log;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart_loss;
         private Button btn_stopTrain;
         private PictureBox picture_Gage;
         private Panel panel1;
-        private Panel panel2;
         private PictureBox picEdge;
         private Button btnPlay;
         private System.Windows.Forms.Timer timer1;
@@ -532,5 +691,20 @@
         private Label label1;
         private PictureBox picNeedleAngle;
         private PictureBox picNeedleSpeed;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart_loss;
+        private Panel panel2;
+        private Label label2;
+        private Button button1;
+        private Button button2;
+        private Button button3;
+        private Button button4;
+        private ListBox listBox1;
+        private Label label3;
+        private CheckBox checkBox2;
+        private CheckBox checkBox1;
+        private Label label5;
+        private Label label4;
+        private ProgressBar progressBar1;
+        private ListBox listBox2;
     }
 }
