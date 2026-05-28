@@ -739,6 +739,49 @@ namespace Datamanager
             CvInvoke.Line(frame, new Point(x1, y1), new Point(x2, y2), color, 5);
         }
 
+        Mat ApplyRoiPreprocessing(Mat frame)
+        {
+            Mat hsv = new Mat();
+            CvInvoke.CvtColor(frame, hsv, ColorConversion.Bgr2Hsv);
+
+            Mat whiteMask = new Mat();
+            CvInvoke.InRange(
+                hsv,
+                new ScalarArray(new MCvScalar(0, 0, 160)),
+                new ScalarArray(new MCvScalar(180, 80, 255)),
+                whiteMask
+            );
+
+            Mat edge = new Mat();
+            CvInvoke.Canny(whiteMask, edge, 50, 150);
+
+            Mat mask = new Mat(edge.Size, DepthType.Cv8U, 1);
+            mask.SetTo(new MCvScalar(0));
+
+            Point[] points =
+            {
+                new Point(100, edge.Rows),
+                new Point(250, edge.Rows * 3 / 7),
+                new Point(edge.Cols - 250, edge.Rows * 3 / 7),
+                new Point(edge.Cols - 100, edge.Rows)
+            };
+
+            using (VectorOfPoint polygon = new VectorOfPoint(points))
+            {
+                CvInvoke.FillConvexPoly(mask, polygon, new MCvScalar(255));
+            }
+
+            Mat roiEdge = new Mat();
+            CvInvoke.BitwiseAnd(edge, mask, roiEdge);
+
+            hsv.Dispose();
+            whiteMask.Dispose();
+            edge.Dispose();
+            mask.Dispose();
+
+            return roiEdge;
+        }
+
         void LoadCatalog()
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
@@ -837,9 +880,97 @@ namespace Datamanager
 
             try
             {
-                // TODO: Step 3-2에서 전처리 루프 추가 예정
+                int successCount = 0;
+                int skippedCount = 0;
+                int recordIndex = 0;
+                List<Dictionary<string, object>> jsonRecords = new List<Dictionary<string, object>>();
+                List<string> failedImages = new List<string>();
 
-                MessageBox.Show("Step 3-1 완료!\n\n초기화 및 검증 성공", "테스트", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                int totalImages = imageFiles.Length;
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⚙️ 총 {totalImages}장의 이미지 검증 및 전처리 시작...");
+
+                // 3. 각 원본 이미지 처리
+                int processedCount = 0;
+                foreach (string imagePath in imageFiles)
+                {
+                    try
+                    {
+                        string fileName = Path.GetFileName(imagePath);
+                        int originalIndex = ExtractNumber(Path.GetFileNameWithoutExtension(fileName));
+
+                        double angle = 0.0;
+                        double throttle = 0.0;
+
+                        if (catalogData.ContainsKey(originalIndex))
+                        {
+                            angle = catalogData[originalIndex].user_angle;
+                            throttle = catalogData[originalIndex].user_throttle;
+                        }
+
+                        if (angle == 0.0 || throttle <= 0.0)
+                        {
+                            skippedCount++;
+                            continue;
+                        }
+
+                        // 흑백 전처리 이미지 생성
+                        string wbImageSavePath = Path.Combine(wbImagesPath, fileName);
+
+                        if (!File.Exists(wbImageSavePath))
+                        {
+                            using (Mat frame = CvInvoke.Imread(imagePath, ImreadModes.AnyColor))
+                            {
+                                if (!frame.IsEmpty)
+                                {
+                                    using (Mat processedRoi = ApplyRoiPreprocessing(frame))
+                                    {
+                                        using (Mat finalImage = new Mat())
+                                        {
+                                            CvInvoke.CvtColor(processedRoi, finalImage, ColorConversion.Gray2Bgr);
+                                            CvInvoke.Imwrite(wbImageSavePath, finalImage);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // 레코드 생성
+                        var record = new Dictionary<string, object>
+                        {
+                            ["_index"] = recordIndex,
+                            ["_timestamp"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                            ["cam/image_array"] = $"images/{fileName}",
+                            ["cam/image_wb"] = $"wbimages/{fileName}",
+                            ["user/angle"] = angle,
+                            ["user/throttle"] = throttle
+                        };
+
+                        jsonRecords.Add(record);
+                        recordIndex++;
+                        successCount++;
+
+                        // 진행률 표시 (10%마다)
+                        processedCount++;
+                        int updateInterval = Math.Max(1, totalImages / 10);
+                        if (processedCount % updateInterval == 0)
+                        {
+                            int percentage = (int)((double)processedCount / totalImages * 100);
+                            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 진행률: {percentage}% ({processedCount}/{totalImages}장)");
+                            list_log.SelectedIndex = list_log.Items.Count - 1;
+                            Application.DoEvents();
+                        }
+                    }
+                    catch (Exception imageEx)
+                    {
+                        string errorMsg = $"{Path.GetFileName(imagePath)}: {imageEx.Message}";
+                        failedImages.Add(errorMsg);
+                        Console.WriteLine($"⚠️ {errorMsg}");
+                    }
+                }
+
+                // TODO: Step 3-3에서 카탈로그 저장 및 완료 처리 추가 예정
+
+                MessageBox.Show($"Step 3-2 완료!\n\n성공: {successCount}장\n스킵: {skippedCount}장\n실패: {failedImages.Count}장", "테스트", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
