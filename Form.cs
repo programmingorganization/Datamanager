@@ -241,7 +241,7 @@ namespace Datamanager
 
             // 데이터 경로 로드
 
-            string imageFolderPath = Path.Combine(baseDir, "images");
+            string imageFolderPath = Path.Combine(baseDir, "data", "images");
 
             historyPath = Path.Combine(baseDir, "deleted_history.json");
 
@@ -263,10 +263,6 @@ namespace Datamanager
             {
                 MessageBox.Show("카탈로그 로드 오류: " + ex.Message);
             }
-
-            trackBar_frame.Minimum = 0;
-            trackBar_frame.Maximum = imageFiles.Length - 1;
-            trackBar_frame.Value = 0;
 
             // 부모-자식 관계를 설정하여 완전한 투명(유리판) 효과를 구현
             picNeedleSpeed.Parent = picture_Gage;
@@ -411,12 +407,21 @@ namespace Datamanager
             if (!Directory.Exists(folderPath))
             {
                 MessageBox.Show("폴더가 존재하지 않습니다.");
-                return;
+                using (FolderBrowserDialog dialog = new FolderBrowserDialog())
+                {
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        LoadImageFolder(dialog.SelectedPath);
+                    }
+                }
             }
 
             currentFolderPath = folderPath;
 
-            imageFiles = Directory.GetFiles(folderPath, "*.jpg");
+            imageFiles = Directory
+                .GetFiles(folderPath, "*.jpg")
+                .OrderBy(f => ExtractNumber(Path.GetFileNameWithoutExtension(f)))
+                .ToArray();
 
             listImages.Items.Clear();
 
@@ -440,6 +445,17 @@ namespace Datamanager
             {
                 trackBar_frame.Enabled = false;
             }
+        }
+
+        int ExtractNumber(string name)
+        {
+            string number =
+                new string(name.Where(char.IsDigit).ToArray());
+
+            if (int.TryParse(number, out int result))
+                return result;
+
+            return int.MaxValue;
         }
 
         void CompressAllImages(int quality, double scale)
