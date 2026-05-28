@@ -968,9 +968,55 @@ namespace Datamanager
                     }
                 }
 
-                // TODO: Step 3-3에서 카탈로그 저장 및 완료 처리 추가 예정
+                // 4. training_data.catalog 저장
+                string catalogPath = Path.Combine(baseDir, "data", "training_data.catalog");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 💾 카탈로그 파일 저장 중...");
 
-                MessageBox.Show($"Step 3-2 완료!\n\n성공: {successCount}장\n스킵: {skippedCount}장\n실패: {failedImages.Count}장", "테스트", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                using (StreamWriter writer = new StreamWriter(catalogPath, false, System.Text.Encoding.UTF8))
+                {
+                    foreach (var record in jsonRecords)
+                    {
+                        string jsonLine = System.Text.Json.JsonSerializer.Serialize(record);
+                        writer.WriteLine(jsonLine);
+                    }
+                }
+
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 저장 완료: {catalogPath}");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📝 총 {jsonRecords.Count}개 레코드 작성");
+
+                // 5. 실패 로그 저장
+                if (failedImages.Count > 0)
+                {
+                    string failedLogPath = Path.Combine(baseDir, "data", "failed_images.log");
+                    File.WriteAllLines(failedLogPath, failedImages);
+                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⚠️ 실패 로그: {failedLogPath}");
+                }
+
+                // 6. 최종 통계
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ═══════════════════════════");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 최종 통계");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 성공: {successCount}장");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⏭️ 스킵: {skippedCount}장 (angle==0 또는 throttle<=0)");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 실패: {failedImages.Count}장");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ═══════════════════════════");
+                list_log.SelectedIndex = list_log.Items.Count - 1;
+
+                // 완료 메시지
+                string resultMessage = $"✅ 학습 데이터 준비 완료!\n\n";
+                resultMessage += $"📊 통계:\n";
+                resultMessage += $"  • 성공: {successCount}장\n";
+                resultMessage += $"  • 스킵: {skippedCount}장\n";
+                resultMessage += $"  • 실패: {failedImages.Count}장\n\n";
+                resultMessage += $"📁 생성된 파일:\n";
+                resultMessage += $"  • training_data.catalog\n";
+                resultMessage += $"  • wbimages/ 폴더 ({successCount}장)";
+
+                if (failedImages.Count > 0)
+                {
+                    resultMessage += $"\n  • failed_images.log";
+                }
+
+                MessageBox.Show(resultMessage, "학습 데이터 준비 완료", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
