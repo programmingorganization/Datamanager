@@ -63,36 +63,6 @@ namespace Datamanager.Properties {
         /// <summary>
         ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
-        internal static System.Drawing.Bitmap _1번 {
-            get {
-                object obj = ResourceManager.GetObject("1번", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
-        /// </summary>
-        internal static System.Drawing.Bitmap _2번 {
-            get {
-                object obj = ResourceManager.GetObject("2번", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
-        /// </summary>
-        internal static System.Drawing.Bitmap _3번 {
-            get {
-                object obj = ResourceManager.GetObject("3번", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
-        /// </summary>
         internal static System.Drawing.Bitmap _4번 {
             get {
                 object obj = ResourceManager.GetObject("4번", resourceCulture);
@@ -146,6 +116,16 @@ namespace Datamanager.Properties {
         internal static System.Drawing.Bitmap free_icon_play_8029490 {
             get {
                 object obj = ResourceManager.GetObject("free-icon-play-8029490", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap 최종 {
+            get {
+                object obj = ResourceManager.GetObject("최종", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

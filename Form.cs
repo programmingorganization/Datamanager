@@ -11,14 +11,11 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using Microsoft.VisualBasic;
 
 namespace Datamanager
 {
     public partial class Form1 : Form
     {
-        private bool isSliderDragging = false;
-
         string baseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));   //  프로젝트 루트 경로
 
         string[] imageFiles;
@@ -145,15 +142,18 @@ namespace Datamanager
                 btn.BackColor = Color.FromArgb(13, 13, 24);
                 btn.ForeColor = borderColor;
                 btn.FlatStyle = FlatStyle.Flat;
-                btn.FlatAppearance.BorderSize = 0;
+                // 로딩 빠른 버전 디자인
+                btn.FlatAppearance.BorderColor = borderColor;  // ← 테두리 색
+                btn.FlatAppearance.BorderSize = 1;             // ← 테두리 두께
 
+                //btn.FlatAppearance.BorderSize = 0;
                 btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(20, 20, 40);
                 btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(7, 7, 15);
 
                 btn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
-
-                btn.Paint += (sender, e) =>
+                //로딩 느린 버전
+                /*btn.Paint += (sender, e) =>
                 {
                     e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
@@ -177,7 +177,7 @@ namespace Datamanager
                             e.Graphics.DrawPath(pen, path);
                         }
                     }
-                };
+                };*/
             }
 
             StyleButton(btn_delete, Color.FromArgb(239, 83, 80));
@@ -197,6 +197,14 @@ namespace Datamanager
             trackBar_frame.BackColor = Color.FromArgb(13, 13, 24);
             trackBar_frame.TickStyle = TickStyle.None;
             trackBar_frame.ValueChanged += (sender, e) => trackBar_frame.Invalidate();
+
+            // TrackBar에 더블버퍼링 강제 적용
+            // 트랙바 깜빡거림 완화 위함
+            typeof(TrackBar)
+                .GetProperty("DoubleBuffered",
+                    System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance)
+                ?.SetValue(trackBar_frame, true);
 
             // 8. 학습 탭 하이테크 테마 디자인
             list_log.BackColor = Color.FromArgb(7, 7, 15);
@@ -571,11 +579,18 @@ namespace Datamanager
             if (catalogData.ContainsKey(currentIndex))
             {
                 var entry = catalogData[currentIndex];
+                // 디버그용 임시 추가
+                System.Diagnostics.Debug.WriteLine($"index:{currentIndex} throttle:{entry.user_throttle} angle:{entry.user_angle}");
                 label_throttle.Text = $"{entry.user_throttle:F3}";
                 label_angle.Text = $"{entry.user_angle:F3}";
 
                 //데이터 인덱스 변화에 맞춰 계기판 바늘을 갱신합니다.
                 DrawDashboardNeedles(entry.user_throttle, entry.user_angle);
+            }
+            else
+            {
+                // 키가 없는 경우 확인
+                System.Diagnostics.Debug.WriteLine($"catalogData에 키 없음: {currentIndex}");
             }
         }
 
@@ -745,6 +760,9 @@ namespace Datamanager
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string dataPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "data"));
+            // 경로 확인
+            System.Diagnostics.Debug.WriteLine($"data 경로: {dataPath}");
+            System.Diagnostics.Debug.WriteLine($"폴더 존재: {Directory.Exists(dataPath)}");
             if (!Directory.Exists(dataPath))
             {
                 MessageBox.Show("data 폴더를 찾을 수 없습니다: " + dataPath);
@@ -817,7 +835,7 @@ namespace Datamanager
 
         private void btnPlay_Click(object sender, EventArgs e)
         {
-            if (timer1.Enabled) { timer1.Stop(); btnPlay.Text = "재생"; }
+            if (timer1.Enabled) { timer1.Stop(); btnPlay.Text = "▶"; }
             else { timer1.Start(); btnPlay.Text = "정지"; }
         }
 
@@ -871,13 +889,7 @@ namespace Datamanager
                 );
             }
         }
-        private void panelCustomSlider_MouseDown(object sender, MouseEventArgs e) { }
-        private void panelCustomSlider_MouseMove(object sender, MouseEventArgs e) { }
-        private void panelCustomSlider_MouseUp(object sender, MouseEventArgs e) { }
-        private void panelCustomSlider_Paint(object sender, PaintEventArgs e) { }
-        private void chart1_Click(object sender, EventArgs e) { }
-        private void button7_Click(object sender, EventArgs e) { }
-
+   
         private void btn_openfolder_Click(object sender, EventArgs e)
         {
             using (FolderBrowserDialog dialog = new FolderBrowserDialog())
