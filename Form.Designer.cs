@@ -52,18 +52,17 @@
             btn_before = new Button();
             panelTrackBarProgress = new Panel();
             trackBar_frame = new TrackBar();
+            checkBox_filter = new CheckBox();
             checkBox1 = new CheckBox();
-            tabControl_graph = new TabControl();
-            tabPage1 = new TabPage();
+            split_graph = new SplitContainer();
             picture_Gage = new PictureBox();
-            label_angle = new Label();
-            picNeedleAngle = new PictureBox();
             label_throttle = new Label();
+            label_angle = new Label();
             picNeedleSpeed = new PictureBox();
-            tabPage2 = new TabPage();
+            picNeedleAngle = new PictureBox();
+            chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             checkBox_angle = new CheckBox();
             checkBox_throttle = new CheckBox();
-            chart_thr_ang = new System.Windows.Forms.DataVisualization.Charting.Chart();
             panel1 = new Panel();
             label1 = new Label();
             btnSetEnd = new Button();
@@ -75,13 +74,13 @@
             btn_restore = new Button();
             listBox1 = new ListBox();
             tab_train = new TabPage();
-            progressBar1 = new ProgressBar();
-            listBox2 = new ListBox();
-            chart_loss = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            btn_stopTrain = new Button();
-            btn_train = new Button();
+            splitContainer1 = new SplitContainer();
             combo_model = new ComboBox();
+            progressBar_learn = new ProgressBar();
+            btn_train = new Button();
             list_log = new ListBox();
+            btn_stopTrain = new Button();
+            chart_loss = new System.Windows.Forms.DataVisualization.Charting.Chart();
             timer1 = new System.Windows.Forms.Timer(components);
             tabControl.SuspendLayout();
             tab_data.SuspendLayout();
@@ -97,16 +96,21 @@
             ((System.ComponentModel.ISupportInitialize)picImage).BeginInit();
             panelTrackBarProgress.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar_frame).BeginInit();
-            tabControl_graph.SuspendLayout();
-            tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)split_graph).BeginInit();
+            split_graph.Panel1.SuspendLayout();
+            split_graph.Panel2.SuspendLayout();
+            split_graph.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picture_Gage).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).BeginInit();
             ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).BeginInit();
-            tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)chart_thr_ang).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             tab_train.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)chart_loss).BeginInit();
             SuspendLayout();
             // 
@@ -176,13 +180,14 @@
             splitContainer_up.Panel1.Controls.Add(checkBox2);
             splitContainer_up.Panel1.Controls.Add(btn_before);
             splitContainer_up.Panel1.Controls.Add(panelTrackBarProgress);
+            splitContainer_up.Panel1.Controls.Add(checkBox_filter);
             splitContainer_up.Panel1.Controls.Add(checkBox1);
             // 
             // splitContainer_up.Panel2
             // 
-            splitContainer_up.Panel2.Controls.Add(tabControl_graph);
+            splitContainer_up.Panel2.Controls.Add(split_graph);
             splitContainer_up.Size = new Size(1587, 606);
-            splitContainer_up.SplitterDistance = 846;
+            splitContainer_up.SplitterDistance = 992;
             splitContainer_up.TabIndex = 20;
             // 
             // flowPanel_thumbnails
@@ -192,7 +197,7 @@
             flowPanel_thumbnails.BackColor = Color.FromArgb(7, 7, 15);
             flowPanel_thumbnails.Location = new Point(2, 499);
             flowPanel_thumbnails.Name = "flowPanel_thumbnails";
-            flowPanel_thumbnails.Size = new Size(828, 100);
+            flowPanel_thumbnails.Size = new Size(974, 100);
             flowPanel_thumbnails.TabIndex = 20;
             flowPanel_thumbnails.WrapContents = false;
             // 
@@ -320,6 +325,7 @@
             // 
             // panelTrackBarProgress
             // 
+            panelTrackBarProgress.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panelTrackBarProgress.BackColor = Color.FromArgb(50, 50, 50);
             panelTrackBarProgress.Controls.Add(trackBar_frame);
             panelTrackBarProgress.Location = new Point(157, 393);
@@ -338,6 +344,18 @@
             trackBar_frame.TabIndex = 1;
             trackBar_frame.Scroll += trackBar_frame_Scroll;
             // 
+            // checkBox_filter
+            // 
+            checkBox_filter.AutoSize = true;
+            checkBox_filter.Font = new Font("맑은 고딕", 13F, FontStyle.Bold);
+            checkBox_filter.ForeColor = SystemColors.ButtonFace;
+            checkBox_filter.Location = new Point(20, 202);
+            checkBox_filter.Name = "checkBox_filter";
+            checkBox_filter.Size = new Size(85, 29);
+            checkBox_filter.TabIndex = 17;
+            checkBox_filter.Text = "필터링";
+            checkBox_filter.UseVisualStyleBackColor = true;
+            // 
             // checkBox1
             // 
             checkBox1.AutoSize = true;
@@ -350,36 +368,34 @@
             checkBox1.Text = "라인 표시";
             checkBox1.UseVisualStyleBackColor = true;
             // 
-            // tabControl_graph
+            // split_graph
             // 
-            tabControl_graph.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            tabControl_graph.Controls.Add(tabPage1);
-            tabControl_graph.Controls.Add(tabPage2);
-            tabControl_graph.Location = new Point(12, 2);
-            tabControl_graph.Name = "tabControl_graph";
-            tabControl_graph.SelectedIndex = 0;
-            tabControl_graph.Size = new Size(729, 601);
-            tabControl_graph.TabIndex = 17;
+            split_graph.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            split_graph.Location = new Point(3, 0);
+            split_graph.Name = "split_graph";
+            split_graph.Orientation = Orientation.Horizontal;
             // 
-            // tabPage1
+            // split_graph.Panel1
             // 
-            tabPage1.Controls.Add(picture_Gage);
-            tabPage1.Controls.Add(label_angle);
-            tabPage1.Controls.Add(picNeedleAngle);
-            tabPage1.Controls.Add(label_throttle);
-            tabPage1.Controls.Add(picNeedleSpeed);
-            tabPage1.Location = new Point(4, 34);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(721, 563);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "계기판";
-            tabPage1.UseVisualStyleBackColor = true;
+            split_graph.Panel1.Controls.Add(picture_Gage);
+            split_graph.Panel1.Controls.Add(label_throttle);
+            split_graph.Panel1.Controls.Add(label_angle);
+            split_graph.Panel1.Controls.Add(picNeedleSpeed);
+            split_graph.Panel1.Controls.Add(picNeedleAngle);
+            // 
+            // split_graph.Panel2
+            // 
+            split_graph.Panel2.Controls.Add(chart1);
+            split_graph.Panel2.Controls.Add(checkBox_angle);
+            split_graph.Panel2.Controls.Add(checkBox_throttle);
+            split_graph.Size = new Size(585, 606);
+            split_graph.SplitterDistance = 296;
+            split_graph.TabIndex = 17;
             // 
             // picture_Gage
             // 
-            picture_Gage.Image = Properties.Resources._5번;
-            picture_Gage.Location = new Point(50, 83);
+            picture_Gage.Image = Properties.Resources.최종;
+            picture_Gage.Location = new Point(27, 2);
             picture_Gage.Margin = new Padding(2);
             picture_Gage.Name = "picture_Gage";
             picture_Gage.Size = new Size(531, 293);
@@ -387,59 +403,64 @@
             picture_Gage.TabIndex = 8;
             picture_Gage.TabStop = false;
             // 
-            // label_angle
-            // 
-            label_angle.AutoSize = true;
-            label_angle.Location = new Point(387, 329);
-            label_angle.Name = "label_angle";
-            label_angle.Size = new Size(61, 25);
-            label_angle.TabIndex = 16;
-            label_angle.Text = "0.000";
-            // 
-            // picNeedleAngle
-            // 
-            picNeedleAngle.BackColor = Color.Transparent;
-            picNeedleAngle.Location = new Point(378, 178);
-            picNeedleAngle.Name = "picNeedleAngle";
-            picNeedleAngle.Size = new Size(100, 100);
-            picNeedleAngle.TabIndex = 14;
-            picNeedleAngle.TabStop = false;
-            // 
             // label_throttle
             // 
             label_throttle.AutoSize = true;
-            label_throttle.Location = new Point(169, 330);
+            label_throttle.Location = new Point(146, 249);
             label_throttle.Name = "label_throttle";
             label_throttle.Size = new Size(61, 25);
             label_throttle.TabIndex = 15;
             label_throttle.Text = "0.000";
             // 
+            // label_angle
+            // 
+            label_angle.AutoSize = true;
+            label_angle.Location = new Point(364, 248);
+            label_angle.Name = "label_angle";
+            label_angle.Size = new Size(61, 25);
+            label_angle.TabIndex = 16;
+            label_angle.Text = "0.000";
+            // 
             // picNeedleSpeed
             // 
             picNeedleSpeed.BackColor = Color.Transparent;
-            picNeedleSpeed.Location = new Point(151, 178);
+            picNeedleSpeed.Location = new Point(128, 97);
             picNeedleSpeed.Name = "picNeedleSpeed";
             picNeedleSpeed.Size = new Size(100, 100);
             picNeedleSpeed.TabIndex = 14;
             picNeedleSpeed.TabStop = false;
             // 
-            // tabPage2
+            // picNeedleAngle
             // 
-            tabPage2.Controls.Add(checkBox_angle);
-            tabPage2.Controls.Add(checkBox_throttle);
-            tabPage2.Controls.Add(chart_thr_ang);
-            tabPage2.Location = new Point(4, 24);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(721, 573);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "그래프";
-            tabPage2.UseVisualStyleBackColor = true;
+            picNeedleAngle.BackColor = Color.Transparent;
+            picNeedleAngle.Location = new Point(355, 97);
+            picNeedleAngle.Name = "picNeedleAngle";
+            picNeedleAngle.Size = new Size(100, 100);
+            picNeedleAngle.TabIndex = 14;
+            picNeedleAngle.TabStop = false;
+            // 
+            // chart1
+            // 
+            chart1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            chartArea1.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            chart1.Legends.Add(legend1);
+            chart1.Location = new Point(0, 59);
+            chart1.Name = "chart1";
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            chart1.Series.Add(series1);
+            chart1.Size = new Size(579, 244);
+            chart1.TabIndex = 2;
+            chart1.Text = "chart1";
             // 
             // checkBox_angle
             // 
             checkBox_angle.AutoSize = true;
-            checkBox_angle.Location = new Point(126, 11);
+            checkBox_angle.ForeColor = SystemColors.ButtonHighlight;
+            checkBox_angle.Location = new Point(116, 19);
             checkBox_angle.Name = "checkBox_angle";
             checkBox_angle.Size = new Size(69, 29);
             checkBox_angle.TabIndex = 1;
@@ -449,29 +470,13 @@
             // checkBox_throttle
             // 
             checkBox_throttle.AutoSize = true;
-            checkBox_throttle.Location = new Point(26, 11);
+            checkBox_throttle.ForeColor = SystemColors.ButtonHighlight;
+            checkBox_throttle.Location = new Point(16, 19);
             checkBox_throttle.Name = "checkBox_throttle";
             checkBox_throttle.Size = new Size(69, 29);
             checkBox_throttle.TabIndex = 1;
             checkBox_throttle.Text = "속도";
             checkBox_throttle.UseVisualStyleBackColor = true;
-            // 
-            // chart_thr_ang
-            // 
-            chart_thr_ang.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea1.Name = "ChartArea1";
-            chart_thr_ang.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            chart_thr_ang.Legends.Add(legend1);
-            chart_thr_ang.Location = new Point(0, 46);
-            chart_thr_ang.Name = "chart_thr_ang";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            chart_thr_ang.Series.Add(series1);
-            chart_thr_ang.Size = new Size(721, 524);
-            chart_thr_ang.TabIndex = 0;
-            chart_thr_ang.Text = "chart1";
             // 
             // panel1
             // 
@@ -599,13 +604,7 @@
             // tab_train
             // 
             tab_train.BackColor = Color.FromArgb(64, 64, 64);
-            tab_train.Controls.Add(progressBar1);
-            tab_train.Controls.Add(listBox2);
-            tab_train.Controls.Add(chart_loss);
-            tab_train.Controls.Add(btn_stopTrain);
-            tab_train.Controls.Add(btn_train);
-            tab_train.Controls.Add(combo_model);
-            tab_train.Controls.Add(list_log);
+            tab_train.Controls.Add(splitContainer1);
             tab_train.Location = new Point(4, 36);
             tab_train.Margin = new Padding(2);
             tab_train.Name = "tab_train";
@@ -614,30 +613,88 @@
             tab_train.TabIndex = 1;
             tab_train.Text = "학습";
             // 
-            // progressBar1
+            // splitContainer1
             // 
-            progressBar1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progressBar1.Location = new Point(1013, 243);
-            progressBar1.Name = "progressBar1";
-            progressBar1.Size = new Size(521, 45);
-            progressBar1.TabIndex = 7;
+            splitContainer1.Location = new Point(-4, 0);
+            splitContainer1.Name = "splitContainer1";
             // 
-            // listBox2
+            // splitContainer1.Panel1
             // 
-            listBox2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            listBox2.FormattingEnabled = true;
-            listBox2.Location = new Point(1013, 322);
-            listBox2.Name = "listBox2";
-            listBox2.Size = new Size(521, 229);
-            listBox2.TabIndex = 6;
+            splitContainer1.Panel1.Controls.Add(combo_model);
+            splitContainer1.Panel1.Controls.Add(progressBar_learn);
+            splitContainer1.Panel1.Controls.Add(btn_train);
+            splitContainer1.Panel1.Controls.Add(list_log);
+            splitContainer1.Panel1.Controls.Add(btn_stopTrain);
+            // 
+            // splitContainer1.Panel2
+            // 
+            splitContainer1.Panel2.Controls.Add(chart_loss);
+            splitContainer1.Size = new Size(1592, 886);
+            splitContainer1.SplitterDistance = 562;
+            splitContainer1.TabIndex = 8;
+            // 
+            // combo_model
+            // 
+            combo_model.FormattingEnabled = true;
+            combo_model.Location = new Point(28, 101);
+            combo_model.Margin = new Padding(2);
+            combo_model.Name = "combo_model";
+            combo_model.Size = new Size(317, 23);
+            combo_model.TabIndex = 2;
+            // 
+            // progressBar_learn
+            // 
+            progressBar_learn.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            progressBar_learn.Location = new Point(14, 212);
+            progressBar_learn.Name = "progressBar_learn";
+            progressBar_learn.Size = new Size(539, 52);
+            progressBar_learn.TabIndex = 7;
+            // 
+            // btn_train
+            // 
+            btn_train.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            btn_train.BackColor = Color.Gray;
+            btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btn_train.Location = new Point(374, 56);
+            btn_train.Margin = new Padding(2);
+            btn_train.Name = "btn_train";
+            btn_train.Size = new Size(138, 40);
+            btn_train.TabIndex = 3;
+            btn_train.Text = "학습";
+            btn_train.UseVisualStyleBackColor = false;
+            btn_train.Click += btn_train_Click;
+            // 
+            // list_log
+            // 
+            list_log.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            list_log.FormattingEnabled = true;
+            list_log.Location = new Point(14, 280);
+            list_log.Margin = new Padding(2);
+            list_log.Name = "list_log";
+            list_log.Size = new Size(539, 589);
+            list_log.TabIndex = 1;
+            // 
+            // btn_stopTrain
+            // 
+            btn_stopTrain.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            btn_stopTrain.BackColor = Color.Gray;
+            btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
+            btn_stopTrain.Location = new Point(374, 132);
+            btn_stopTrain.Margin = new Padding(2);
+            btn_stopTrain.Name = "btn_stopTrain";
+            btn_stopTrain.Size = new Size(138, 40);
+            btn_stopTrain.TabIndex = 5;
+            btn_stopTrain.Text = "학습 중단";
+            btn_stopTrain.UseVisualStyleBackColor = false;
             // 
             // chart_loss
             // 
+            chart_loss.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             chartArea2.Name = "ChartArea1";
             chart_loss.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
             chart_loss.Legends.Add(legend2);
-            chart_loss.Location = new Point(20, 243);
+            chart_loss.Location = new Point(2, 4);
             chart_loss.Margin = new Padding(2);
             chart_loss.Name = "chart_loss";
             chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
@@ -645,53 +702,9 @@
             series2.Legend = "Legend1";
             series2.Name = "Series1";
             chart_loss.Series.Add(series2);
-            chart_loss.Size = new Size(938, 643);
+            chart_loss.Size = new Size(1028, 882);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
-            chart_loss.Click += chart1_Click;
-            // 
-            // btn_stopTrain
-            // 
-            btn_stopTrain.BackColor = Color.Gray;
-            btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_stopTrain.Location = new Point(44, 139);
-            btn_stopTrain.Margin = new Padding(2);
-            btn_stopTrain.Name = "btn_stopTrain";
-            btn_stopTrain.Size = new Size(118, 40);
-            btn_stopTrain.TabIndex = 5;
-            btn_stopTrain.Text = "학습 중단";
-            btn_stopTrain.UseVisualStyleBackColor = false;
-            // 
-            // btn_train
-            // 
-            btn_train.BackColor = Color.Gray;
-            btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btn_train.Location = new Point(44, 86);
-            btn_train.Margin = new Padding(2);
-            btn_train.Name = "btn_train";
-            btn_train.Size = new Size(118, 40);
-            btn_train.TabIndex = 3;
-            btn_train.Text = "학습";
-            btn_train.UseVisualStyleBackColor = false;
-            btn_train.Click += btn_train_Click;
-            // 
-            // combo_model
-            // 
-            combo_model.FormattingEnabled = true;
-            combo_model.Location = new Point(44, 32);
-            combo_model.Margin = new Padding(2);
-            combo_model.Name = "combo_model";
-            combo_model.Size = new Size(118, 23);
-            combo_model.TabIndex = 2;
-            // 
-            // list_log
-            // 
-            list_log.FormattingEnabled = true;
-            list_log.Location = new Point(222, 32);
-            list_log.Margin = new Padding(2);
-            list_log.Name = "list_log";
-            list_log.Size = new Size(1338, 184);
-            list_log.TabIndex = 1;
             // 
             // timer1
             // 
@@ -723,20 +736,25 @@
             panelTrackBarProgress.ResumeLayout(false);
             panelTrackBarProgress.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar_frame).EndInit();
-            tabControl_graph.ResumeLayout(false);
-            tabPage1.ResumeLayout(false);
-            tabPage1.PerformLayout();
+            split_graph.Panel1.ResumeLayout(false);
+            split_graph.Panel1.PerformLayout();
+            split_graph.Panel2.ResumeLayout(false);
+            split_graph.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)split_graph).EndInit();
+            split_graph.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)picture_Gage).EndInit();
-            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).EndInit();
             ((System.ComponentModel.ISupportInitialize)picNeedleSpeed).EndInit();
-            tabPage2.ResumeLayout(false);
-            tabPage2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)chart_thr_ang).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picNeedleAngle).EndInit();
+            ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
             tab_train.ResumeLayout(false);
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)chart_loss).EndInit();
             ResumeLayout(false);
         }
@@ -778,18 +796,17 @@
         private CheckBox checkBox1;
         private Label label5;
         private Label label4;
-        private ProgressBar progressBar1;
-        private ListBox listBox2;
+        private ProgressBar progressBar_learn;
         private SplitContainer splitContainer_up;
         private SplitContainer splitContainer_allwindow;
         private Label label_angle;
         private Label label_throttle;
-        private TabControl tabControl_graph;
-        private TabPage tabPage1;
-        private TabPage tabPage2;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart_thr_ang;
         private CheckBox checkBox_angle;
         private CheckBox checkBox_throttle;
         private FlowLayoutPanel flowPanel_thumbnails;
+        private SplitContainer split_graph;
+        private CheckBox checkBox_filter;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private SplitContainer splitContainer1;
     }
 }
