@@ -28,7 +28,7 @@ namespace Datamanager
         string backupFolderPath;    // 압축 전 원본 이미지를 보관하는 폴더 경로
 
         string historyPath;
-        
+
 
         bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
 
@@ -1073,7 +1073,7 @@ namespace Datamanager
                 );
             }
         }
-   
+
         private void btn_openfolder_Click(object sender, EventArgs e)
         {
             using (FolderBrowserDialog dialog = new FolderBrowserDialog())
@@ -1207,6 +1207,26 @@ namespace Datamanager
             CompressAllImages(quality, 1.0);
 
             MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblStartFrame_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
