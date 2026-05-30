@@ -1371,6 +1371,15 @@ namespace Datamanager
             MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
         }
 
+        private void progressDelete_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
 
