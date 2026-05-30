@@ -181,6 +181,29 @@ namespace Datamanager
                 };*/
             }
 
+            // 데이터 매니저 chart_data 초기 설정
+            chart_data.BackColor = Color.FromArgb(13, 13, 24);
+            chart_data.BorderlineColor = Color.FromArgb(30, 30, 58);
+            chart_data.BorderlineDashStyle = ChartDashStyle.Solid;
+            chart_data.BorderlineWidth = 1;
+
+            var area = chart_data.ChartAreas[0];
+            area.BackColor = Color.FromArgb(7, 7, 15);
+            area.AxisX.LabelStyle.ForeColor = Color.FromArgb(80, 80, 100);
+            area.AxisY.LabelStyle.ForeColor = Color.FromArgb(80, 80, 100);
+            area.AxisX.MajorGrid.LineColor = Color.FromArgb(20, 20, 35);
+            area.AxisY.MajorGrid.LineColor = Color.FromArgb(20, 20, 35);
+            area.AxisX.LineColor = Color.FromArgb(30, 30, 58);
+            area.AxisY.LineColor = Color.FromArgb(30, 30, 58);
+            area.AxisY.Minimum = -1.0;
+            area.AxisY.Maximum = 1.0;
+
+            foreach (var legend in chart_data.Legends)
+            {
+                legend.BackColor = Color.Transparent;
+                legend.ForeColor = Color.FromArgb(204, 204, 204);
+            }
+
             StyleButton(btn_delete, Color.FromArgb(239, 83, 80));
             StyleButton(btn_restore, Color.FromArgb(140, 140, 160));
             StyleButton(btnPlay, Color.FromArgb(102, 187, 106));
@@ -222,17 +245,18 @@ namespace Datamanager
             {
                 chart_loss.BackColor = Color.FromArgb(13, 13, 24);
 
-                foreach (var area in chart_loss.ChartAreas)
+                foreach (var lossarea in chart_loss.ChartAreas)
                 {
-                    area.BackColor = Color.FromArgb(7, 7, 15);
-                    area.AxisX.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
-                    area.AxisY.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
+                    lossarea.BackColor = Color.FromArgb(7, 7, 15);
+                    lossarea.AxisX.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
+                    lossarea.AxisY.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
 
-                    area.AxisX.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
-                    area.AxisY.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
+                    lossarea.AxisX.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
+                    lossarea.AxisY.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
 
-                    area.AxisX.LineColor = Color.FromArgb(79, 195, 247);
-                    area.AxisY.LineColor = Color.FromArgb(79, 195, 247);
+                    lossarea.AxisX.LineColor = Color.FromArgb(79, 195, 247);
+                    lossarea.AxisY.LineColor = Color.FromArgb(79, 195, 247);
+                    lossarea.AxisY.LineColor = Color.FromArgb(79, 195, 247);
                 }
 
                 foreach (var legend in chart_loss.Legends)
@@ -266,6 +290,7 @@ namespace Datamanager
             try
             {
                 LoadCatalog();
+                UpdateDataChart();
             }
             catch (Exception ex)
             {
@@ -289,14 +314,113 @@ namespace Datamanager
             label_throttle.Parent = picture_Gage;
             label_angle.Parent = picture_Gage;
 
-            label_throttle.Location = new Point(label_throttle.Left - picture_Gage.Left, label_throttle.Top - picture_Gage.Top);
-            label_angle.Location = new Point(label_angle.Left - picture_Gage.Left, label_angle.Top - picture_Gage.Top);
-
             label_throttle.BackColor = Color.Transparent;
             label_angle.BackColor = Color.Transparent;
 
             // imageFiles 로드 후 아래에 추가
             LoadThumbnails(currentIndex);
+
+            // AI 수치 비교 타이틀
+            label_aicompare.ForeColor = Color.FromArgb(79, 195, 247);
+            label_aicompare.Font = new Font("Consolas", 22F, FontStyle.Bold);
+            label_aicompare.BackColor = Color.Transparent;
+
+            // 비교 레이블 및 수치 레이블
+            StyleCompLabel(label_compthrottle);
+            StyleCompLabel(label_compangle);
+            StyleCompLabel(label_aithrottle);
+            StyleCompLabel(label_aiangle);
+            StyleNumLabel(label_compthroNum, Color.FromArgb(79, 195, 247));
+            StyleNumLabel(label_compangleNum, Color.FromArgb(79, 195, 247));
+            StyleNumLabel(label_aithroNum, Color.FromArgb(255, 167, 38));
+            StyleNumLabel(label_aiangleNum, Color.FromArgb(255, 167, 38)); StyleProgressBar(progre_compthro, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progre_compangle, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progre_aithro, Color.FromArgb(255, 167, 38));
+            StyleProgressBar(progre_aiangle, Color.FromArgb(255, 167, 38));
+
+            // 콤보박스
+            combo_compare.BackColor = Color.FromArgb(18, 18, 32);
+            combo_compare.ForeColor = Color.FromArgb(204, 204, 204);
+            combo_compare.Font = new Font("Consolas", 15F);
+            combo_compare.FlatStyle = FlatStyle.Flat;
+            // 콤보박스 아이템 로드
+            combo_compare.SelectedIndexChanged += (s, e) =>
+            {
+                if (combo_compare.SelectedIndex < 0) return;
+
+                int idx = combo_compare.SelectedIndex;
+
+                if (catalogData.ContainsKey(idx))
+                {
+                    var entry = catalogData[idx];
+                    double realAngle = entry.user_angle;
+                    double realThrottle = entry.user_throttle;
+
+                    // 실제값 표시
+                    label_compthroNum.Text = realThrottle.ToString("F3");
+                    label_compangleNum.Text = realAngle.ToString("F3");
+
+                    // ProgressBar 실제값
+                    progre_compthro.Value = (int)(Math.Abs(realThrottle) * 100);
+                    progre_compangle.Value = (int)((realAngle + 1) / 2 * 100);
+
+                    // AI 예측값은 학습 완료 후 연동
+                    // label_aithroNum.Text = aiThrottle.ToString("F3");
+                    // label_aiangleNum.Text = aiAngle.ToString("F3");
+
+                    // 오차 표시
+                    // double diff = Math.Abs(realAngle - aiAngle);
+                    // label_ocha.Text = $"오차: {diff:F3}";
+                    // label_ocha.ForeColor = diff < 0.1
+                    //     ? Color.FromArgb(102, 187, 106)
+                    //     : Color.FromArgb(239, 83, 80);
+                }
+            };
+
+            // 오차 레이블
+            label_ocha.ForeColor = Color.FromArgb(102, 187, 106);
+            label_ocha.Font = new Font("Consolas", 15F, FontStyle.Bold);
+            label_ocha.BackColor = Color.Transparent;
+
+            // 학습 품질 점수 타이틀
+            label_learningNum.ForeColor = Color.FromArgb(79, 195, 247);
+            label_learningNum.Font = new Font("Consolas", 22F, FontStyle.Bold);
+            label_learningNum.BackColor = Color.Transparent;
+
+            // 큰 점수 숫자
+            label_score.Text = "0";
+            label_score.ForeColor = Color.FromArgb(102, 187, 106);
+            label_score.Font = new Font("Segoe UI", 36F, FontStyle.Bold);
+            label_score.BackColor = Color.Transparent;
+            label_score.TextAlign = ContentAlignment.MiddleCenter;
+
+            // / 100점
+            label_scoreUnit.Text = "/ 100점";
+            label_scoreUnit.ForeColor = Color.FromArgb(220, 220, 220);
+            label_scoreUnit.Font = new Font("Consolas", 18F);
+            label_scoreUnit.BackColor = Color.Transparent;
+            label_scoreUnit.TextAlign = ContentAlignment.MiddleCenter;
+
+            // 등급
+            label_grade.Text = "등급";
+            label_grade.ForeColor = Color.FromArgb(102, 187, 106);
+            label_grade.Font = new Font("Segoe UI", 25F, FontStyle.Bold);
+            label_grade.BackColor = Color.Transparent;
+            label_grade.TextAlign = ContentAlignment.MiddleCenter;
+
+            // 학습 정확도 레이블
+            label_progreScore.Text = "학습 정확도";
+            label_progreScore.ForeColor = Color.FromArgb(220, 220, 220);
+            label_progreScore.Font = new Font("Consolas", 14F);
+            label_progreScore.BackColor = Color.Transparent;
+
+            // 프로그레스바
+            progressBar_score.Minimum = 0;
+            progressBar_score.Maximum = 100;
+            progressBar_score.Value = 0;
+            progressBar_score.Style = ProgressBarStyle.Continuous;
+            progressBar_score.ForeColor = Color.FromArgb(102, 187, 106);
+            progressBar_score.BackColor = Color.FromArgb(26, 26, 48);
         }
 
         // 10. CONTROL-BASED NEEDLE DRAWING 
@@ -411,6 +535,33 @@ namespace Datamanager
             {
                 g.DrawEllipse(capPen, cx - capR, cy - capR, capR * 2, capR * 2);
             }
+        }
+
+        // 글자 레이블 공통 스타일
+        void StyleCompLabel(Label lbl)
+        {
+            lbl.ForeColor = Color.FromArgb(220, 220, 220);
+            lbl.Font = new Font("Consolas", 15F, FontStyle.Bold);
+            lbl.BackColor = Color.Transparent;
+        }
+
+        // 수치 레이블 공통 스타일
+        void StyleNumLabel(Label lbl, Color color)
+        {
+            lbl.ForeColor = color;
+            lbl.Font = new Font("Consolas", 15F, FontStyle.Bold);
+            lbl.BackColor = Color.Transparent;
+        }
+
+        // ProgressBar 공통 스타일
+        void StyleProgressBar(ProgressBar pb, Color color)
+        {
+            pb.Style = ProgressBarStyle.Continuous;
+            pb.Minimum = 0;
+            pb.Maximum = 100;
+            pb.Value = 0;
+            pb.ForeColor = color;
+            pb.BackColor = Color.FromArgb(26, 26, 48);
         }
 
         void LoadImageFolder(string folderPath) // 이미지 폴더 로드 및 초기화
@@ -606,6 +757,17 @@ namespace Datamanager
                 return;
             }
             ProcessFrame(frame);
+        }
+        void UpdateDataChart()
+        {
+            chart_data.Series["Throttle"].Points.Clear();
+            chart_data.Series["Angle"].Points.Clear();
+
+            foreach (var kv in catalogData.OrderBy(k => k.Key))
+            {
+                chart_data.Series["Throttle"].Points.AddXY(kv.Key, kv.Value.user_throttle);
+                chart_data.Series["Angle"].Points.AddXY(kv.Key, kv.Value.user_angle);
+            }
         }
 
         void ProcessFrame(Mat frame)
@@ -1209,25 +1371,6 @@ namespace Datamanager
             MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
         }
 
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblStartFrame_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void progressBar1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 
 
