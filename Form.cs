@@ -11,14 +11,11 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using Microsoft.VisualBasic;
 
 namespace Datamanager
 {
     public partial class Form1 : Form
     {
-        private bool isSliderDragging = false;
-
         string baseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));   //  프로젝트 루트 경로
 
         string[] imageFiles;
@@ -31,6 +28,7 @@ namespace Datamanager
         string backupFolderPath;    // 압축 전 원본 이미지를 보관하는 폴더 경로
 
         string historyPath;
+
 
         bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
 
@@ -145,15 +143,18 @@ namespace Datamanager
                 btn.BackColor = Color.FromArgb(13, 13, 24);
                 btn.ForeColor = borderColor;
                 btn.FlatStyle = FlatStyle.Flat;
-                btn.FlatAppearance.BorderSize = 0;
+                // 로딩 빠른 버전 디자인
+                btn.FlatAppearance.BorderColor = borderColor;  // ← 테두리 색
+                btn.FlatAppearance.BorderSize = 1;             // ← 테두리 두께
 
+                //btn.FlatAppearance.BorderSize = 0;
                 btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(20, 20, 40);
                 btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(7, 7, 15);
 
                 btn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
-
-                btn.Paint += (sender, e) =>
+                //로딩 느린 버전
+                /*btn.Paint += (sender, e) =>
                 {
                     e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
@@ -177,7 +178,30 @@ namespace Datamanager
                             e.Graphics.DrawPath(pen, path);
                         }
                     }
-                };
+                };*/
+            }
+
+            // 데이터 매니저 chart_data 초기 설정
+            chart_data.BackColor = Color.FromArgb(13, 13, 24);
+            chart_data.BorderlineColor = Color.FromArgb(30, 30, 58);
+            chart_data.BorderlineDashStyle = ChartDashStyle.Solid;
+            chart_data.BorderlineWidth = 1;
+
+            var area = chart_data.ChartAreas[0];
+            area.BackColor = Color.FromArgb(7, 7, 15);
+            area.AxisX.LabelStyle.ForeColor = Color.FromArgb(80, 80, 100);
+            area.AxisY.LabelStyle.ForeColor = Color.FromArgb(80, 80, 100);
+            area.AxisX.MajorGrid.LineColor = Color.FromArgb(20, 20, 35);
+            area.AxisY.MajorGrid.LineColor = Color.FromArgb(20, 20, 35);
+            area.AxisX.LineColor = Color.FromArgb(30, 30, 58);
+            area.AxisY.LineColor = Color.FromArgb(30, 30, 58);
+            area.AxisY.Minimum = -1.0;
+            area.AxisY.Maximum = 1.0;
+
+            foreach (var legend in chart_data.Legends)
+            {
+                legend.BackColor = Color.Transparent;
+                legend.ForeColor = Color.FromArgb(204, 204, 204);
             }
 
             StyleButton(btn_delete, Color.FromArgb(239, 83, 80));
@@ -198,6 +222,14 @@ namespace Datamanager
             trackBar_frame.TickStyle = TickStyle.None;
             trackBar_frame.ValueChanged += (sender, e) => trackBar_frame.Invalidate();
 
+            // TrackBar에 더블버퍼링 강제 적용
+            // 트랙바 깜빡거림 완화 위함
+            typeof(TrackBar)
+                .GetProperty("DoubleBuffered",
+                    System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance)
+                ?.SetValue(trackBar_frame, true);
+
             // 8. 학습 탭 하이테크 테마 디자인
             list_log.BackColor = Color.FromArgb(7, 7, 15);
             list_log.ForeColor = Color.FromArgb(0, 191, 255);
@@ -213,17 +245,18 @@ namespace Datamanager
             {
                 chart_loss.BackColor = Color.FromArgb(13, 13, 24);
 
-                foreach (var area in chart_loss.ChartAreas)
+                foreach (var lossarea in chart_loss.ChartAreas)
                 {
-                    area.BackColor = Color.FromArgb(7, 7, 15);
-                    area.AxisX.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
-                    area.AxisY.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
+                    lossarea.BackColor = Color.FromArgb(7, 7, 15);
+                    lossarea.AxisX.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
+                    lossarea.AxisY.LabelStyle.ForeColor = Color.FromArgb(204, 204, 204);
 
-                    area.AxisX.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
-                    area.AxisY.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
+                    lossarea.AxisX.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
+                    lossarea.AxisY.MajorGrid.LineColor = Color.FromArgb(40, 40, 60);
 
-                    area.AxisX.LineColor = Color.FromArgb(79, 195, 247);
-                    area.AxisY.LineColor = Color.FromArgb(79, 195, 247);
+                    lossarea.AxisX.LineColor = Color.FromArgb(79, 195, 247);
+                    lossarea.AxisY.LineColor = Color.FromArgb(79, 195, 247);
+                    lossarea.AxisY.LineColor = Color.FromArgb(79, 195, 247);
                 }
 
                 foreach (var legend in chart_loss.Legends)
@@ -257,6 +290,7 @@ namespace Datamanager
             try
             {
                 LoadCatalog();
+                UpdateDataChart();
             }
             catch (Exception ex)
             {
@@ -280,14 +314,113 @@ namespace Datamanager
             label_throttle.Parent = picture_Gage;
             label_angle.Parent = picture_Gage;
 
-            label_throttle.Location = new Point(label_throttle.Left - picture_Gage.Left, label_throttle.Top - picture_Gage.Top);
-            label_angle.Location = new Point(label_angle.Left - picture_Gage.Left, label_angle.Top - picture_Gage.Top);
-
             label_throttle.BackColor = Color.Transparent;
             label_angle.BackColor = Color.Transparent;
 
             // imageFiles 로드 후 아래에 추가
             LoadThumbnails(currentIndex);
+
+            // AI 수치 비교 타이틀
+            label_aicompare.ForeColor = Color.FromArgb(79, 195, 247);
+            label_aicompare.Font = new Font("Consolas", 22F, FontStyle.Bold);
+            label_aicompare.BackColor = Color.Transparent;
+
+            // 비교 레이블 및 수치 레이블
+            StyleCompLabel(label_compthrottle);
+            StyleCompLabel(label_compangle);
+            StyleCompLabel(label_aithrottle);
+            StyleCompLabel(label_aiangle);
+            StyleNumLabel(label_compthroNum, Color.FromArgb(79, 195, 247));
+            StyleNumLabel(label_compangleNum, Color.FromArgb(79, 195, 247));
+            StyleNumLabel(label_aithroNum, Color.FromArgb(255, 167, 38));
+            StyleNumLabel(label_aiangleNum, Color.FromArgb(255, 167, 38)); StyleProgressBar(progre_compthro, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progre_compangle, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progre_aithro, Color.FromArgb(255, 167, 38));
+            StyleProgressBar(progre_aiangle, Color.FromArgb(255, 167, 38));
+
+            // 콤보박스
+            combo_compare.BackColor = Color.FromArgb(18, 18, 32);
+            combo_compare.ForeColor = Color.FromArgb(204, 204, 204);
+            combo_compare.Font = new Font("Consolas", 15F);
+            combo_compare.FlatStyle = FlatStyle.Flat;
+            // 콤보박스 아이템 로드
+            combo_compare.SelectedIndexChanged += (s, e) =>
+            {
+                if (combo_compare.SelectedIndex < 0) return;
+
+                int idx = combo_compare.SelectedIndex;
+
+                if (catalogData.ContainsKey(idx))
+                {
+                    var entry = catalogData[idx];
+                    double realAngle = entry.user_angle;
+                    double realThrottle = entry.user_throttle;
+
+                    // 실제값 표시
+                    label_compthroNum.Text = realThrottle.ToString("F3");
+                    label_compangleNum.Text = realAngle.ToString("F3");
+
+                    // ProgressBar 실제값
+                    progre_compthro.Value = (int)(Math.Abs(realThrottle) * 100);
+                    progre_compangle.Value = (int)((realAngle + 1) / 2 * 100);
+
+                    // AI 예측값은 학습 완료 후 연동
+                    // label_aithroNum.Text = aiThrottle.ToString("F3");
+                    // label_aiangleNum.Text = aiAngle.ToString("F3");
+
+                    // 오차 표시
+                    // double diff = Math.Abs(realAngle - aiAngle);
+                    // label_ocha.Text = $"오차: {diff:F3}";
+                    // label_ocha.ForeColor = diff < 0.1
+                    //     ? Color.FromArgb(102, 187, 106)
+                    //     : Color.FromArgb(239, 83, 80);
+                }
+            };
+
+            // 오차 레이블
+            label_ocha.ForeColor = Color.FromArgb(102, 187, 106);
+            label_ocha.Font = new Font("Consolas", 15F, FontStyle.Bold);
+            label_ocha.BackColor = Color.Transparent;
+
+            // 학습 품질 점수 타이틀
+            label_learningNum.ForeColor = Color.FromArgb(79, 195, 247);
+            label_learningNum.Font = new Font("Consolas", 22F, FontStyle.Bold);
+            label_learningNum.BackColor = Color.Transparent;
+
+            // 큰 점수 숫자
+            label_score.Text = "0";
+            label_score.ForeColor = Color.FromArgb(102, 187, 106);
+            label_score.Font = new Font("Segoe UI", 36F, FontStyle.Bold);
+            label_score.BackColor = Color.Transparent;
+            label_score.TextAlign = ContentAlignment.MiddleCenter;
+
+            // / 100점
+            label_scoreUnit.Text = "/ 100점";
+            label_scoreUnit.ForeColor = Color.FromArgb(220, 220, 220);
+            label_scoreUnit.Font = new Font("Consolas", 18F);
+            label_scoreUnit.BackColor = Color.Transparent;
+            label_scoreUnit.TextAlign = ContentAlignment.MiddleCenter;
+
+            // 등급
+            label_grade.Text = "등급";
+            label_grade.ForeColor = Color.FromArgb(102, 187, 106);
+            label_grade.Font = new Font("Segoe UI", 25F, FontStyle.Bold);
+            label_grade.BackColor = Color.Transparent;
+            label_grade.TextAlign = ContentAlignment.MiddleCenter;
+
+            // 학습 정확도 레이블
+            label_progreScore.Text = "학습 정확도";
+            label_progreScore.ForeColor = Color.FromArgb(220, 220, 220);
+            label_progreScore.Font = new Font("Consolas", 14F);
+            label_progreScore.BackColor = Color.Transparent;
+
+            // 프로그레스바
+            progressBar_score.Minimum = 0;
+            progressBar_score.Maximum = 100;
+            progressBar_score.Value = 0;
+            progressBar_score.Style = ProgressBarStyle.Continuous;
+            progressBar_score.ForeColor = Color.FromArgb(102, 187, 106);
+            progressBar_score.BackColor = Color.FromArgb(26, 26, 48);
         }
 
         // 10. CONTROL-BASED NEEDLE DRAWING 
@@ -402,6 +535,33 @@ namespace Datamanager
             {
                 g.DrawEllipse(capPen, cx - capR, cy - capR, capR * 2, capR * 2);
             }
+        }
+
+        // 글자 레이블 공통 스타일
+        void StyleCompLabel(Label lbl)
+        {
+            lbl.ForeColor = Color.FromArgb(220, 220, 220);
+            lbl.Font = new Font("Consolas", 15F, FontStyle.Bold);
+            lbl.BackColor = Color.Transparent;
+        }
+
+        // 수치 레이블 공통 스타일
+        void StyleNumLabel(Label lbl, Color color)
+        {
+            lbl.ForeColor = color;
+            lbl.Font = new Font("Consolas", 15F, FontStyle.Bold);
+            lbl.BackColor = Color.Transparent;
+        }
+
+        // ProgressBar 공통 스타일
+        void StyleProgressBar(ProgressBar pb, Color color)
+        {
+            pb.Style = ProgressBarStyle.Continuous;
+            pb.Minimum = 0;
+            pb.Maximum = 100;
+            pb.Value = 0;
+            pb.ForeColor = color;
+            pb.BackColor = Color.FromArgb(26, 26, 48);
         }
 
         void LoadImageFolder(string folderPath) // 이미지 폴더 로드 및 초기화
@@ -571,11 +731,18 @@ namespace Datamanager
             if (catalogData.ContainsKey(currentIndex))
             {
                 var entry = catalogData[currentIndex];
+                // 디버그용 임시 추가
+                System.Diagnostics.Debug.WriteLine($"index:{currentIndex} throttle:{entry.user_throttle} angle:{entry.user_angle}");
                 label_throttle.Text = $"{entry.user_throttle:F3}";
                 label_angle.Text = $"{entry.user_angle:F3}";
 
                 //데이터 인덱스 변화에 맞춰 계기판 바늘을 갱신합니다.
                 DrawDashboardNeedles(entry.user_throttle, entry.user_angle);
+            }
+            else
+            {
+                // 키가 없는 경우 확인
+                System.Diagnostics.Debug.WriteLine($"catalogData에 키 없음: {currentIndex}");
             }
         }
 
@@ -591,46 +758,28 @@ namespace Datamanager
             }
             ProcessFrame(frame);
         }
+        void UpdateDataChart()
+        {
+            chart_data.Series["Throttle"].Points.Clear();
+            chart_data.Series["Angle"].Points.Clear();
+
+            foreach (var kv in catalogData.OrderBy(k => k.Key))
+            {
+                chart_data.Series["Throttle"].Points.AddXY(kv.Key, kv.Value.user_throttle);
+                chart_data.Series["Angle"].Points.AddXY(kv.Key, kv.Value.user_angle);
+            }
+        }
 
         void ProcessFrame(Mat frame)
         {
             leftDetected = false;
             rightDetected = false;
-            Mat edge = new Mat();
-            Mat hsv = new Mat();
-
-            CvInvoke.CvtColor(frame, hsv, ColorConversion.Bgr2Hsv);
-
-            Mat whiteMask = new Mat();
-            CvInvoke.InRange(
-                hsv,
-                new ScalarArray(new MCvScalar(0, 0, 160)),
-                new ScalarArray(new MCvScalar(180, 80, 255)),
-                whiteMask
-            );
 
             int centerX = frame.Width / 2;
             List<Point> leftPoints = new List<Point>();
             List<Point> rightPoints = new List<Point>();
 
-            CvInvoke.Canny(whiteMask, edge, 50, 150);
-
-            Mat mask = new Mat(edge.Size, DepthType.Cv8U, 1);
-            mask.SetTo(new MCvScalar(0));
-
-            Point[] points =
-            {
-                new Point(100, edge.Rows),
-                new Point(250, edge.Rows / 2),
-                new Point(edge.Cols - 250, edge.Rows / 2),
-                new Point(edge.Cols - 100, edge.Rows)
-            };
-
-            VectorOfPoint polygon = new VectorOfPoint(points);
-            CvInvoke.FillConvexPoly(mask, polygon, new MCvScalar(255));
-
-            Mat roiEdge = new Mat();
-            CvInvoke.BitwiseAnd(edge, mask, roiEdge);
+            Mat roiEdge = CreateRoiEdge(frame);
 
             LineSegment2D[] lines = CvInvoke.HoughLinesP(roiEdge, 1, Math.PI / 180, 15, 15, 10);
 
@@ -741,10 +890,56 @@ namespace Datamanager
             CvInvoke.Line(frame, new Point(x1, y1), new Point(x2, y2), color, 5);
         }
 
+        Mat CreateRoiEdge(Mat frame)
+        {
+            Mat hsv = new Mat();
+            CvInvoke.CvtColor(frame, hsv, ColorConversion.Bgr2Hsv);
+
+            Mat whiteMask = new Mat();
+            CvInvoke.InRange(
+                hsv,
+                new ScalarArray(new MCvScalar(0, 0, 160)),
+                new ScalarArray(new MCvScalar(180, 80, 255)),
+                whiteMask
+            );
+
+            Mat edge = new Mat();
+            CvInvoke.Canny(whiteMask, edge, 50, 150);
+
+            Mat mask = new Mat(edge.Size, DepthType.Cv8U, 1);
+            mask.SetTo(new MCvScalar(0));
+
+            Point[] points =
+            {
+                new Point(100, edge.Rows),
+                new Point(250, edge.Rows / 2),
+                new Point(edge.Cols - 250, edge.Rows / 2),
+                new Point(edge.Cols - 100, edge.Rows)
+            };
+
+            using (VectorOfPoint polygon = new VectorOfPoint(points))
+            {
+                CvInvoke.FillConvexPoly(mask, polygon, new MCvScalar(255));
+            }
+
+            Mat roiEdge = new Mat();
+            CvInvoke.BitwiseAnd(edge, mask, roiEdge);
+
+            hsv.Dispose();
+            whiteMask.Dispose();
+            edge.Dispose();
+            mask.Dispose();
+
+            return roiEdge;
+        }
+
         void LoadCatalog()
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string dataPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "data"));
+            // 경로 확인
+            System.Diagnostics.Debug.WriteLine($"data 경로: {dataPath}");
+            System.Diagnostics.Debug.WriteLine($"폴더 존재: {Directory.Exists(dataPath)}");
             if (!Directory.Exists(dataPath))
             {
                 MessageBox.Show("data 폴더를 찾을 수 없습니다: " + dataPath);
@@ -817,15 +1012,184 @@ namespace Datamanager
 
         private void btnPlay_Click(object sender, EventArgs e)
         {
-            if (timer1.Enabled) { timer1.Stop(); btnPlay.Text = "재생"; }
+            if (timer1.Enabled) { timer1.Stop(); btnPlay.Text = "▶"; }
             else { timer1.Start(); btnPlay.Text = "정지"; }
         }
 
         private void btn_train_Click(object sender, EventArgs e)
         {
-            var validTrainingData = catalogData
-                .Where(entry => entry.Value.user_angle != 0 && entry.Value.user_throttle > 0)
-                .ToList();
+            // 1. 데이터 검증
+            if (imageFiles == null || imageFiles.Length == 0)
+            {
+                MessageBox.Show("학습할 이미지가 없습니다.\n\n폴더를 먼저 열어주세요.", "데이터 없음", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (catalogData.Count == 0)
+            {
+                MessageBox.Show("카탈로그 데이터가 없습니다.\n\ndata 폴더에 .catalog 파일이 있는지 확인하세요.", "카탈로그 없음", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 2. 초기화
+            string imagesPath = Path.Combine(baseDir, "data", "images");
+            string wbImagesPath = Path.Combine(baseDir, "data", "wbimages");
+
+            Directory.CreateDirectory(wbImagesPath);
+
+            btn_train.Enabled = false;
+            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔍 원본 이미지 스캔 시작...");
+            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 카탈로그 레코드: {catalogData.Count}개");
+
+            try
+            {
+                int successCount = 0;
+                int skippedCount = 0;
+                int recordIndex = 0;
+                List<Dictionary<string, object>> jsonRecords = new List<Dictionary<string, object>>();
+                List<string> failedImages = new List<string>();
+
+                int totalImages = imageFiles.Length;
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⚙️ 총 {totalImages}장의 이미지 검증 및 전처리 시작...");
+
+                // 3. 각 원본 이미지 처리
+                int processedCount = 0;
+                foreach (string imagePath in imageFiles)
+                {
+                    try
+                    {
+                        string fileName = Path.GetFileName(imagePath);
+                        int originalIndex = ExtractNumber(Path.GetFileNameWithoutExtension(fileName));
+
+                        double angle = 0.0;
+                        double throttle = 0.0;
+
+                        if (catalogData.ContainsKey(originalIndex))
+                        {
+                            angle = catalogData[originalIndex].user_angle;
+                            throttle = catalogData[originalIndex].user_throttle;
+                        }
+
+                        if (angle == 0.0 || throttle <= 0.0)
+                        {
+                            skippedCount++;
+                            continue;
+                        }
+
+                        // 흑백 전처리 이미지 생성
+                        string wbImageSavePath = Path.Combine(wbImagesPath, fileName);
+
+                        if (!File.Exists(wbImageSavePath))
+                        {
+                            using (Mat frame = CvInvoke.Imread(imagePath, ImreadModes.AnyColor))
+                            {
+                                if (!frame.IsEmpty)
+                                {
+                                    using (Mat processedRoi = CreateRoiEdge(frame))
+                                    {
+                                        using (Mat finalImage = new Mat())
+                                        {
+                                            CvInvoke.CvtColor(processedRoi, finalImage, ColorConversion.Gray2Bgr);
+                                            CvInvoke.Imwrite(wbImageSavePath, finalImage);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // 레코드 생성
+                        var record = new Dictionary<string, object>
+                        {
+                            ["_index"] = recordIndex,
+                            ["_timestamp"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                            ["cam/image_array"] = $"images/{fileName}",
+                            ["cam/image_wb"] = $"wbimages/{fileName}",
+                            ["user/angle"] = angle,
+                            ["user/throttle"] = throttle
+                        };
+
+                        jsonRecords.Add(record);
+                        recordIndex++;
+                        successCount++;
+
+                        // 진행률 표시 (10%마다)
+                        processedCount++;
+                        int updateInterval = Math.Max(1, totalImages / 10);
+                        if (processedCount % updateInterval == 0)
+                        {
+                            int percentage = (int)((double)processedCount / totalImages * 100);
+                            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 진행률: {percentage}% ({processedCount}/{totalImages}장)");
+                            list_log.SelectedIndex = list_log.Items.Count - 1;
+                            Application.DoEvents();
+                        }
+                    }
+                    catch (Exception imageEx)
+                    {
+                        string errorMsg = $"{Path.GetFileName(imagePath)}: {imageEx.Message}";
+                        failedImages.Add(errorMsg);
+                        Console.WriteLine($"⚠️ {errorMsg}");
+                    }
+                }
+
+                // 4. training_data.catalog 저장
+                string catalogPath = Path.Combine(baseDir, "data", "training_data.catalog");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 💾 카탈로그 파일 저장 중...");
+
+                using (StreamWriter writer = new StreamWriter(catalogPath, false, System.Text.Encoding.UTF8))
+                {
+                    foreach (var record in jsonRecords)
+                    {
+                        string jsonLine = System.Text.Json.JsonSerializer.Serialize(record);
+                        writer.WriteLine(jsonLine);
+                    }
+                }
+
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 저장 완료: {catalogPath}");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📝 총 {jsonRecords.Count}개 레코드 작성");
+
+                // 5. 실패 로그 저장
+                if (failedImages.Count > 0)
+                {
+                    string failedLogPath = Path.Combine(baseDir, "data", "failed_images.log");
+                    File.WriteAllLines(failedLogPath, failedImages);
+                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⚠️ 실패 로그: {failedLogPath}");
+                }
+
+                // 6. 최종 통계
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ═══════════════════════════");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 최종 통계");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 성공: {successCount}장");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⏭️ 스킵: {skippedCount}장 (angle==0 또는 throttle<=0)");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 실패: {failedImages.Count}장");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ═══════════════════════════");
+                list_log.SelectedIndex = list_log.Items.Count - 1;
+
+                // 완료 메시지
+                string resultMessage = $"✅ 학습 데이터 준비 완료!\n\n";
+                resultMessage += $"📊 통계:\n";
+                resultMessage += $"  • 성공: {successCount}장\n";
+                resultMessage += $"  • 스킵: {skippedCount}장\n";
+                resultMessage += $"  • 실패: {failedImages.Count}장\n\n";
+                resultMessage += $"📁 생성된 파일:\n";
+                resultMessage += $"  • training_data.catalog\n";
+                resultMessage += $"  • wbimages/ 폴더 ({successCount}장)";
+
+                if (failedImages.Count > 0)
+                {
+                    resultMessage += $"\n  • failed_images.log";
+                }
+
+                MessageBox.Show(resultMessage, "학습 데이터 준비 완료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ 오류:\n{ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 오류: {ex.Message}");
+            }
+            finally
+            {
+                btn_train.Enabled = true;
+            }
         }
 
         void LoadThumbnails(int centerIndex)
@@ -871,12 +1235,6 @@ namespace Datamanager
                 );
             }
         }
-        private void panelCustomSlider_MouseDown(object sender, MouseEventArgs e) { }
-        private void panelCustomSlider_MouseMove(object sender, MouseEventArgs e) { }
-        private void panelCustomSlider_MouseUp(object sender, MouseEventArgs e) { }
-        private void panelCustomSlider_Paint(object sender, PaintEventArgs e) { }
-        private void chart1_Click(object sender, EventArgs e) { }
-        private void button7_Click(object sender, EventArgs e) { }
 
         private void btn_openfolder_Click(object sender, EventArgs e)
         {
@@ -1011,6 +1369,16 @@ namespace Datamanager
             CompressAllImages(quality, 1.0);
 
             MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
+        }
+
+        private void progressDelete_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
