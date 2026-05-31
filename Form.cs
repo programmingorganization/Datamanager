@@ -121,6 +121,7 @@ namespace Datamanager
             StyleMonitorControl(picImage);
             StyleMonitorControl(picEdge);
             StyleMonitorControl(listImages);
+            StyleMonitorControl(listBox_delete);
 
             picImage.SizeMode = PictureBoxSizeMode.Zoom;
             picEdge.SizeMode = PictureBoxSizeMode.Zoom;
@@ -151,35 +152,32 @@ namespace Datamanager
                 btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(20, 20, 40);
                 btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(7, 7, 15);
 
-                btn.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+                btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
-                //로딩 느린 버전
-                /*btn.Paint += (sender, e) =>
-                {
-                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
-                    {
-                        int r = 8;
-                        path.AddArc(0, 0, r, r, 180, 90);
-                        path.AddArc(btn.Width - r - 1, 0, r, r, 270, 90);
-                        path.AddArc(btn.Width - r - 1, btn.Height - r - 1, r, r, 0, 90);
-                        path.AddArc(0, btn.Height - r - 1, r, r, 90, 90);
-                        path.CloseFigure();
-
-                        using (System.Drawing.Drawing2D.PathGradientBrush glowBrush = new System.Drawing.Drawing2D.PathGradientBrush(path))
-                        {
-                            glowBrush.CenterColor = Color.FromArgb(50, borderColor);
-                            glowBrush.SurroundColors = new Color[] { Color.FromArgb(0, borderColor) };
-                            e.Graphics.FillPath(glowBrush, path);
-                        }
-
-                        using (Pen pen = new Pen(borderColor, 1.8f))
-                        {
-                            e.Graphics.DrawPath(pen, path);
-                        }
-                    }
-                };*/
+                
             }
+
+            // 콤보박스
+            cmbTrashList.BackColor = Color.FromArgb(18, 18, 32);
+            cmbTrashList.ForeColor = Color.FromArgb(204, 204, 204);
+            cmbTrashList.Font = new Font("Consolas", 10F);
+            cmbTrashList.FlatStyle = FlatStyle.Flat;
+
+            // splitContainer 스타일링 공통 메서드
+            void StyleSplitContainer(SplitContainer sc)
+            {
+                sc.BackColor = Color.FromArgb(79, 195, 247);  // 스플릿 바 색
+                sc.Panel1.BackColor = Color.FromArgb(13, 13, 24);
+                sc.Panel2.BackColor = Color.FromArgb(13, 13, 24);
+                sc.SplitterWidth = 4;  // 바 두께
+                sc.IsSplitterFixed = false;  // 드래그 가능
+            }
+
+            StyleSplitContainer(splitContainer_up);
+            StyleSplitContainer(splitContainer_allwindow);
+            StyleSplitContainer(splitContainer_down);
+            StyleSplitContainer(split_learnLeft);
+            StyleSplitContainer(splitContainer_ai);
 
             // 데이터 매니저 chart_data 초기 설정
             chart_data.BackColor = Color.FromArgb(13, 13, 24);
@@ -205,7 +203,7 @@ namespace Datamanager
             }
 
             StyleButton(btn_delete, Color.FromArgb(239, 83, 80));
-            StyleButton(btn_restore, Color.FromArgb(140, 140, 160));
+            StyleButton(btn_restore, Color.FromArgb(255, 213, 79));
             StyleButton(btnPlay, Color.FromArgb(102, 187, 106));
             StyleButton(btn_openfolder, Color.FromArgb(204, 204, 204));
             StyleButton(btnSetStart, Color.FromArgb(178, 223, 219));
@@ -215,6 +213,7 @@ namespace Datamanager
             StyleButton(btn_stopTrain, Color.FromArgb(239, 83, 80));
             StyleButton(btn_before, Color.FromArgb(102, 187, 106));
             StyleButton(btn_imgnext, Color.FromArgb(102, 187, 106));
+            StyleButton(btnHelp, Color.FromArgb(79, 195, 247));
 
             //6.TRACKBAR(순정 스타일 제거 후 네온 렌더링 세팅)
 
@@ -239,7 +238,7 @@ namespace Datamanager
             combo_model.FlatStyle = FlatStyle.Flat;
             combo_model.BackColor = Color.FromArgb(18, 18, 32);
             combo_model.ForeColor = Color.FromArgb(204, 204, 204);
-            combo_model.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            combo_model.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
 
             if (chart_loss != null)
             {
@@ -313,6 +312,9 @@ namespace Datamanager
             //label 계기판 위 표시
             label_throttle.Parent = picture_Gage;
             label_angle.Parent = picture_Gage;
+
+            label_throttle.Location = new Point(110, 240);   // 왼쪽 박스 위치
+            label_angle.Location = new Point(325, 240);     // 오른쪽 박스 위치
 
             label_throttle.BackColor = Color.Transparent;
             label_angle.BackColor = Color.Transparent;
