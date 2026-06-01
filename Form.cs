@@ -154,7 +154,7 @@ namespace Datamanager
 
                 btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
-                
+
             }
 
             // 콤보박스
@@ -1072,7 +1072,8 @@ namespace Datamanager
                             throttle = catalogData[originalIndex].user_throttle;
                         }
 
-                        if (angle == 0.0 || throttle <= 0.0)
+                        // 필터링 체크박스가 체크된 경우에만 앵글 0 또는 쓰로틀 0 이하 데이터 제외
+                        if (checkBox_filter.Checked && (angle == 0.0 || throttle <= 0.0))
                         {
                             skippedCount++;
                             continue;
@@ -1379,6 +1380,11 @@ namespace Datamanager
         }
 
         private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox_filter_CheckedChanged(object sender, EventArgs e)
         {
 
         }
