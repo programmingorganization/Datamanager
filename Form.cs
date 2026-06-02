@@ -6,11 +6,14 @@ using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.ApplicationServices;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Datamanager
 {
@@ -50,7 +53,7 @@ namespace Datamanager
         int rightTopX = 0;
 
         bool leftDetected = false;
-        bool rightDetected = false;
+        bool rightDetected = false;        
 
         // catalog 데이터 저장할 딕셔너리
         Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
@@ -58,6 +61,10 @@ namespace Datamanager
         public Form1()
         {
             InitializeComponent();
+
+            combo_model.Items.Add("cnn");
+            combo_model.Items.Add("lstm");
+            combo_model.SelectedIndex = 0;
 
             historyPath = Path.Combine(baseDir, "deleted_history.json");
 
@@ -972,6 +979,47 @@ namespace Datamanager
             }
         }
 
+        private void RunPythonTrain(string modelType)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "wsl";
+
+            psi.Arguments = $"train.py --data data --model {modelType} --epochs 10";
+
+            psi.WorkingDirectory = baseDir;
+
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+            psi.CreateNoWindow = true;
+
+            Process p = Process.Start(psi);
+
+            string output = p.StandardOutput.ReadToEnd();
+            string error = p.StandardError.ReadToEnd();
+
+            p.WaitForExit();
+
+            list_log.Items.Add(output);
+            if (!string.IsNullOrEmpty(error))
+                list_log.Items.Add("ERROR: " + error);
+
+            RunPythonEvaluate();
+        }
+        private void RunPythonEvaluate()
+        {
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "python";
+            psi.Arguments = "evaluate.py";
+
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.CreateNoWindow = true;
+
+            Process p = Process.Start(psi);
+            p.WaitForExit();
+        }
+
         private void listImages_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (isScrolling)
@@ -1192,6 +1240,26 @@ namespace Datamanager
             {
                 btn_train.Enabled = true;
             }
+
+            if (combo_model.SelectedIndex < 0)
+            {
+                MessageBox.Show("모델을 선택하세요");
+                return;
+            }
+
+            string modelType = combo_model.SelectedItem.ToString().ToLower();
+
+            RunPythonTrain(modelType);
+
+            while (!File.Exists("score.json"))
+            {
+                Application.DoEvents();
+            }
+
+            string json = File.ReadAllText("score.json");
+            dynamic result = JsonConvert.DeserializeObject(json);
+
+            label_score.Text = result["score"].ToString();
         }
 
         void LoadThumbnails(int centerIndex)
