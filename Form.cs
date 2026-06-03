@@ -1393,6 +1393,125 @@ namespace Datamanager
 
         }
 
+        // 카탈로그 JSON 라인 검증
+        private bool IsValidCatalogLine(string jsonLine, out string errorReason)
+        {
+            errorReason = "";
+
+            if (string.IsNullOrWhiteSpace(jsonLine))
+            {
+                errorReason = "빈 라인";
+                return false;
+            }
+
+            try
+            {
+                using (JsonDocument json = JsonDocument.Parse(jsonLine))
+                {
+                    // 필수 필드 확인
+                    if (!json.RootElement.TryGetProperty("_index", out var indexProp) ||
+                        !json.RootElement.TryGetProperty("cam/image_array", out var imageProp) ||
+                        !json.RootElement.TryGetProperty("user/angle", out var angleProp) ||
+                        !json.RootElement.TryGetProperty("user/throttle", out var throttleProp))
+                    {
+                        errorReason = "필수 필드 누락";
+                        return false;
+                    }
+
+                    // 데이터 타입 및 값 확인
+                    int index = indexProp.GetInt32();
+                    string imagePath = imageProp.GetString();
+                    double angle = angleProp.GetDouble();
+                    double throttle = throttleProp.GetDouble();
+
+                    if (index < 0)
+                    {
+                        errorReason = "인덱스 음수";
+                        return false;
+                    }
+
+                    if (string.IsNullOrEmpty(imagePath))
+                    {
+                        errorReason = "이미지 경로 없음";
+                        return false;
+                    }
+
+                    // 값이 NaN이거나 무한대인지 확인
+                    if (double.IsNaN(angle) || double.IsInfinity(angle) ||
+                        double.IsNaN(throttle) || double.IsInfinity(throttle))
+                    {
+                        errorReason = "비정상 수치 (NaN/Infinity)";
+                        return false;
+                    }
+                }
+            }
+            catch (JsonException ex)
+            {
+                errorReason = $"JSON 파싱 오류";
+                return false;
+            }
+            catch (Exception ex)
+            {
+                errorReason = $"검증 오류: {ex.Message}";
+                return false;
+            }
+
+            return true;
+        }
+
+        // 이미지 파일 검증
+        private bool IsValidImage(string imagePath, out string errorReason)
+        {
+            errorReason = "";
+
+            // 파일 존재 확인
+            if (!File.Exists(imagePath))
+            {
+                errorReason = "파일 없음";
+                return false;
+            }
+
+            try
+            {
+                // 파일 크기 확인
+                FileInfo fileInfo = new FileInfo(imagePath);
+                if (fileInfo.Length == 0)
+                {
+                    errorReason = "빈 파일 (0 bytes)";
+                    return false;
+                }
+
+                if (fileInfo.Length < 100) // 최소 크기
+                {
+                    errorReason = $"파일 크기 너무 작음 ({fileInfo.Length} bytes)";
+                    return false;
+                }
+
+                // OpenCV로 이미지 로드 시도
+                using (Mat frame = CvInvoke.Imread(imagePath, ImreadModes.AnyColor))
+                {
+                    if (frame.IsEmpty)
+                    {
+                        errorReason = "이미지 로드 실패 (손상된 파일)";
+                        return false;
+                    }
+
+                    if (frame.Width == 0 || frame.Height == 0)
+                    {
+                        errorReason = "이미지 해상도 0x0";
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorReason = $"이미지 검증 오류: {ex.Message}";
+                return false;
+            }
+
+            return true;
+        }
+
         private void btnDetect_Click(object sender, EventArgs e)
         {
 
