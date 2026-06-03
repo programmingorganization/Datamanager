@@ -6,12 +6,14 @@ using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.ApplicationServices;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Datamanager
 {
@@ -29,7 +31,15 @@ namespace Datamanager
         string backupFolderPath;    // 압축 전 원본 이미지를 보관하는 폴더 경로
 
         string historyPath;
+        string envName = "";
 
+        private List<int> validIndices = new List<int>();   //  catalog에 존재하는 인덱스만 저장
+        private List<int> deletedIndices = new List<int>(); //  삭제된 인덱스 저장 (복구 시 활용)
+        private Dictionary<int, CatalogEntry> originalCatalogData; // 복원용 백업 딕셔너리 추가
+
+
+        private int startFrameIndex = -1;   //  삭제할 첫 프레임 인덱스
+        private int endFrameIndex = -1; //  삭제할 끝 프레임 인덱스
 
         bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
 
@@ -55,13 +65,16 @@ namespace Datamanager
 
         // catalog 데이터 저장할 딕셔너리
         Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
-
         // 이상 탐지: 깨진 파일의 인덱스 저장
         HashSet<int> corruptedFileIndices = new HashSet<int>();
 
         public Form1()
         {
             InitializeComponent();
+
+            combo_model.Items.Add("cnn");
+            combo_model.Items.Add("lstm");
+            combo_model.SelectedIndex = 0;
 
             historyPath = Path.Combine(baseDir, "deleted_history.json");
 
@@ -133,10 +146,6 @@ namespace Datamanager
             listImages.ForeColor = Color.FromArgb(0, 191, 255);
             listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
 
-            // listImages 커스텀 그리기 설정 (깨진 파일을 빨간색으로 표시하기 위함)
-            listImages.DrawMode = DrawMode.OwnerDrawFixed;
-            listImages.DrawItem += listImages_DrawItem;
-
             // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
             label_throttle.BackColor = Color.FromArgb(13, 13, 24);
             label_throttle.ForeColor = Color.FromArgb(32, 201, 151);
@@ -165,12 +174,6 @@ namespace Datamanager
 
             }
 
-            // 콤보박스
-            cmbTrashList.BackColor = Color.FromArgb(18, 18, 32);
-            cmbTrashList.ForeColor = Color.FromArgb(204, 204, 204);
-            cmbTrashList.Font = new Font("Consolas", 10F);
-            cmbTrashList.FlatStyle = FlatStyle.Flat;
-
             // splitContainer 스타일링 공통 메서드
             void StyleSplitContainer(SplitContainer sc)
             {
@@ -180,7 +183,7 @@ namespace Datamanager
                 sc.SplitterWidth = 4;  // 바 두께
                 sc.IsSplitterFixed = false;  // 드래그 가능
             }
-
+            
             StyleSplitContainer(splitContainer_up);
             StyleSplitContainer(splitContainer_allwindow);
             StyleSplitContainer(splitContainer_down);
@@ -229,24 +232,11 @@ namespace Datamanager
             trackBar_frame.TickStyle = TickStyle.None;
             trackBar_frame.ValueChanged += (sender, e) => trackBar_frame.Invalidate();
 
-            // TrackBar에 더블버퍼링 강제 적용
-            // 트랙바 깜빡거림 완화 위함
-            typeof(TrackBar)
-                .GetProperty("DoubleBuffered",
-                    System.Reflection.BindingFlags.NonPublic |
-                    System.Reflection.BindingFlags.Instance)
-                ?.SetValue(trackBar_frame, true);
-
             // 8. 학습 탭 하이테크 테마 디자인
             list_log.BackColor = Color.FromArgb(7, 7, 15);
             list_log.ForeColor = Color.FromArgb(0, 191, 255);
             list_log.BorderStyle = BorderStyle.FixedSingle;
             list_log.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
-
-            combo_model.FlatStyle = FlatStyle.Flat;
-            combo_model.BackColor = Color.FromArgb(18, 18, 32);
-            combo_model.ForeColor = Color.FromArgb(204, 204, 204);
-            combo_model.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
 
             if (chart_loss != null)
             {
@@ -348,11 +338,6 @@ namespace Datamanager
             StyleProgressBar(progre_aithro, Color.FromArgb(255, 167, 38));
             StyleProgressBar(progre_aiangle, Color.FromArgb(255, 167, 38));
 
-            // 콤보박스
-            combo_compare.BackColor = Color.FromArgb(18, 18, 32);
-            combo_compare.ForeColor = Color.FromArgb(204, 204, 204);
-            combo_compare.Font = new Font("Consolas", 15F);
-            combo_compare.FlatStyle = FlatStyle.Flat;
             // 콤보박스 아이템 로드
             combo_compare.SelectedIndexChanged += (s, e) =>
             {
@@ -431,6 +416,30 @@ namespace Datamanager
             progressBar_score.Style = ProgressBarStyle.Continuous;
             progressBar_score.ForeColor = Color.FromArgb(102, 187, 106);
             progressBar_score.BackColor = Color.FromArgb(26, 26, 48);
+
+            // 기존 콤보박스 스타일 지정 구역들을 함수 호출로 대체
+            StyleComboBox(cmbTrashList, 10F, "Consolas"); // Trash 리스트
+            StyleComboBox(comboBox_play, 10F);             // 배속 조절 콤보박스
+            StyleComboBox(combo_model, 10F);               // 모델 선택 콤보박스
+            StyleComboBox(combo_compare, 15F, "Consolas"); // AI 수치 비교 콤보박스
+            StyleComboBox(comboBox_venv, 10F);             // 가상환경 콤보박스
+
+        }
+        // 콤보박스 하이테크 스타일 적용 공통 메서드
+        private void StyleComboBox(System.Windows.Forms.ComboBox cmb)
+        {
+            cmb.FlatStyle = FlatStyle.Flat;
+            cmb.BackColor = Color.FromArgb(18, 18, 32);
+            cmb.ForeColor = Color.FromArgb(204, 204, 204);
+            cmb.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        }
+        // 폰트 크기를 커스텀 함수
+        private void StyleComboBox(System.Windows.Forms.ComboBox cmb, float fontSize, string fontName = "Segoe UI")
+        {
+            cmb.FlatStyle = FlatStyle.Flat;
+            cmb.BackColor = Color.FromArgb(18, 18, 32);
+            cmb.ForeColor = Color.FromArgb(204, 204, 204);
+            cmb.Font = new Font(fontName, fontSize, FontStyle.Bold);
         }
 
         // 10. CONTROL-BASED NEEDLE DRAWING 
@@ -716,22 +725,56 @@ namespace Datamanager
 
         void SetCurrentIndex(int index) // 인덱스 설정 및 이미지 로드
         {
-            if (imageFiles.Length == 0)
+            if (imageFiles.Length == 0) return;
+
+            // 0. 가짜 삭제로 인해 validIndices가 비어있다면 처리 중단
+            if (validIndices == null || validIndices.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("유효한 Catalog 데이터가 없습니다.");
                 return;
+            }
 
-            if (index < 0)
-                index = imageFiles.Length - 1;
+            // 배열 범위를 벗어나는 요청이 오면 순환 처리
+            if (index >= imageFiles.Length) index = 0;
+            if (index < 0) index = imageFiles.Length - 1;
 
-            if (index >= imageFiles.Length)
-                index = 0;
+            int targetIndex = index;
 
-            currentIndex = index;
+            // 1. [핵심] 현재 요청된 index가 catalogData에 없다면?
+            if (!catalogData.ContainsKey(targetIndex))
+            {
+                // 이진 탐색(BinarySearch)을 이용해 가장 가까운 '다음 유효 인덱스'의 위치를 찾습니다.
+                int pos = validIndices.BinarySearch(targetIndex);
+
+                if (pos < 0)
+                {
+                    // pos가 음수면 targetIndex보다 큰 가장 가까운 원소의 bitwise complement(~pos)를 반환함
+                    int nextValidPointer = ~pos;
+
+                    // 만약 리스트 범위를 벗어나면 (뒤쪽에 유효한 게 없으면) 처음(0번째)으로 돌림
+                    if (nextValidPointer >= validIndices.Count)
+                        nextValidPointer = 0;
+
+                    targetIndex = validIndices[nextValidPointer];
+                }
+            }
+
+            // 최종 결정된 유효 인덱스 적용
+            currentIndex = targetIndex;
 
             // 이벤트 중복 방지
             isScrolling = true;
 
-            listImages.SelectedIndex = currentIndex;
-            trackBar_frame.Value = currentIndex;
+            // currentIndex가 validIndices에서 몇 번째 위치(Pointer)에 있는지 찾습니다.
+            int uiPointer = validIndices.IndexOf(currentIndex);
+
+            if (uiPointer != -1)
+            {
+                if (listImages.Items.Count > uiPointer)
+                    listImages.SelectedIndex = uiPointer; // ListBox 포커스 이동
+
+                trackBar_frame.Value = uiPointer; // 트랙바 위치도 유효 범위 내로 동기화
+            }
 
             isScrolling = false;
 
@@ -782,6 +825,8 @@ namespace Datamanager
 
         void ProcessFrame(Mat frame)
         {
+            Mat originalFrame = frame.Clone();
+
             leftDetected = false;
             rightDetected = false;
 
@@ -850,7 +895,11 @@ namespace Datamanager
                 picEdge.Image = null;
             }
 
-            picImage.Image = frame.ToBitmap();
+            if (checkBox1.Checked)
+                picImage.Image = frame.ToBitmap();
+            else
+                picImage.Image = originalFrame.ToBitmap();
+
             picEdge.Image = roiEdge.ToBitmap();
         }
 
@@ -978,14 +1027,125 @@ namespace Datamanager
                     catalogData[entry._index] = entry;
                 }
             }
+
+            validIndices = catalogData.Keys.OrderBy(k => k).ToList();
+            // 만약 trackBar_frame이 있다면 최대값도 맞춰줍니다.
+            trackBar_frame.Maximum = validIndices.Count - 1;
+
+            originalCatalogData = new Dictionary<int, CatalogEntry>(catalogData);
+        }
+        
+        private void RunPythonTrain(string modelType)
+        {
+            envName = comboBox_venv.Text;
+
+            string script = "";
+
+            if (modelType == "cnn")
+                script = "train.py";
+            else if (modelType == "lstm")
+                script = "train_lstm.py";
+            else
+                throw new Exception("invalid modelType");
+
+            string wslBase = baseDir.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+
+
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "wsl";
+            psi.Arguments = $"bash -ic \"cd {wslBase} && conda activate {envName} && python {script} --data data --epochs 10\"";
+
+            psi.WorkingDirectory = baseDir;
+
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+            psi.CreateNoWindow = true;
+
+            Process p = Process.Start(psi);
+
+            string output = p.StandardOutput.ReadToEnd();
+            string error = p.StandardError.ReadToEnd();
+
+            p.WaitForExit();
+
+            if (p.ExitCode != 0)
+            {
+                MessageBox.Show("Train 실패");
+                return;
+            }
+
+            File.WriteAllText(
+                Path.Combine(baseDir, "train_log.txt"),
+                output + Environment.NewLine +
+                "===== STDERR =====" + Environment.NewLine +
+                error
+            );
+
+            list_log.Items.Add(output);
+            if (!string.IsNullOrEmpty(error))
+                list_log.Items.Add("ERROR: " + error);
+
+            RunPythonEvaluate(modelType);
+
+            string scorePath =
+                Path.Combine(baseDir, "score.json");
+        }
+        private void RunPythonEvaluate(String modelType)
+        {
+            string script = "";
+
+            if (modelType == "cnn")
+                script = "evaluate.py";
+            else if (modelType == "lstm")
+                script = "evaluate_lstm.py";
+
+            ProcessStartInfo psi =
+            new ProcessStartInfo();
+
+            psi.FileName = "wsl";
+
+            psi.Arguments = $"bash -ic \"conda activate {envName} && python {script}\"";
+
+            psi.WorkingDirectory = baseDir;
+
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+            psi.CreateNoWindow = true;
+
+            Process p = Process.Start(psi);
+
+            string output =
+                p.StandardOutput.ReadToEnd();
+
+            string error =
+                p.StandardError.ReadToEnd();
+
+            p.WaitForExit();
+
+            list_log.Items.Add(output);
+
+            if (!string.IsNullOrEmpty(error))
+                list_log.Items.Add(error);
+
+            p.WaitForExit();
+
+            list_log.Items.Add(
+                "EXIT CODE = " + p.ExitCode
+            );
         }
 
         private void listImages_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (isScrolling)
-                return;
+            if (isScrolling) return; // 자동 스크롤 중이면 무시
+            if (listImages.SelectedIndex == -1) return;
 
-            SetCurrentIndex(listImages.SelectedIndex);
+            // 클릭된 행 번호를 통해 실제 유효한 catalog 인덱스를 찾음
+            int targetIdx = validIndices[listImages.SelectedIndex];
+
+            // 해당 인덱스로 이동
+            SetCurrentIndex(targetIdx);
 
             // 썸네일 강조
             for (int i = 0; i < flowPanel_thumbnails.Controls.Count; i++)
@@ -1201,6 +1361,9 @@ namespace Datamanager
             {
                 btn_train.Enabled = true;
             }
+
+            //////////////////////////////////////////// 모델 학습 및 평가
+
         }
 
         void LoadThumbnails(int centerIndex)
@@ -1257,216 +1420,7 @@ namespace Datamanager
                 }
             }
         }
-
-        private void btn_delete_Click(object sender, EventArgs e)
-        {
-            if (imageFiles.Length == 0)
-                return;
-
-            // 현재 표시 이미지 해제
-            if (picImage.Image != null)
-            {
-                picImage.Image.Dispose();
-                picImage.Image = null;
-            }
-
-            if (picEdge.Image != null)
-            {
-                picEdge.Image.Dispose();
-                picEdge.Image = null;
-            }
-
-            string sourcePath = imageFiles[currentIndex];
-
-            string fileName = Path.GetFileName(sourcePath);
-
-            string destPath = Path.Combine(trashFolderPath, fileName);
-
-            deletedFiles.Push(destPath);
-            deletedHistory.Add(destPath);
-            SaveDeleteHistory();
-
-            // 이미 trash에 같은 파일이 있으면 삭제
-            if (File.Exists(destPath))
-            {
-                File.Delete(destPath);
-            }
-
-            File.Move(sourcePath, destPath);
-
-            ReloadCurrentFolder();
-        }
-
-        private void btn_restore_Click(object sender, EventArgs e)
-        {
-            string lastFile;
-
-            // 실행 중 삭제 기록 사용
-            if (deletedFiles.Count > 0)
-            {
-                lastFile = deletedFiles.Pop();
-
-                // JSON 기록에서도 제거
-                if (deletedHistory.Count > 0)
-                {
-                    deletedHistory.RemoveAt(deletedHistory.Count - 1);
-                    SaveDeleteHistory();
-                }
-            }
-            else
-            {
-                // JSON 기록 사용
-                if (deletedHistory.Count == 0)
-                {
-                    MessageBox.Show("복구할 파일 없음");
-                    return;
-                }
-
-                lastFile = deletedHistory.Last();
-
-                deletedHistory.RemoveAt(deletedHistory.Count - 1);
-
-                SaveDeleteHistory();
-            }
-
-            string fileName = Path.GetFileName(lastFile);
-
-            string restorePath = Path.Combine(currentFolderPath, fileName);
-
-            // 이미 있으면 덮어쓰기 위해 삭제
-            if (File.Exists(restorePath))
-            {
-                File.Delete(restorePath);
-            }
-
-            File.Move(lastFile, restorePath);
-
-            ReloadCurrentFolder();
-        }
-
-        private void btnSetStart_Click(object sender, EventArgs e)
-        {
-            SetCurrentIndex(0);
-        }
-
-        private void btnSetEnd_Click(object sender, EventArgs e)
-        {
-            SetCurrentIndex(imageFiles.Length - 1);
-        }
-
-        private void btn_changquality_Click(object sender, EventArgs e)
-        {
-            string input = Interaction.InputBox(
-                "JPEG 품질을 입력하세요 (10~100)",
-                "화질 조정",
-                "70"
-            );
-
-            if (string.IsNullOrWhiteSpace(input))
-                return;
-
-            if (!int.TryParse(input, out int quality))
-            {
-                MessageBox.Show("숫자만 입력하세요.");
-                return;
-            }
-
-            if (quality < 10 || quality > 100)
-            {
-                MessageBox.Show("10~100 사이만 가능합니다.");
-                return;
-            }
-
-            CompressAllImages(quality, 1.0);
-
-            MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
-        }
-
-        private void progressDelete_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox_filter_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        /*
-        // 깨진 카탈로그 데이터 검증하는 부분 (LoadCatalog 함수가 이 역할을 대신 해주고 있음)
-        // 카탈로그 JSON 라인 검증
-        private bool IsValidCatalogLine(string jsonLine, out string errorReason)
-        {
-            errorReason = "";
-
-            if (string.IsNullOrWhiteSpace(jsonLine))
-            {
-                errorReason = "빈 라인";
-                return false;
-            }
-
-            try
-            {
-                using (JsonDocument json = JsonDocument.Parse(jsonLine))
-                {
-                    // 필수 필드 확인
-                    if (!json.RootElement.TryGetProperty("_index", out var indexProp) ||
-                        !json.RootElement.TryGetProperty("cam/image_array", out var imageProp) ||
-                        !json.RootElement.TryGetProperty("user/angle", out var angleProp) ||
-                        !json.RootElement.TryGetProperty("user/throttle", out var throttleProp))
-                    {
-                        errorReason = "필수 필드 누락";
-                        return false;
-                    }
-
-                    // 데이터 타입 및 값 확인
-                    int index = indexProp.GetInt32();
-                    string imagePath = imageProp.GetString();
-                    double angle = angleProp.GetDouble();
-                    double throttle = throttleProp.GetDouble();
-
-                    if (index < 0)
-                    {
-                        errorReason = "인덱스 음수";
-                        return false;
-                    }
-
-                    if (string.IsNullOrEmpty(imagePath))
-                    {
-                        errorReason = "이미지 경로 없음";
-                        return false;
-                    }
-
-                    // 값이 NaN이거나 무한대인지 확인
-                    if (double.IsNaN(angle) || double.IsInfinity(angle) ||
-                        double.IsNaN(throttle) || double.IsInfinity(throttle))
-                    {
-                        errorReason = "비정상 수치 (NaN/Infinity)";
-                        return false;
-                    }
-                }
-            }
-            catch (JsonException ex)
-            {
-                errorReason = $"JSON 파싱 오류";
-                return false;
-            }
-            catch (Exception ex)
-            {
-                errorReason = $"검증 오류: {ex.Message}";
-                return false;
-            }
-
-            return true;
-        }
-        */
-
-
+        
         // 이미지 파일 검증
         private bool IsValidImage(string imagePath, out string errorReason)
         {
@@ -1520,6 +1474,265 @@ namespace Datamanager
             return true;
         }
 
+        private void btn_delete_Click(object sender, EventArgs e)
+        {
+            // 1. 예외 처리
+            if (startFrameIndex == -1 || endFrameIndex == -1)
+            {
+                MessageBox.Show("시작 프레임과 끝 프레임을 먼저 설정해 주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 2. 현재 표시 중인 이미지 자원 해제
+            if (picImage.Image != null) { picImage.Image.Dispose(); picImage.Image = null; }
+            if (picEdge.Image != null) { picEdge.Image.Dispose(); picEdge.Image = null; }
+
+            // 3. 정렬 보정
+            int minIdx = Math.Min(startFrameIndex, endFrameIndex);
+            int maxIdx = Math.Max(startFrameIndex, endFrameIndex);
+
+            int totalToProcess = maxIdx - minIdx + 1;
+            progressDelete.Minimum = 0;
+            progressDelete.Maximum = totalToProcess;
+            progressDelete.Value = 0;
+
+            int deleteCount = 0;
+            int currentLoopCount = 0;
+
+            // ListBox 업데이트를 일시 중지하여 속도 최적화
+            listBox_delete.BeginUpdate();
+
+            // 4. 해당 구간의 Catalog 데이터를 주석 처리 및 삭제 리스트에 추가
+            for (int i = minIdx; i <= maxIdx; i++)
+            {
+                currentLoopCount++;
+
+                if (catalogData.ContainsKey(i))
+                {
+                    // 아직 삭제 목록에 없는 인덱스만 추가 (중복 방지)
+                    if (!deletedIndices.Contains(i))
+                    {
+                        deletedIndices.Add(i);
+                        listBox_delete.Items.Add($"Frame {i}");
+                    }
+
+                    catalogData.Remove(i);
+                    deleteCount++;
+                }
+
+                // [추가] 100프레임마다 ProgressBar와 UI를 갱신 (성능 저하 방지 및 부드러운 연동)
+                if (currentLoopCount % 100 == 0 || currentLoopCount == totalToProcess)
+                {
+                    progressDelete.Value = currentLoopCount;
+                    Application.DoEvents(); // UI가 멈추지 않고 실시간으로 그려지도록 강제 갱신
+                }
+            }
+
+            // 삭제 리스트 오름차순 정렬 (보기 좋게 정렬)
+            deletedIndices.Sort();
+
+            // ListBox 업데이트 재개
+            listBox_delete.EndUpdate();
+
+            // 5. 대량 삭제 최적화: 유효 인덱스 리스트 갱신
+            validIndices = catalogData.Keys.OrderBy(k => k).ToList();
+
+            RefreshImageListUI();
+
+            MessageBox.Show($"{minIdx} ~ {maxIdx} 구간에서 {deleteCount}개의 프레임 데이터가 삭제(주석 처리)되었습니다.", "삭제 완료");
+
+            // 6. 사용한 선택 변수 초기화
+            startFrameIndex = -1;
+            endFrameIndex = -1;
+            progressDelete.Value = 0;
+
+            //lblStartStatus.Text = "시작: 미지정";
+            //lblEndStatus.Text = "끝: 미지정";
+
+            // 앞서 만든 이진 탐색 기반 SetCurrentIndex 덕분에 1,000장이 지워졌어도 렉 없이 즉시 다음 프레임을 찾아갑니다.
+            SetCurrentIndex(minIdx);
+        }
+        void RefreshImageListUI()
+        {
+            // 이벤트 중복 발생 및 UI 깜빡임 방지
+            isScrolling = true;
+            listImages.BeginUpdate();
+
+            listImages.Items.Clear();
+
+            // validIndices에 살아남은 프레임들만 ListBox에 추가
+            foreach (int idx in validIndices)
+            {
+                // 예: "Frame 0015 (image_0015.jpg)" 형태로 보기 좋게 출력
+                // 원본 파일명을 보여주고 싶다면 Path.GetFileName(imageFiles[idx]) 활용
+                string fileName = Path.GetFileName(imageFiles[idx]);
+                listImages.Items.Add($"{fileName}");
+            }
+
+            listImages.EndUpdate();
+            isScrolling = false;
+        }
+
+        private void btn_restore_Click(object sender, EventArgs e)
+        {
+            // 1. 예외 처리: 선택된 항목이 없을 때
+            if (listBox_delete.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("복원할 프레임을 삭제 목록에서 선택해 주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 선택된 항목들을 역순으로 순회하면서 복원 (인덱스 꼬임 방지)
+            List<int> indicesToRestore = new List<int>();
+
+            foreach (var item in listBox_delete.SelectedItems)
+            {
+                // "Frame 123" 형태의 문자열에서 숫자만 추출
+                string itemText = item.ToString();
+                if (int.TryParse(itemText.Replace("Frame ", ""), out int resIdx))
+                {
+                    indicesToRestore.Add(resIdx);
+                }
+            }
+
+            int restoreCount = 0;
+
+            foreach (int idx in indicesToRestore)
+            {
+                // 원본 백업 데이터(originalCatalogData)에서 데이터를 찾아 catalogData에 재삽입
+                if (originalCatalogData != null && originalCatalogData.ContainsKey(idx))
+                {
+                    if (!catalogData.ContainsKey(idx))
+                    {
+                        catalogData.Add(idx, originalCatalogData[idx]);
+                    }
+
+                    // 전역 삭제 리스트와 ListBox UI에서 제거
+                    deletedIndices.Remove(idx);
+                    listBox_delete.Items.Remove($"Frame {idx}");
+                    restoreCount++;
+                }
+            }
+
+            if (restoreCount > 0)
+            {
+                // 유효 인덱스 리스트 다시 갱신
+                validIndices = catalogData.Keys.OrderBy(k => k).ToList();
+
+                RefreshImageListUI();
+
+                MessageBox.Show($"{restoreCount}개의 프레임이 성공적으로 복원되었습니다.", "복원 완료");
+
+                // 현재 복원된 첫 번째 프레임으로 화면 이동하여 확인시켜줌
+                SetCurrentIndex(indicesToRestore.Min());
+            }
+
+        }
+
+        private void btnSetStart_Click(object sender, EventArgs e)
+        {
+            startFrameIndex = currentIndex;
+
+            System.Diagnostics.Debug.WriteLine($"시작 프레임 설정됨: {startFrameIndex}");
+            //lblStartStatus.Text = $"시작: {startFrameIndex}"; 
+        }
+
+        private void btnSetEnd_Click(object sender, EventArgs e)
+        {
+            endFrameIndex = currentIndex;
+
+            System.Diagnostics.Debug.WriteLine($"끝 프레임 설정됨: {endFrameIndex}");
+            //lblEndStatus.Text = $"끝: {endFrameIndex}"; 
+        }
+
+        private void btn_changquality_Click(object sender, EventArgs e)
+        {
+            string input = Interaction.InputBox(
+                "JPEG 품질을 입력하세요 (10~100)",
+                "화질 조정",
+                "70"
+            );
+
+            if (string.IsNullOrWhiteSpace(input))
+                return;
+
+            if (!int.TryParse(input, out int quality))
+            {
+                MessageBox.Show("숫자만 입력하세요.");
+                return;
+            }
+
+            if (quality < 10 || quality > 100)
+            {
+                MessageBox.Show("10~100 사이만 가능합니다.");
+                return;
+            }
+
+            CompressAllImages(quality, 1.0);
+
+            MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
+        }
+
+        private void progressDelete_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void train_Click(object sender, EventArgs e)
+        {
+            if (combo_model.SelectedIndex < 0)
+            {
+                MessageBox.Show("모델을 선택하세요");
+                return;
+            }
+
+
+            string modelType = combo_model.SelectedItem.ToString().ToLower();
+
+            RunPythonTrain(modelType);
+
+            string scorePath = Path.Combine(baseDir, "score.json");
+
+            if (!File.Exists(scorePath))
+            {
+                MessageBox.Show("평가 결과가 생성되지 않았습니다.");
+                return;
+            }
+
+            string json =
+                File.ReadAllText(scorePath);
+
+            dynamic result =
+                JsonConvert.DeserializeObject(json);
+
+            label_score.Text =
+                result["score"].ToString();
+        }
+
+        private const int BaseInterval = 100;
+        private void comboBox_play_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox_play.SelectedItem == null) return;
+
+            // 현재 선택된 아이템 글자 (예: "x1.5배속")
+            string selectedItemText = comboBox_play.SelectedItem.ToString();
+
+            // "x"와 "배속"을 모두 지워서 숫자("1.5")만 남깁니다.
+            string speedValue = selectedItemText.Replace("x", "").Replace("배속", "");
+
+            // 숫자로 변환하여 타이머 Interval 계산
+            if (double.TryParse(speedValue, out double speed))
+            {
+                // 공식: 기본 주기 / 배속
+                // 예: x2.0배속 선택 시 -> 100 / 2.0 = 50ms (2배 빨라짐)
+                timer1.Interval = (int)(BaseInterval / speed);
+            }
+        }
         private void btnDetect_Click(object sender, EventArgs e)
         {
             if (imageFiles == null || imageFiles.Length == 0)
