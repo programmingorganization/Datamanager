@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl = new TabControl();
             tab_data = new TabPage();
             splitContainer_allwindow = new SplitContainer();
@@ -84,8 +84,9 @@
             checkBox_throttle = new CheckBox();
             tab_train = new TabPage();
             split_learnLeft = new SplitContainer();
+            label_progressai = new Label();
             label4 = new Label();
-            label3 = new Label();
+            label_venv = new Label();
             comboBox_venv = new ComboBox();
             combo_model = new ComboBox();
             progressBar_learn = new ProgressBar();
@@ -163,7 +164,7 @@
             tabControl.Controls.Add(tab_train);
             tabControl.ItemSize = new Size(120, 32);
             tabControl.Location = new Point(0, -1);
-            tabControl.Margin = new Padding(1, 1, 1, 1);
+            tabControl.Margin = new Padding(1);
             tabControl.Name = "tabControl";
             tabControl.SelectedIndex = 0;
             tabControl.Size = new Size(1991, 1262);
@@ -176,9 +177,9 @@
             tab_data.Font = new Font("맑은 고딕", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 129);
             tab_data.ForeColor = SystemColors.ControlText;
             tab_data.Location = new Point(4, 36);
-            tab_data.Margin = new Padding(1, 1, 1, 1);
+            tab_data.Margin = new Padding(1);
             tab_data.Name = "tab_data";
-            tab_data.Padding = new Padding(2, 2, 2, 2);
+            tab_data.Padding = new Padding(2);
             tab_data.Size = new Size(1983, 1222);
             tab_data.TabIndex = 0;
             tab_data.Text = "데이터 매니저";
@@ -241,7 +242,7 @@
             // comboBox_play
             // 
             comboBox_play.FormattingEnabled = true;
-            comboBox_play.Items.AddRange(new object[] { "x2.0배속", "x3.0배속" });
+            comboBox_play.Items.AddRange(new object[] { "x1.0배속", "x2.0배속", "x3.0배속" });
             comboBox_play.Location = new Point(178, 463);
             comboBox_play.Margin = new Padding(2, 1, 2, 1);
             comboBox_play.Name = "comboBox_play";
@@ -301,7 +302,7 @@
             // 
             picEdge.BackColor = Color.White;
             picEdge.Location = new Point(140, 23);
-            picEdge.Margin = new Padding(1, 1, 1, 1);
+            picEdge.Margin = new Padding(1);
             picEdge.Name = "picEdge";
             picEdge.Size = new Size(345, 318);
             picEdge.SizeMode = PictureBoxSizeMode.Zoom;
@@ -312,7 +313,7 @@
             // 
             picImage.BackColor = Color.White;
             picImage.Location = new Point(493, 23);
-            picImage.Margin = new Padding(1, 1, 1, 1);
+            picImage.Margin = new Padding(1);
             picImage.Name = "picImage";
             picImage.Size = new Size(360, 318);
             picImage.SizeMode = PictureBoxSizeMode.Zoom;
@@ -325,7 +326,7 @@
             btn_openfolder.FlatStyle = FlatStyle.Flat;
             btn_openfolder.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_openfolder.Location = new Point(710, 463);
-            btn_openfolder.Margin = new Padding(1, 1, 1, 1);
+            btn_openfolder.Margin = new Padding(1);
             btn_openfolder.Name = "btn_openfolder";
             btn_openfolder.Size = new Size(129, 42);
             btn_openfolder.TabIndex = 2;
@@ -339,7 +340,7 @@
             btn_imgnext.FlatStyle = FlatStyle.Flat;
             btn_imgnext.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_imgnext.Location = new Point(423, 463);
-            btn_imgnext.Margin = new Padding(1, 1, 1, 1);
+            btn_imgnext.Margin = new Padding(1);
             btn_imgnext.Name = "btn_imgnext";
             btn_imgnext.Size = new Size(105, 42);
             btn_imgnext.TabIndex = 5;
@@ -353,7 +354,7 @@
             btnPlay.FlatStyle = FlatStyle.Flat;
             btnPlay.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btnPlay.Location = new Point(169, 401);
-            btnPlay.Margin = new Padding(1, 1, 1, 1);
+            btnPlay.Margin = new Padding(1);
             btnPlay.Name = "btnPlay";
             btnPlay.Size = new Size(108, 34);
             btnPlay.TabIndex = 13;
@@ -367,7 +368,7 @@
             btn_changquality.FlatStyle = FlatStyle.Flat;
             btn_changquality.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_changquality.Location = new Point(544, 463);
-            btn_changquality.Margin = new Padding(1, 1, 1, 1);
+            btn_changquality.Margin = new Padding(1);
             btn_changquality.Name = "btn_changquality";
             btn_changquality.Size = new Size(154, 42);
             btn_changquality.TabIndex = 4;
@@ -393,7 +394,7 @@
             btn_before.FlatStyle = FlatStyle.Flat;
             btn_before.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_before.Location = new Point(312, 463);
-            btn_before.Margin = new Padding(1, 1, 1, 1);
+            btn_before.Margin = new Padding(1);
             btn_before.Name = "btn_before";
             btn_before.Size = new Size(99, 42);
             btn_before.TabIndex = 4;
@@ -415,7 +416,7 @@
             trackBar_frame.BackColor = Color.FromArgb(79, 195, 247);
             trackBar_frame.Dock = DockStyle.Left;
             trackBar_frame.Location = new Point(0, 0);
-            trackBar_frame.Margin = new Padding(1, 1, 1, 1);
+            trackBar_frame.Margin = new Padding(1);
             trackBar_frame.Name = "trackBar_frame";
             trackBar_frame.Size = new Size(614, 37);
             trackBar_frame.TabIndex = 1;
@@ -450,7 +451,7 @@
             picture_Gage.Anchor = AnchorStyles.Left;
             picture_Gage.Image = Properties.Resources.최종;
             picture_Gage.Location = new Point(-2, 114);
-            picture_Gage.Margin = new Padding(1, 1, 1, 1);
+            picture_Gage.Margin = new Padding(1);
             picture_Gage.Name = "picture_Gage";
             picture_Gage.Size = new Size(517, 293);
             picture_Gage.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -530,7 +531,7 @@
             panel1.Controls.Add(listImages);
             panel1.ForeColor = Color.Black;
             panel1.Location = new Point(4, 2);
-            panel1.Margin = new Padding(2, 2, 2, 2);
+            panel1.Margin = new Padding(2);
             panel1.Name = "panel1";
             panel1.Size = new Size(469, 385);
             panel1.TabIndex = 11;
@@ -541,7 +542,7 @@
             btnDetect.FlatStyle = FlatStyle.Flat;
             btnDetect.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btnDetect.Location = new Point(322, 184);
-            btnDetect.Margin = new Padding(1, 1, 1, 1);
+            btnDetect.Margin = new Padding(1);
             btnDetect.Name = "btnDetect";
             btnDetect.Size = new Size(130, 40);
             btnDetect.TabIndex = 26;
@@ -584,7 +585,7 @@
             btnSetEnd.FlatStyle = FlatStyle.Flat;
             btnSetEnd.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btnSetEnd.Location = new Point(322, 84);
-            btnSetEnd.Margin = new Padding(1, 1, 1, 1);
+            btnSetEnd.Margin = new Padding(1);
             btnSetEnd.Name = "btnSetEnd";
             btnSetEnd.Size = new Size(140, 40);
             btnSetEnd.TabIndex = 16;
@@ -598,7 +599,7 @@
             btnSetStart.FlatStyle = FlatStyle.Flat;
             btnSetStart.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btnSetStart.Location = new Point(322, 29);
-            btnSetStart.Margin = new Padding(1, 1, 1, 1);
+            btnSetStart.Margin = new Padding(1);
             btnSetStart.Name = "btnSetStart";
             btnSetStart.Size = new Size(140, 40);
             btnSetStart.TabIndex = 15;
@@ -612,7 +613,7 @@
             btn_delete.FlatStyle = FlatStyle.Flat;
             btn_delete.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_delete.Location = new Point(322, 134);
-            btn_delete.Margin = new Padding(1, 1, 1, 1);
+            btn_delete.Margin = new Padding(1);
             btn_delete.Name = "btn_delete";
             btn_delete.Size = new Size(140, 40);
             btn_delete.TabIndex = 3;
@@ -629,6 +630,7 @@
             listImages.FormattingEnabled = true;
             listImages.Location = new Point(17, 36);
             listImages.Name = "listImages";
+            listImages.SelectionMode = SelectionMode.MultiSimple;
             listImages.Size = new Size(288, 302);
             listImages.TabIndex = 14;
             listImages.SelectedIndexChanged += listImages_SelectedIndexChanged;
@@ -648,7 +650,7 @@
             // 
             // cmbTrashList
             // 
-            cmbTrashList.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cmbTrashList.Anchor = AnchorStyles.Top;
             cmbTrashList.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTrashList.FormattingEnabled = true;
             cmbTrashList.Location = new Point(282, 175);
@@ -658,7 +660,7 @@
             // 
             // lblTrash
             // 
-            lblTrash.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblTrash.Anchor = AnchorStyles.Top;
             lblTrash.AutoSize = true;
             lblTrash.BackColor = Color.Gray;
             lblTrash.ForeColor = Color.Black;
@@ -670,20 +672,21 @@
             // 
             // listBox_delete
             // 
-            listBox_delete.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            listBox_delete.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             listBox_delete.BackColor = Color.FromArgb(22, 27, 3);
             listBox_delete.BorderStyle = BorderStyle.FixedSingle;
             listBox_delete.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point, 129);
             listBox_delete.FormattingEnabled = true;
             listBox_delete.Location = new Point(22, 46);
-            listBox_delete.Margin = new Padding(2, 2, 2, 2);
+            listBox_delete.Margin = new Padding(2);
             listBox_delete.Name = "listBox_delete";
+            listBox_delete.SelectionMode = SelectionMode.MultiExtended;
             listBox_delete.Size = new Size(237, 332);
             listBox_delete.TabIndex = 14;
             // 
             // btn_restore
             // 
-            btn_restore.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btn_restore.Anchor = AnchorStyles.Top;
             btn_restore.BackColor = Color.Gray;
             btn_restore.FlatStyle = FlatStyle.Flat;
             btn_restore.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -722,26 +725,26 @@
             // chart_data
             // 
             chart_data.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea3.Name = "ChartArea1";
-            chart_data.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            chart_data.Legends.Add(legend3);
+            chartArea1.Name = "ChartArea1";
+            chart_data.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            chart_data.Legends.Add(legend1);
             chart_data.Location = new Point(3, 64);
             chart_data.Name = "chart_data";
-            series5.BorderWidth = 2;
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series5.Color = Color.Green;
-            series5.Legend = "Legend1";
-            series5.Name = "Throttle";
-            series6.BorderWidth = 2;
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series6.Color = Color.FromArgb(79, 195, 247);
-            series6.Legend = "Legend1";
-            series6.Name = "Angle";
-            chart_data.Series.Add(series5);
-            chart_data.Series.Add(series6);
+            series1.BorderWidth = 2;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Color = Color.Green;
+            series1.Legend = "Legend1";
+            series1.Name = "Throttle";
+            series2.BorderWidth = 2;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Color = Color.FromArgb(79, 195, 247);
+            series2.Legend = "Legend1";
+            series2.Name = "Angle";
+            chart_data.Series.Add(series1);
+            chart_data.Series.Add(series2);
             chart_data.Size = new Size(613, 322);
             chart_data.TabIndex = 2;
             chart_data.Text = "chart1";
@@ -762,9 +765,9 @@
             tab_train.BackColor = Color.FromArgb(64, 64, 64);
             tab_train.Controls.Add(split_learnLeft);
             tab_train.Location = new Point(4, 36);
-            tab_train.Margin = new Padding(1, 1, 1, 1);
+            tab_train.Margin = new Padding(1);
             tab_train.Name = "tab_train";
-            tab_train.Padding = new Padding(2, 2, 2, 2);
+            tab_train.Padding = new Padding(2);
             tab_train.Size = new Size(1983, 1222);
             tab_train.TabIndex = 1;
             tab_train.Text = "학습";
@@ -777,8 +780,9 @@
             // 
             // split_learnLeft.Panel1
             // 
+            split_learnLeft.Panel1.Controls.Add(label_progressai);
             split_learnLeft.Panel1.Controls.Add(label4);
-            split_learnLeft.Panel1.Controls.Add(label3);
+            split_learnLeft.Panel1.Controls.Add(label_venv);
             split_learnLeft.Panel1.Controls.Add(comboBox_venv);
             split_learnLeft.Panel1.Controls.Add(combo_model);
             split_learnLeft.Panel1.Controls.Add(progressBar_learn);
@@ -794,6 +798,17 @@
             split_learnLeft.SplitterWidth = 3;
             split_learnLeft.TabIndex = 8;
             // 
+            // label_progressai
+            // 
+            label_progressai.AutoSize = true;
+            label_progressai.Font = new Font("맑은 고딕", 12F);
+            label_progressai.ForeColor = SystemColors.ButtonFace;
+            label_progressai.Location = new Point(9, 194);
+            label_progressai.Name = "label_progressai";
+            label_progressai.Size = new Size(62, 21);
+            label_progressai.TabIndex = 9;
+            label_progressai.Text = "진행률:";
+            // 
             // label4
             // 
             label4.AutoSize = true;
@@ -802,27 +817,27 @@
             label4.Location = new Point(20, 93);
             label4.Margin = new Padding(2, 0, 2, 0);
             label4.Name = "label4";
-            label4.Size = new Size(54, 21);
+            label4.Size = new Size(80, 21);
             label4.TabIndex = 8;
-            label4.Text = "label3";
+            label4.Text = "모델 선택";
             // 
-            // label3
+            // label_venv
             // 
-            label3.AutoSize = true;
-            label3.Font = new Font("맑은 고딕", 12F);
-            label3.ForeColor = SystemColors.ButtonFace;
-            label3.Location = new Point(20, 29);
-            label3.Margin = new Padding(2, 0, 2, 0);
-            label3.Name = "label3";
-            label3.Size = new Size(54, 21);
-            label3.TabIndex = 8;
-            label3.Text = "label3";
+            label_venv.AutoSize = true;
+            label_venv.Font = new Font("맑은 고딕", 12F);
+            label_venv.ForeColor = SystemColors.ButtonFace;
+            label_venv.Location = new Point(20, 29);
+            label_venv.Margin = new Padding(2, 0, 2, 0);
+            label_venv.Name = "label_venv";
+            label_venv.Size = new Size(112, 21);
+            label_venv.TabIndex = 8;
+            label_venv.Text = "가상환경 선택";
             // 
             // comboBox_venv
             // 
             comboBox_venv.FormattingEnabled = true;
             comboBox_venv.Location = new Point(20, 60);
-            comboBox_venv.Margin = new Padding(1, 1, 1, 1);
+            comboBox_venv.Margin = new Padding(1);
             comboBox_venv.Name = "comboBox_venv";
             comboBox_venv.Size = new Size(165, 23);
             comboBox_venv.TabIndex = 2;
@@ -831,7 +846,7 @@
             // 
             combo_model.FormattingEnabled = true;
             combo_model.Location = new Point(20, 125);
-            combo_model.Margin = new Padding(2, 2, 2, 2);
+            combo_model.Margin = new Padding(2);
             combo_model.Name = "combo_model";
             combo_model.Size = new Size(165, 23);
             combo_model.TabIndex = 2;
@@ -850,7 +865,7 @@
             btn_train.BackColor = Color.Gray;
             btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_train.Location = new Point(218, 48);
-            btn_train.Margin = new Padding(1, 1, 1, 1);
+            btn_train.Margin = new Padding(1);
             btn_train.Name = "btn_train";
             btn_train.Size = new Size(111, 40);
             btn_train.TabIndex = 3;
@@ -863,7 +878,7 @@
             list_log.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             list_log.FormattingEnabled = true;
             list_log.Location = new Point(7, 313);
-            list_log.Margin = new Padding(1, 1, 1, 1);
+            list_log.Margin = new Padding(1);
             list_log.Name = "list_log";
             list_log.Size = new Size(337, 574);
             list_log.TabIndex = 1;
@@ -874,7 +889,7 @@
             btn_stopTrain.BackColor = Color.Gray;
             btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_stopTrain.Location = new Point(218, 113);
-            btn_stopTrain.Margin = new Padding(1, 1, 1, 1);
+            btn_stopTrain.Margin = new Padding(1);
             btn_stopTrain.Name = "btn_stopTrain";
             btn_stopTrain.Size = new Size(111, 44);
             btn_stopTrain.TabIndex = 5;
@@ -898,33 +913,33 @@
             splitContainer_ai.Panel2.Controls.Add(panel_grade);
             splitContainer_ai.Panel2.Controls.Add(label_aicompare);
             splitContainer_ai.Panel2.Controls.Add(panel_compare);
-            splitContainer_ai.Size = new Size(1161, 926);
-            splitContainer_ai.SplitterDistance = 807;
+            splitContainer_ai.Size = new Size(1168, 926);
+            splitContainer_ai.SplitterDistance = 793;
             splitContainer_ai.SplitterWidth = 2;
             splitContainer_ai.TabIndex = 5;
             // 
             // chart_loss
             // 
             chart_loss.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea4.Name = "ChartArea1";
-            chart_loss.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            chart_loss.Legends.Add(legend4);
+            chartArea2.Name = "ChartArea1";
+            chart_loss.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            chart_loss.Legends.Add(legend2);
             chart_loss.Location = new Point(1, 1);
-            chart_loss.Margin = new Padding(1, 1, 1, 1);
+            chart_loss.Margin = new Padding(1);
             chart_loss.Name = "chart_loss";
             chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series7.ChartArea = "ChartArea1";
-            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series7.Legend = "Legend1";
-            series7.Name = "Epoch";
-            series8.ChartArea = "ChartArea1";
-            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series8.Legend = "Legend1";
-            series8.Name = "Loss";
-            chart_loss.Series.Add(series7);
-            chart_loss.Series.Add(series8);
-            chart_loss.Size = new Size(805, 924);
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.Name = "Epoch";
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.Name = "Loss";
+            chart_loss.Series.Add(series3);
+            chart_loss.Series.Add(series4);
+            chart_loss.Size = new Size(791, 924);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
             // 
@@ -947,7 +962,7 @@
             panel_grade.Controls.Add(progressBar_score);
             panel_grade.Location = new Point(9, 527);
             panel_grade.Name = "panel_grade";
-            panel_grade.Size = new Size(336, 392);
+            panel_grade.Size = new Size(354, 392);
             panel_grade.TabIndex = 2;
             // 
             // label_progreScore
@@ -966,7 +981,7 @@
             label_scoreUnit.Anchor = AnchorStyles.None;
             label_scoreUnit.AutoSize = true;
             label_scoreUnit.Font = new Font("맑은 고딕", 12F);
-            label_scoreUnit.Location = new Point(138, 136);
+            label_scoreUnit.Location = new Point(147, 136);
             label_scoreUnit.Name = "label_scoreUnit";
             label_scoreUnit.Size = new Size(65, 21);
             label_scoreUnit.TabIndex = 2;
@@ -977,7 +992,7 @@
             label_grade.Anchor = AnchorStyles.None;
             label_grade.AutoSize = true;
             label_grade.Font = new Font("맑은 고딕", 20F);
-            label_grade.Location = new Point(132, 190);
+            label_grade.Location = new Point(77, 198);
             label_grade.Name = "label_grade";
             label_grade.Size = new Size(71, 37);
             label_grade.TabIndex = 1;
@@ -988,7 +1003,7 @@
             label_score.Anchor = AnchorStyles.None;
             label_score.AutoSize = true;
             label_score.Font = new Font("맑은 고딕", 40F);
-            label_score.Location = new Point(138, 28);
+            label_score.Location = new Point(147, 28);
             label_score.Name = "label_score";
             label_score.Size = new Size(60, 72);
             label_score.TabIndex = 1;
@@ -999,7 +1014,7 @@
             progressBar_score.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             progressBar_score.Location = new Point(25, 298);
             progressBar_score.Name = "progressBar_score";
-            progressBar_score.Size = new Size(296, 42);
+            progressBar_score.Size = new Size(314, 42);
             progressBar_score.TabIndex = 0;
             // 
             // label_aicompare
@@ -1033,7 +1048,7 @@
             panel_compare.Controls.Add(combo_compare);
             panel_compare.Location = new Point(9, 63);
             panel_compare.Name = "panel_compare";
-            panel_compare.Size = new Size(336, 308);
+            panel_compare.Size = new Size(354, 308);
             panel_compare.TabIndex = 0;
             // 
             // progre_aiangle
@@ -1041,7 +1056,7 @@
             progre_aiangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aiangle.Location = new Point(181, 280);
             progre_aiangle.Name = "progre_aiangle";
-            progre_aiangle.Size = new Size(140, 23);
+            progre_aiangle.Size = new Size(158, 23);
             progre_aiangle.TabIndex = 2;
             // 
             // progre_aithro
@@ -1049,7 +1064,7 @@
             progre_aithro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aithro.Location = new Point(181, 239);
             progre_aithro.Name = "progre_aithro";
-            progre_aithro.Size = new Size(140, 23);
+            progre_aithro.Size = new Size(158, 23);
             progre_aithro.TabIndex = 2;
             // 
             // progre_compangle
@@ -1057,7 +1072,7 @@
             progre_compangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compangle.Location = new Point(181, 162);
             progre_compangle.Name = "progre_compangle";
-            progre_compangle.Size = new Size(140, 23);
+            progre_compangle.Size = new Size(158, 23);
             progre_compangle.TabIndex = 2;
             // 
             // progre_compthro
@@ -1065,7 +1080,7 @@
             progre_compthro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compthro.Location = new Point(181, 121);
             progre_compthro.Name = "progre_compthro";
-            progre_compthro.Size = new Size(140, 23);
+            progre_compthro.Size = new Size(158, 23);
             progre_compthro.TabIndex = 2;
             // 
             // label_aiangle
@@ -1140,7 +1155,7 @@
             label_ocha.AutoSize = true;
             label_ocha.Font = new Font("맑은 고딕", 12F);
             label_ocha.ForeColor = SystemColors.ButtonFace;
-            label_ocha.Location = new Point(220, 30);
+            label_ocha.Location = new Point(238, 30);
             label_ocha.Name = "label_ocha";
             label_ocha.Size = new Size(46, 21);
             label_ocha.TabIndex = 1;
@@ -1186,7 +1201,7 @@
             BackColor = Color.White;
             ClientSize = new Size(1514, 964);
             Controls.Add(tabControl);
-            Margin = new Padding(1, 1, 1, 1);
+            Margin = new Padding(1);
             Name = "Form1";
             Text = "데이터 매니저v1.0";
             tabControl.ResumeLayout(false);
@@ -1318,8 +1333,9 @@
         private Button btnHelp;
         private ComboBox comboBox_play;
         private Label label4;
-        private Label label3;
+        private Label label_venv;
         private ComboBox comboBox_venv;
         private Button btnDetect;
+        private Label label_progressai;
     }
 }

@@ -155,6 +155,21 @@ def main():
 
     model.save("model.h5")
 
+    import json
+
+    # score.json 저장
+    val_loss = min(history.history['val_loss'])
+    score = max(0, (1.0 - val_loss * 2.0)) * 100
+    score = round(score, 1)
+
+    with open("score.json", "w") as f:
+        json.dump({
+            "val_loss": val_loss,
+            "score": score
+        }, f, indent=4)
+
+    print(f"score saved: {score}")
+
     print("model saved")
 
     with open(
