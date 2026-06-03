@@ -154,14 +154,8 @@ namespace Datamanager
 
                 btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
-                
-            }
 
-            // 콤보박스
-            cmbTrashList.BackColor = Color.FromArgb(18, 18, 32);
-            cmbTrashList.ForeColor = Color.FromArgb(204, 204, 204);
-            cmbTrashList.Font = new Font("Consolas", 10F);
-            cmbTrashList.FlatStyle = FlatStyle.Flat;
+            }
 
             // splitContainer 스타일링 공통 메서드
             void StyleSplitContainer(SplitContainer sc)
@@ -221,24 +215,11 @@ namespace Datamanager
             trackBar_frame.TickStyle = TickStyle.None;
             trackBar_frame.ValueChanged += (sender, e) => trackBar_frame.Invalidate();
 
-            // TrackBar에 더블버퍼링 강제 적용
-            // 트랙바 깜빡거림 완화 위함
-            typeof(TrackBar)
-                .GetProperty("DoubleBuffered",
-                    System.Reflection.BindingFlags.NonPublic |
-                    System.Reflection.BindingFlags.Instance)
-                ?.SetValue(trackBar_frame, true);
-
             // 8. 학습 탭 하이테크 테마 디자인
             list_log.BackColor = Color.FromArgb(7, 7, 15);
             list_log.ForeColor = Color.FromArgb(0, 191, 255);
             list_log.BorderStyle = BorderStyle.FixedSingle;
             list_log.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
-
-            combo_model.FlatStyle = FlatStyle.Flat;
-            combo_model.BackColor = Color.FromArgb(18, 18, 32);
-            combo_model.ForeColor = Color.FromArgb(204, 204, 204);
-            combo_model.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
 
             if (chart_loss != null)
             {
@@ -340,11 +321,6 @@ namespace Datamanager
             StyleProgressBar(progre_aithro, Color.FromArgb(255, 167, 38));
             StyleProgressBar(progre_aiangle, Color.FromArgb(255, 167, 38));
 
-            // 콤보박스
-            combo_compare.BackColor = Color.FromArgb(18, 18, 32);
-            combo_compare.ForeColor = Color.FromArgb(204, 204, 204);
-            combo_compare.Font = new Font("Consolas", 15F);
-            combo_compare.FlatStyle = FlatStyle.Flat;
             // 콤보박스 아이템 로드
             combo_compare.SelectedIndexChanged += (s, e) =>
             {
@@ -423,6 +399,30 @@ namespace Datamanager
             progressBar_score.Style = ProgressBarStyle.Continuous;
             progressBar_score.ForeColor = Color.FromArgb(102, 187, 106);
             progressBar_score.BackColor = Color.FromArgb(26, 26, 48);
+
+            // 기존 콤보박스 스타일 지정 구역들을 함수 호출로 대체
+            StyleComboBox(cmbTrashList, 10F, "Consolas"); // Trash 리스트
+            StyleComboBox(comboBox_play, 10F);             // 배속 조절 콤보박스
+            StyleComboBox(combo_model, 10F);               // 모델 선택 콤보박스
+            StyleComboBox(combo_compare, 15F, "Consolas"); // AI 수치 비교 콤보박스
+            StyleComboBox(comboBox_venv, 10F);             // 가상환경 콤보박스
+
+        }
+        // 콤보박스 하이테크 스타일 적용 공통 메서드
+        private void StyleComboBox(System.Windows.Forms.ComboBox cmb)
+        {
+            cmb.FlatStyle = FlatStyle.Flat;
+            cmb.BackColor = Color.FromArgb(18, 18, 32);
+            cmb.ForeColor = Color.FromArgb(204, 204, 204);
+            cmb.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        }
+        // 폰트 크기를 커스텀 함수
+        private void StyleComboBox(System.Windows.Forms.ComboBox cmb, float fontSize, string fontName = "Segoe UI")
+        {
+            cmb.FlatStyle = FlatStyle.Flat;
+            cmb.BackColor = Color.FromArgb(18, 18, 32);
+            cmb.ForeColor = Color.FromArgb(204, 204, 204);
+            cmb.Font = new Font(fontName, fontSize, FontStyle.Bold);
         }
 
         // 10. CONTROL-BASED NEEDLE DRAWING 
@@ -1072,7 +1072,8 @@ namespace Datamanager
                             throttle = catalogData[originalIndex].user_throttle;
                         }
 
-                        if (angle == 0.0 || throttle <= 0.0)
+                        // 필터링 체크박스가 체크된 경우에만 앵글 0 또는 쓰로틀 0 이하 데이터 제외
+                        if (checkBox_filter.Checked && (angle == 0.0 || throttle <= 0.0))
                         {
                             skippedCount++;
                             continue;
@@ -1371,16 +1372,6 @@ namespace Datamanager
             CompressAllImages(quality, 1.0);
 
             MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
-        }
-
-        private void progressDelete_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
         }
     }
 
