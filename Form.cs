@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -54,6 +55,9 @@ namespace Datamanager
 
         // catalog 데이터 저장할 딕셔너리
         Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
+
+        // 이상 탐지: 깨진 파일의 인덱스 저장
+        HashSet<int> corruptedFileIndices = new HashSet<int>();
 
         public Form1()
         {
@@ -1385,6 +1389,11 @@ namespace Datamanager
         }
 
         private void checkBox_filter_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnDetect_Click(object sender, EventArgs e)
         {
 
         }
