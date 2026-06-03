@@ -367,3 +367,6 @@ trash/
 deleted_history.json
 images/
 data/
+model.h5
+score.json
+train_log.txt
