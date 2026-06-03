@@ -166,10 +166,10 @@ namespace Datamanager
             }
 
             // 콤보박스
-            cmbTrashList.BackColor = Color.FromArgb(18, 18, 32);
-            cmbTrashList.ForeColor = Color.FromArgb(204, 204, 204);
-            cmbTrashList.Font = new Font("Consolas", 10F);
-            cmbTrashList.FlatStyle = FlatStyle.Flat;
+            학습.BackColor = Color.FromArgb(18, 18, 32);
+            학습.ForeColor = Color.FromArgb(204, 204, 204);
+            학습.Font = new Font("Consolas", 10F);
+            학습.FlatStyle = FlatStyle.Flat;
 
             // splitContainer 스타일링 공통 메서드
             void StyleSplitContainer(SplitContainer sc)
@@ -1672,6 +1672,21 @@ namespace Datamanager
 
             // 4. 포커스 사각형 점선 그리기
             e.DrawFocusRectangle();
+        }
+
+        private void label_aicompare_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void combo_compare_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label_ocha_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
