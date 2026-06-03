@@ -133,6 +133,10 @@ namespace Datamanager
             listImages.ForeColor = Color.FromArgb(0, 191, 255);
             listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
 
+            // listImages 커스텀 그리기 설정 (깨진 파일을 빨간색으로 표시하기 위함)
+            listImages.DrawMode = DrawMode.OwnerDrawFixed;
+            listImages.DrawItem += listImages_DrawItem;
+
             // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
             label_throttle.BackColor = Color.FromArgb(13, 13, 24);
             label_throttle.ForeColor = Color.FromArgb(32, 201, 151);
@@ -1633,6 +1637,41 @@ namespace Datamanager
             {
                 Cursor = Cursors.Default;
             }
+        }
+
+        // listImages 항목 그리기 (깨진 파일을 빨간색으로 표시)
+        private void listImages_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0) return;
+
+            // 배경 그리기
+            e.DrawBackground();
+
+            // 깨진 파일인지 확인
+            bool isCorrupted = corruptedFileIndices.Contains(e.Index);
+
+            // 텍스트 색상 결정
+            Color textColor;
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            {
+                // 선택된 항목
+                textColor = isCorrupted ? Color.Red : Color.White;
+            }
+            else
+            {
+                // 선택되지 않은 항목
+                textColor = isCorrupted ? Color.Red : Color.FromArgb(0, 191, 255);
+            }
+
+            // 텍스트 그리기
+            string text = listImages.Items[e.Index].ToString();
+            using (SolidBrush brush = new SolidBrush(textColor))
+            {
+                e.Graphics.DrawString(text, e.Font, brush, e.Bounds);
+            }
+
+            // 포커스 사각형 그리기
+            e.DrawFocusRectangle();
         }
     }
 
