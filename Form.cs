@@ -1072,7 +1072,8 @@ namespace Datamanager
                             throttle = catalogData[originalIndex].user_throttle;
                         }
 
-                        if (angle == 0.0 || throttle <= 0.0)
+                        // 필터링 체크박스가 체크된 경우에만 앵글 0 또는 쓰로틀 0 이하 데이터 제외
+                        if (checkBox_filter.Checked && (angle == 0.0 || throttle <= 0.0))
                         {
                             skippedCount++;
                             continue;
