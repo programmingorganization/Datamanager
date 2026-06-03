@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -54,6 +55,9 @@ namespace Datamanager
 
         // catalog 데이터 저장할 딕셔너리
         Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
+
+        // 이상 탐지: 깨진 파일의 인덱스 저장
+        HashSet<int> corruptedFileIndices = new HashSet<int>();
 
         public Form1()
         {
@@ -128,6 +132,10 @@ namespace Datamanager
 
             listImages.ForeColor = Color.FromArgb(0, 191, 255);
             listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
+
+            // listImages 커스텀 그리기 설정 (깨진 파일을 빨간색으로 표시하기 위함)
+            listImages.DrawMode = DrawMode.OwnerDrawFixed;
+            listImages.DrawItem += listImages_DrawItem;
 
             // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
             label_throttle.BackColor = Color.FromArgb(13, 13, 24);
@@ -1372,6 +1380,298 @@ namespace Datamanager
             CompressAllImages(quality, 1.0);
 
             MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
+        }
+
+        private void progressDelete_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox_filter_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        /*
+        // 깨진 카탈로그 데이터 검증하는 부분 (LoadCatalog 함수가 이 역할을 대신 해주고 있음)
+        // 카탈로그 JSON 라인 검증
+        private bool IsValidCatalogLine(string jsonLine, out string errorReason)
+        {
+            errorReason = "";
+
+            if (string.IsNullOrWhiteSpace(jsonLine))
+            {
+                errorReason = "빈 라인";
+                return false;
+            }
+
+            try
+            {
+                using (JsonDocument json = JsonDocument.Parse(jsonLine))
+                {
+                    // 필수 필드 확인
+                    if (!json.RootElement.TryGetProperty("_index", out var indexProp) ||
+                        !json.RootElement.TryGetProperty("cam/image_array", out var imageProp) ||
+                        !json.RootElement.TryGetProperty("user/angle", out var angleProp) ||
+                        !json.RootElement.TryGetProperty("user/throttle", out var throttleProp))
+                    {
+                        errorReason = "필수 필드 누락";
+                        return false;
+                    }
+
+                    // 데이터 타입 및 값 확인
+                    int index = indexProp.GetInt32();
+                    string imagePath = imageProp.GetString();
+                    double angle = angleProp.GetDouble();
+                    double throttle = throttleProp.GetDouble();
+
+                    if (index < 0)
+                    {
+                        errorReason = "인덱스 음수";
+                        return false;
+                    }
+
+                    if (string.IsNullOrEmpty(imagePath))
+                    {
+                        errorReason = "이미지 경로 없음";
+                        return false;
+                    }
+
+                    // 값이 NaN이거나 무한대인지 확인
+                    if (double.IsNaN(angle) || double.IsInfinity(angle) ||
+                        double.IsNaN(throttle) || double.IsInfinity(throttle))
+                    {
+                        errorReason = "비정상 수치 (NaN/Infinity)";
+                        return false;
+                    }
+                }
+            }
+            catch (JsonException ex)
+            {
+                errorReason = $"JSON 파싱 오류";
+                return false;
+            }
+            catch (Exception ex)
+            {
+                errorReason = $"검증 오류: {ex.Message}";
+                return false;
+            }
+
+            return true;
+        }
+        */
+
+
+        // 이미지 파일 검증
+        private bool IsValidImage(string imagePath, out string errorReason)
+        {
+            errorReason = "";
+
+            // 파일 존재 확인
+            if (!File.Exists(imagePath))
+            {
+                errorReason = "파일 없음";
+                return false;
+            }
+
+            try
+            {
+                // 파일 크기 확인
+                FileInfo fileInfo = new FileInfo(imagePath);
+                if (fileInfo.Length == 0)
+                {
+                    errorReason = "빈 파일 (0 bytes)";
+                    return false;
+                }
+
+                if (fileInfo.Length < 100) // 최소 크기
+                {
+                    errorReason = $"파일 크기 너무 작음 ({fileInfo.Length} bytes)";
+                    return false;
+                }
+
+                // OpenCV로 이미지 로드 시도
+                using (Mat frame = CvInvoke.Imread(imagePath, ImreadModes.AnyColor))
+                {
+                    if (frame.IsEmpty)
+                    {
+                        errorReason = "이미지 로드 실패 (손상된 파일)";
+                        return false;
+                    }
+
+                    if (frame.Width == 0 || frame.Height == 0)
+                    {
+                        errorReason = "이미지 해상도 0x0";
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorReason = $"이미지 검증 오류: {ex.Message}";
+                return false;
+            }
+
+            return true;
+        }
+
+        private void btnDetect_Click(object sender, EventArgs e)
+        {
+            if (imageFiles == null || imageFiles.Length == 0)
+            {
+                MessageBox.Show("이미지 폴더를 먼저 열어주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // 이전 검증 결과 초기화
+            corruptedFileIndices.Clear();
+
+            int totalFiles = imageFiles.Length;
+            int corruptedCount = 0;
+            List<string> errorMessages = new List<string>();
+
+            // 진행 상황 표시
+            Cursor = Cursors.WaitCursor;
+            btnDetect.Enabled = false; // 중복 클릭 방지
+
+            try
+            {
+                // 각 이미지 파일 검증
+                for (int i = 0; i < imageFiles.Length; i++)
+                {
+                    string imagePath = imageFiles[i];
+                    string fileName = Path.GetFileName(imagePath);
+                    int imageIndex = ExtractNumber(Path.GetFileNameWithoutExtension(fileName));
+
+                    bool isCorrupted = false;
+                    List<string> errors = new List<string>();
+
+                    // [검증 1] 이미지 파일 검증
+                    if (!IsValidImage(imagePath, out string imageError))
+                    {
+                        errors.Add($"이미지: {imageError}");
+                        isCorrupted = true;
+                    }
+
+                    // [검증 2] 카탈로그 데이터 매칭 검증
+                    if (!catalogData.ContainsKey(imageIndex))
+                    {
+                        errors.Add("카탈로그: 데이터 없음(미등록 이미지)");
+                        isCorrupted = true;
+                    }
+                    else
+                    {
+                        // 카탈로그 데이터의 유효성 검증
+                        var entry = catalogData[imageIndex];
+
+                        if (double.IsNaN(entry.user_angle) || double.IsInfinity(entry.user_angle))
+                        {
+                            errors.Add("카탈로그: angle 비정상");
+                            isCorrupted = true;
+                        }
+
+                        if (double.IsNaN(entry.user_throttle) || double.IsInfinity(entry.user_throttle))
+                        {
+                            errors.Add("카탈로그: throttle 비정상");
+                            isCorrupted = true;
+                        }
+
+                        if (string.IsNullOrEmpty(entry.cam_image_array))
+                        {
+                            errors.Add("카탈로그: 이미지 경로 없음");
+                            isCorrupted = true;
+                        }
+                    }
+
+                    // 깨진 파일 적발 시
+                    if (isCorrupted)
+                    {
+                        corruptedFileIndices.Add(i); // listImages의 인덱스 저장
+                        corruptedCount++;
+
+                        string errorDetail = $"{fileName}: {string.Join(", ", errors)}";
+                        errorMessages.Add(errorDetail);
+                    }
+
+                    // 💡 500장마다 UI 멈춤 방지
+                    if (i % 500 == 0 && i > 0)
+                    {
+                        Application.DoEvents(); // UI 응답 유지
+                    }
+                }
+
+                // 리스트박스 전체 강제 리프레시
+                listImages.Invalidate();
+
+                // 결과 메시지
+                if (corruptedCount > 0)
+                {
+                    MessageBox.Show(
+                        $"총 {totalFiles}개 파일 중 {corruptedCount}개의 깨진 파일이 발견되었습니다.\n\n" +
+                        $"깨진 파일은 프레임 목록에서 빨간색으로 표시됩니다.",
+                        "이상 탐지 완료",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"모든 파일({totalFiles}개)이 정상입니다.",
+                        "이상 탐지 완료",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"이상 탐지 중 오류가 발생했습니다:\n{ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnDetect.Enabled = true; // 버튼 다시 활성화
+                Cursor = Cursors.Default;
+            }
+        }
+
+        // listImages 항목 그리기 (깨진 파일을 빨간색으로 표시)
+        private void listImages_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0) return;
+
+            // 1. 시스템 기본 배경색으로 칠하기
+            e.DrawBackground();
+
+            // 깨진 파일인지 확인
+            bool isCorrupted = corruptedFileIndices.Contains(e.Index);
+            bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+
+            // 2. 텍스트 색상 결정 (기존 테마 유지)
+            Color textColor;
+            if (isSelected)
+            {
+                // 선택된 항목
+                textColor = isCorrupted ? Color.Red : Color.White;
+            }
+            else
+            {
+                // 선택되지 않은 항목
+                textColor = isCorrupted ? Color.Red : Color.FromArgb(0, 191, 255);
+            }
+
+            // 3. 텍스트 그리기
+            string text = listImages.Items[e.Index].ToString();
+            using (SolidBrush textBrush = new SolidBrush(textColor))
+            {
+                e.Graphics.DrawString(text, e.Font, textBrush, e.Bounds);
+            }
+
+            // 4. 포커스 사각형 점선 그리기
+            e.DrawFocusRectangle();
         }
     }
 
