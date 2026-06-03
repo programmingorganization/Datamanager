@@ -41,14 +41,6 @@ namespace Datamanager
         private int startFrameIndex = -1;   //  삭제할 첫 프레임 인덱스
         private int endFrameIndex = -1; //  삭제할 끝 프레임 인덱스
 
-        private List<int> validIndices = new List<int>();   //  catalog에 존재하는 인덱스만 저장
-        private List<int> deletedIndices = new List<int>(); //  삭제된 인덱스 저장 (복구 시 활용)
-        private Dictionary<int, CatalogEntry> originalCatalogData; // 복원용 백업 딕셔너리 추가
-
-
-        private int startFrameIndex = -1;   //  삭제할 첫 프레임 인덱스
-        private int endFrameIndex = -1; //  삭제할 끝 프레임 인덱스
-
         bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
 
         float leftX1Ema = 0;
@@ -1431,6 +1423,57 @@ namespace Datamanager
         // 이미지 파일 검증
         private bool IsValidImage(string imagePath, out string errorReason)
         {
+            errorReason = "";
+
+            // 파일 존재 확인
+            if (!File.Exists(imagePath))
+            {
+                errorReason = "파일 없음";
+                return false;
+            }
+
+            try
+            {
+                // 파일 크기 확인
+                FileInfo fileInfo = new FileInfo(imagePath);
+                if (fileInfo.Length == 0)
+                {
+                    errorReason = "빈 파일 (0 bytes)";
+                    return false;
+                }
+
+                if (fileInfo.Length < 100) // 최소 크기
+                {
+                    errorReason = $"파일 크기 너무 작음 ({fileInfo.Length} bytes)";
+                    return false;
+                }
+
+                // OpenCV로 이미지 로드 시도
+                using (Mat frame = CvInvoke.Imread(imagePath, ImreadModes.AnyColor))
+                {
+                    if (frame.IsEmpty)
+                    {
+                        errorReason = "이미지 로드 실패 (손상된 파일)";
+                        return false;
+                    }
+
+                    if (frame.Width == 0 || frame.Height == 0)
+                    {
+                        errorReason = "이미지 해상도 0x0";
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorReason = $"이미지 검증 오류: {ex.Message}";
+                return false;
+            }
+
+            return true;
+        }
+        private void btn_delete_Click(object sender, EventArgs e)
+        {
             // 1. 예외 처리
             if (startFrameIndex == -1 || endFrameIndex == -1)
             {
@@ -1636,57 +1679,6 @@ namespace Datamanager
         private void label2_Click(object sender, EventArgs e)
         {
 
-        }
-
-        private void train_Click(object sender, EventArgs e)
-        {
-            if (combo_model.SelectedIndex < 0)
-            {
-                MessageBox.Show("모델을 선택하세요");
-                return;
-            }
-
-
-            string modelType = combo_model.SelectedItem.ToString().ToLower();
-
-            RunPythonTrain(modelType);
-
-            string scorePath = Path.Combine(baseDir, "score.json");
-
-            if (!File.Exists(scorePath))
-            {
-                MessageBox.Show("평가 결과가 생성되지 않았습니다.");
-                return;
-            }
-
-            string json =
-                File.ReadAllText(scorePath);
-
-            dynamic result =
-                JsonConvert.DeserializeObject(json);
-
-            label_score.Text =
-                result["score"].ToString();
-        }
-
-        private const int BaseInterval = 100;
-        private void comboBox_play_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (comboBox_play.SelectedItem == null) return;
-
-            // 현재 선택된 아이템 글자 (예: "x1.5배속")
-            string selectedItemText = comboBox_play.SelectedItem.ToString();
-
-            // "x"와 "배속"을 모두 지워서 숫자("1.5")만 남깁니다.
-            string speedValue = selectedItemText.Replace("x", "").Replace("배속", "");
-
-            // 숫자로 변환하여 타이머 Interval 계산
-            if (double.TryParse(speedValue, out double speed))
-            {
-                // 공식: 기본 주기 / 배속
-                // 예: x2.0배속 선택 시 -> 100 / 2.0 = 50ms (2배 빨라짐)
-                timer1.Interval = (int)(BaseInterval / speed);
-            }
         }
         private void btnDetect_Click(object sender, EventArgs e)
         {
