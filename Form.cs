@@ -1397,6 +1397,8 @@ namespace Datamanager
 
         }
 
+        /*
+        // 깨진 카탈로그 데이터 검증하는 부분 (LoadCatalog 함수가 이 역할을 대신 해주고 있음)
         // 카탈로그 JSON 라인 검증
         private bool IsValidCatalogLine(string jsonLine, out string errorReason)
         {
@@ -1462,6 +1464,8 @@ namespace Datamanager
 
             return true;
         }
+        */
+
 
         // 이미지 파일 검증
         private bool IsValidImage(string imagePath, out string errorReason)
@@ -1533,7 +1537,7 @@ namespace Datamanager
 
             // 진행 상황 표시
             Cursor = Cursors.WaitCursor;
-            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔍 이상 탐지 시작... (총 {totalFiles}개 파일)");
+            btnDetect.Enabled = false; // 중복 클릭 방지
 
             try
             {
@@ -1547,17 +1551,17 @@ namespace Datamanager
                     bool isCorrupted = false;
                     List<string> errors = new List<string>();
 
-                    // 1. 이미지 파일 검증
+                    // [검증 1] 이미지 파일 검증
                     if (!IsValidImage(imagePath, out string imageError))
                     {
                         errors.Add($"이미지: {imageError}");
                         isCorrupted = true;
                     }
 
-                    // 2. 카탈로그 데이터 검증
+                    // [검증 2] 카탈로그 데이터 매칭 검증
                     if (!catalogData.ContainsKey(imageIndex))
                     {
-                        errors.Add("카탈로그: 데이터 없음");
+                        errors.Add("카탈로그: 데이터 없음(미등록 이미지)");
                         isCorrupted = true;
                     }
                     else
@@ -1584,7 +1588,7 @@ namespace Datamanager
                         }
                     }
 
-                    // 깨진 파일 처리
+                    // 깨진 파일 적발 시
                     if (isCorrupted)
                     {
                         corruptedFileIndices.Add(i); // listImages의 인덱스 저장
@@ -1592,24 +1596,19 @@ namespace Datamanager
 
                         string errorDetail = $"{fileName}: {string.Join(", ", errors)}";
                         errorMessages.Add(errorDetail);
+                    }
 
-                        if (errorMessages.Count <= 10) // 처음 10개만 로그에 표시
-                        {
-                            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ {errorDetail}");
-                        }
+                    // 💡 500장마다 UI 멈춤 방지
+                    if (i % 500 == 0 && i > 0)
+                    {
+                        Application.DoEvents(); // UI 응답 유지
                     }
                 }
 
-                // listImages 다시 그리기 (4단계에서 빨간색 표시 적용 예정)
+                // 리스트박스 전체 강제 리프레시
                 listImages.Invalidate();
 
-                // 결과 요약
-                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ═══════════════════════════");
-                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 검증 완료");
-                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 총 파일: {totalFiles}개");
-                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔴 깨진 파일: {corruptedCount}개");
-                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 정상 파일: {totalFiles - corruptedCount}개");
-
+                // 결과 메시지
                 if (corruptedCount > 0)
                 {
                     MessageBox.Show(
@@ -1630,11 +1629,11 @@ namespace Datamanager
             }
             catch (Exception ex)
             {
-                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 오류: {ex.Message}");
                 MessageBox.Show($"이상 탐지 중 오류가 발생했습니다:\n{ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
+                btnDetect.Enabled = true; // 버튼 다시 활성화
                 Cursor = Cursors.Default;
             }
         }
@@ -1644,15 +1643,16 @@ namespace Datamanager
         {
             if (e.Index < 0) return;
 
-            // 배경 그리기
+            // 1. 시스템 기본 배경색으로 칠하기
             e.DrawBackground();
 
             // 깨진 파일인지 확인
             bool isCorrupted = corruptedFileIndices.Contains(e.Index);
+            bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
 
-            // 텍스트 색상 결정
+            // 2. 텍스트 색상 결정 (기존 테마 유지)
             Color textColor;
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            if (isSelected)
             {
                 // 선택된 항목
                 textColor = isCorrupted ? Color.Red : Color.White;
@@ -1663,14 +1663,14 @@ namespace Datamanager
                 textColor = isCorrupted ? Color.Red : Color.FromArgb(0, 191, 255);
             }
 
-            // 텍스트 그리기
+            // 3. 텍스트 그리기
             string text = listImages.Items[e.Index].ToString();
-            using (SolidBrush brush = new SolidBrush(textColor))
+            using (SolidBrush textBrush = new SolidBrush(textColor))
             {
-                e.Graphics.DrawString(text, e.Font, brush, e.Bounds);
+                e.Graphics.DrawString(text, e.Font, textBrush, e.Bounds);
             }
 
-            // 포커스 사각형 그리기
+            // 4. 포커스 사각형 점선 그리기
             e.DrawFocusRectangle();
         }
     }
