@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Diagnostics;
@@ -65,6 +66,9 @@ namespace Datamanager
 
         // catalog 데이터 저장할 딕셔너리
         Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
+
+        // 이상 탐지: 깨진 파일의 인덱스 저장
+        HashSet<int> corruptedFileIndices = new HashSet<int>();
 
         public Form1()
         {
@@ -143,6 +147,10 @@ namespace Datamanager
 
             listImages.ForeColor = Color.FromArgb(0, 191, 255);
             listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
+
+            // listImages 커스텀 그리기 설정 (깨진 파일을 빨간색으로 표시하기 위함)
+            listImages.DrawMode = DrawMode.OwnerDrawFixed;
+            listImages.DrawItem += listImages_DrawItem;
 
             // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
             label_throttle.BackColor = Color.FromArgb(13, 13, 24);
