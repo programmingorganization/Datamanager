@@ -1514,7 +1514,125 @@ namespace Datamanager
 
         private void btnDetect_Click(object sender, EventArgs e)
         {
+            if (imageFiles == null || imageFiles.Length == 0)
+            {
+                MessageBox.Show("이미지 폴더를 먼저 열어주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
+            // 이전 검증 결과 초기화
+            corruptedFileIndices.Clear();
+
+            int totalFiles = imageFiles.Length;
+            int corruptedCount = 0;
+            List<string> errorMessages = new List<string>();
+
+            // 진행 상황 표시
+            Cursor = Cursors.WaitCursor;
+            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔍 이상 탐지 시작... (총 {totalFiles}개 파일)");
+
+            try
+            {
+                // 각 이미지 파일 검증
+                for (int i = 0; i < imageFiles.Length; i++)
+                {
+                    string imagePath = imageFiles[i];
+                    string fileName = Path.GetFileName(imagePath);
+                    int imageIndex = ExtractNumber(Path.GetFileNameWithoutExtension(fileName));
+
+                    bool isCorrupted = false;
+                    List<string> errors = new List<string>();
+
+                    // 1. 이미지 파일 검증
+                    if (!IsValidImage(imagePath, out string imageError))
+                    {
+                        errors.Add($"이미지: {imageError}");
+                        isCorrupted = true;
+                    }
+
+                    // 2. 카탈로그 데이터 검증
+                    if (!catalogData.ContainsKey(imageIndex))
+                    {
+                        errors.Add("카탈로그: 데이터 없음");
+                        isCorrupted = true;
+                    }
+                    else
+                    {
+                        // 카탈로그 데이터의 유효성 검증
+                        var entry = catalogData[imageIndex];
+
+                        if (double.IsNaN(entry.user_angle) || double.IsInfinity(entry.user_angle))
+                        {
+                            errors.Add("카탈로그: angle 비정상");
+                            isCorrupted = true;
+                        }
+
+                        if (double.IsNaN(entry.user_throttle) || double.IsInfinity(entry.user_throttle))
+                        {
+                            errors.Add("카탈로그: throttle 비정상");
+                            isCorrupted = true;
+                        }
+
+                        if (string.IsNullOrEmpty(entry.cam_image_array))
+                        {
+                            errors.Add("카탈로그: 이미지 경로 없음");
+                            isCorrupted = true;
+                        }
+                    }
+
+                    // 깨진 파일 처리
+                    if (isCorrupted)
+                    {
+                        corruptedFileIndices.Add(i); // listImages의 인덱스 저장
+                        corruptedCount++;
+
+                        string errorDetail = $"{fileName}: {string.Join(", ", errors)}";
+                        errorMessages.Add(errorDetail);
+
+                        if (errorMessages.Count <= 10) // 처음 10개만 로그에 표시
+                        {
+                            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ {errorDetail}");
+                        }
+                    }
+                }
+
+                // listImages 다시 그리기 (4단계에서 빨간색 표시 적용 예정)
+                listImages.Invalidate();
+
+                // 결과 요약
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ═══════════════════════════");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 검증 완료");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 총 파일: {totalFiles}개");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔴 깨진 파일: {corruptedCount}개");
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 정상 파일: {totalFiles - corruptedCount}개");
+
+                if (corruptedCount > 0)
+                {
+                    MessageBox.Show(
+                        $"총 {totalFiles}개 파일 중 {corruptedCount}개의 깨진 파일이 발견되었습니다.\n\n" +
+                        $"깨진 파일은 프레임 목록에서 빨간색으로 표시됩니다.",
+                        "이상 탐지 완료",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"모든 파일({totalFiles}개)이 정상입니다.",
+                        "이상 탐지 완료",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 오류: {ex.Message}");
+                MessageBox.Show($"이상 탐지 중 오류가 발생했습니다:\n{ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
         }
     }
 
