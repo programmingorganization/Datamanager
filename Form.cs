@@ -11,9 +11,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Datamanager
 {
@@ -40,6 +41,13 @@ namespace Datamanager
         private int startFrameIndex = -1;   //  삭제할 첫 프레임 인덱스
         private int endFrameIndex = -1; //  삭제할 끝 프레임 인덱스
 
+        private List<int> validIndices = new List<int>();   //  catalog에 존재하는 인덱스만 저장
+        private List<int> deletedIndices = new List<int>(); //  삭제된 인덱스 저장 (복구 시 활용)
+        private Dictionary<int, CatalogEntry> originalCatalogData; // 복원용 백업 딕셔너리 추가
+
+
+        private int startFrameIndex = -1;   //  삭제할 첫 프레임 인덱스
+        private int endFrameIndex = -1; //  삭제할 끝 프레임 인덱스
 
         bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
 
@@ -65,7 +73,6 @@ namespace Datamanager
 
         // catalog 데이터 저장할 딕셔너리
         Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
-
         // 이상 탐지: 깨진 파일의 인덱스 저장
         HashSet<int> corruptedFileIndices = new HashSet<int>();
 
@@ -147,10 +154,6 @@ namespace Datamanager
             listImages.ForeColor = Color.FromArgb(0, 191, 255);
             listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
 
-            // listImages 커스텀 그리기 설정 (깨진 파일을 빨간색으로 표시하기 위함)
-            listImages.DrawMode = DrawMode.OwnerDrawFixed;
-            listImages.DrawItem += listImages_DrawItem;
-
             // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
             label_throttle.BackColor = Color.FromArgb(13, 13, 24);
             label_throttle.ForeColor = Color.FromArgb(32, 201, 151);
@@ -179,12 +182,6 @@ namespace Datamanager
 
             }
 
-            // 콤보박스
-            cmbTrashList.BackColor = Color.FromArgb(18, 18, 32);
-            cmbTrashList.ForeColor = Color.FromArgb(204, 204, 204);
-            cmbTrashList.Font = new Font("Consolas", 10F);
-            cmbTrashList.FlatStyle = FlatStyle.Flat;
-
             // splitContainer 스타일링 공통 메서드
             void StyleSplitContainer(SplitContainer sc)
             {
@@ -194,7 +191,7 @@ namespace Datamanager
                 sc.SplitterWidth = 4;  // 바 두께
                 sc.IsSplitterFixed = false;  // 드래그 가능
             }
-
+            
             StyleSplitContainer(splitContainer_up);
             StyleSplitContainer(splitContainer_allwindow);
             StyleSplitContainer(splitContainer_down);
@@ -243,24 +240,11 @@ namespace Datamanager
             trackBar_frame.TickStyle = TickStyle.None;
             trackBar_frame.ValueChanged += (sender, e) => trackBar_frame.Invalidate();
 
-            // TrackBar에 더블버퍼링 강제 적용
-            // 트랙바 깜빡거림 완화 위함
-            typeof(TrackBar)
-                .GetProperty("DoubleBuffered",
-                    System.Reflection.BindingFlags.NonPublic |
-                    System.Reflection.BindingFlags.Instance)
-                ?.SetValue(trackBar_frame, true);
-
             // 8. 학습 탭 하이테크 테마 디자인
             list_log.BackColor = Color.FromArgb(7, 7, 15);
             list_log.ForeColor = Color.FromArgb(0, 191, 255);
             list_log.BorderStyle = BorderStyle.FixedSingle;
             list_log.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
-
-            combo_model.FlatStyle = FlatStyle.Flat;
-            combo_model.BackColor = Color.FromArgb(18, 18, 32);
-            combo_model.ForeColor = Color.FromArgb(204, 204, 204);
-            combo_model.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
 
             if (chart_loss != null)
             {
@@ -362,11 +346,6 @@ namespace Datamanager
             StyleProgressBar(progre_aithro, Color.FromArgb(255, 167, 38));
             StyleProgressBar(progre_aiangle, Color.FromArgb(255, 167, 38));
 
-            // 콤보박스
-            combo_compare.BackColor = Color.FromArgb(18, 18, 32);
-            combo_compare.ForeColor = Color.FromArgb(204, 204, 204);
-            combo_compare.Font = new Font("Consolas", 15F);
-            combo_compare.FlatStyle = FlatStyle.Flat;
             // 콤보박스 아이템 로드
             combo_compare.SelectedIndexChanged += (s, e) =>
             {
@@ -445,6 +424,30 @@ namespace Datamanager
             progressBar_score.Style = ProgressBarStyle.Continuous;
             progressBar_score.ForeColor = Color.FromArgb(102, 187, 106);
             progressBar_score.BackColor = Color.FromArgb(26, 26, 48);
+
+            // 기존 콤보박스 스타일 지정 구역들을 함수 호출로 대체
+            StyleComboBox(cmbTrashList, 10F, "Consolas"); // Trash 리스트
+            StyleComboBox(comboBox_play, 10F);             // 배속 조절 콤보박스
+            StyleComboBox(combo_model, 10F);               // 모델 선택 콤보박스
+            StyleComboBox(combo_compare, 15F, "Consolas"); // AI 수치 비교 콤보박스
+            StyleComboBox(comboBox_venv, 10F);             // 가상환경 콤보박스
+
+        }
+        // 콤보박스 하이테크 스타일 적용 공통 메서드
+        private void StyleComboBox(System.Windows.Forms.ComboBox cmb)
+        {
+            cmb.FlatStyle = FlatStyle.Flat;
+            cmb.BackColor = Color.FromArgb(18, 18, 32);
+            cmb.ForeColor = Color.FromArgb(204, 204, 204);
+            cmb.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        }
+        // 폰트 크기를 커스텀 함수
+        private void StyleComboBox(System.Windows.Forms.ComboBox cmb, float fontSize, string fontName = "Segoe UI")
+        {
+            cmb.FlatStyle = FlatStyle.Flat;
+            cmb.BackColor = Color.FromArgb(18, 18, 32);
+            cmb.ForeColor = Color.FromArgb(204, 204, 204);
+            cmb.Font = new Font(fontName, fontSize, FontStyle.Bold);
         }
 
         // 10. CONTROL-BASED NEEDLE DRAWING 
@@ -1365,6 +1368,9 @@ namespace Datamanager
             {
                 btn_train.Enabled = true;
             }
+
+            //////////////////////////////////////////// 모델 학습 및 평가
+
         }
 
         void LoadThumbnails(int centerIndex)
@@ -1421,8 +1427,9 @@ namespace Datamanager
                 }
             }
         }
-
-        private void btn_delete_Click(object sender, EventArgs e)
+        
+        // 이미지 파일 검증
+        private bool IsValidImage(string imagePath, out string errorReason)
         {
             // 1. 예외 처리
             if (startFrameIndex == -1 || endFrameIndex == -1)
@@ -1631,134 +1638,56 @@ namespace Datamanager
 
         }
 
-        private void checkBox_filter_CheckedChanged(object sender, EventArgs e)
+        private void train_Click(object sender, EventArgs e)
         {
+            if (combo_model.SelectedIndex < 0)
+            {
+                MessageBox.Show("모델을 선택하세요");
+                return;
+            }
 
+
+            string modelType = combo_model.SelectedItem.ToString().ToLower();
+
+            RunPythonTrain(modelType);
+
+            string scorePath = Path.Combine(baseDir, "score.json");
+
+            if (!File.Exists(scorePath))
+            {
+                MessageBox.Show("평가 결과가 생성되지 않았습니다.");
+                return;
+            }
+
+            string json =
+                File.ReadAllText(scorePath);
+
+            dynamic result =
+                JsonConvert.DeserializeObject(json);
+
+            label_score.Text =
+                result["score"].ToString();
         }
 
-        /*
-        // 깨진 카탈로그 데이터 검증하는 부분 (LoadCatalog 함수가 이 역할을 대신 해주고 있음)
-        // 카탈로그 JSON 라인 검증
-        private bool IsValidCatalogLine(string jsonLine, out string errorReason)
+        private const int BaseInterval = 100;
+        private void comboBox_play_SelectedIndexChanged(object sender, EventArgs e)
         {
-            errorReason = "";
+            if (comboBox_play.SelectedItem == null) return;
 
-            if (string.IsNullOrWhiteSpace(jsonLine))
+            // 현재 선택된 아이템 글자 (예: "x1.5배속")
+            string selectedItemText = comboBox_play.SelectedItem.ToString();
+
+            // "x"와 "배속"을 모두 지워서 숫자("1.5")만 남깁니다.
+            string speedValue = selectedItemText.Replace("x", "").Replace("배속", "");
+
+            // 숫자로 변환하여 타이머 Interval 계산
+            if (double.TryParse(speedValue, out double speed))
             {
-                errorReason = "빈 라인";
-                return false;
+                // 공식: 기본 주기 / 배속
+                // 예: x2.0배속 선택 시 -> 100 / 2.0 = 50ms (2배 빨라짐)
+                timer1.Interval = (int)(BaseInterval / speed);
             }
-
-            try
-            {
-                using (JsonDocument json = JsonDocument.Parse(jsonLine))
-                {
-                    // 필수 필드 확인
-                    if (!json.RootElement.TryGetProperty("_index", out var indexProp) ||
-                        !json.RootElement.TryGetProperty("cam/image_array", out var imageProp) ||
-                        !json.RootElement.TryGetProperty("user/angle", out var angleProp) ||
-                        !json.RootElement.TryGetProperty("user/throttle", out var throttleProp))
-                    {
-                        errorReason = "필수 필드 누락";
-                        return false;
-                    }
-
-                    // 데이터 타입 및 값 확인
-                    int index = indexProp.GetInt32();
-                    string imagePath = imageProp.GetString();
-                    double angle = angleProp.GetDouble();
-                    double throttle = throttleProp.GetDouble();
-
-                    if (index < 0)
-                    {
-                        errorReason = "인덱스 음수";
-                        return false;
-                    }
-
-                    if (string.IsNullOrEmpty(imagePath))
-                    {
-                        errorReason = "이미지 경로 없음";
-                        return false;
-                    }
-
-                    // 값이 NaN이거나 무한대인지 확인
-                    if (double.IsNaN(angle) || double.IsInfinity(angle) ||
-                        double.IsNaN(throttle) || double.IsInfinity(throttle))
-                    {
-                        errorReason = "비정상 수치 (NaN/Infinity)";
-                        return false;
-                    }
-                }
-            }
-            catch (JsonException ex)
-            {
-                errorReason = $"JSON 파싱 오류";
-                return false;
-            }
-            catch (Exception ex)
-            {
-                errorReason = $"검증 오류: {ex.Message}";
-                return false;
-            }
-
-            return true;
         }
-        */
-
-
-        // 이미지 파일 검증
-        private bool IsValidImage(string imagePath, out string errorReason)
-        {
-            errorReason = "";
-
-            // 파일 존재 확인
-            if (!File.Exists(imagePath))
-            {
-                errorReason = "파일 없음";
-                return false;
-            }
-
-            try
-            {
-                // 파일 크기 확인
-                FileInfo fileInfo = new FileInfo(imagePath);
-                if (fileInfo.Length == 0)
-                {
-                    errorReason = "빈 파일 (0 bytes)";
-                    return false;
-                }
-
-                if (fileInfo.Length < 100) // 최소 크기
-                {
-                    errorReason = $"파일 크기 너무 작음 ({fileInfo.Length} bytes)";
-                    return false;
-                }
-
-                // OpenCV로 이미지 로드 시도
-                using (Mat frame = CvInvoke.Imread(imagePath, ImreadModes.AnyColor))
-                {
-                    if (frame.IsEmpty)
-                    {
-                        errorReason = "이미지 로드 실패 (손상된 파일)";
-                        return false;
-                    }
-
-                    if (frame.Width == 0 || frame.Height == 0)
-                    {
-                        errorReason = "이미지 해상도 0x0";
-                        return false;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                errorReason = $"이미지 검증 오류: {ex.Message}";
-                return false;
-            }
-
-            return true;
-        }
-
         private void btnDetect_Click(object sender, EventArgs e)
         {
             if (imageFiles == null || imageFiles.Length == 0)
