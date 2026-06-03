@@ -983,9 +983,22 @@ namespace Datamanager
         private void RunPythonTrain(string modelType)
         {
             envName = txtEnv.Text;
+
+            string script = "";
+
+            if (modelType == "cnn")
+                script = "train.py";
+            else if (modelType == "lstm")
+                script = "train_lstm.py";
+            else
+                throw new Exception("invalid modelType");
+
+            string wslBase = baseDir.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+
+
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "wsl";
-            psi.Arguments = $"bash -ic \"conda activate {envName} && python train.py --data data --model {modelType} --epochs 10\"";
+            psi.Arguments = $"bash -ic \"cd {wslBase} && conda activate {envName} && python {script} --data data --epochs 10\"";
 
             psi.WorkingDirectory = baseDir;
 
@@ -1001,6 +1014,12 @@ namespace Datamanager
 
             p.WaitForExit();
 
+            if (p.ExitCode != 0)
+            {
+                MessageBox.Show("Train 실패");
+                return;
+            }
+
             File.WriteAllText(
                 Path.Combine(baseDir, "train_log.txt"),
                 output + Environment.NewLine +
@@ -1012,20 +1031,26 @@ namespace Datamanager
             if (!string.IsNullOrEmpty(error))
                 list_log.Items.Add("ERROR: " + error);
 
-            RunPythonEvaluate();
+            RunPythonEvaluate(modelType);
 
             string scorePath =
                 Path.Combine(baseDir, "score.json");
         }
-        private void RunPythonEvaluate()
+        private void RunPythonEvaluate(String modelType)
         {
+            string script = "";
+
+            if (modelType == "cnn")
+                script = "evaluate.py";
+            else if (modelType == "lstm")
+                script = "evaluate_lstm.py";
+
             ProcessStartInfo psi =
             new ProcessStartInfo();
 
             psi.FileName = "wsl";
 
-            psi.Arguments =
-                $"bash -ic \"conda activate {envName} && pwd && ls && python evaluate.py\"";
+            psi.Arguments = $"bash -ic \"conda activate {envName} && python {script}\"";
 
             psi.WorkingDirectory = baseDir;
 
