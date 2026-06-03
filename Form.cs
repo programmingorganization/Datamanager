@@ -21,6 +21,7 @@ namespace Datamanager
     public partial class Form1 : Form
     {
         string baseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));   //  프로젝트 루트 경로
+        private Process trainProcess = null;
 
         string[] imageFiles;
         int currentIndex = 0;
@@ -140,11 +141,20 @@ namespace Datamanager
             StyleMonitorControl(listImages);
             StyleMonitorControl(listBox_delete);
 
+            // 진행률 레이블 스타일
+            label_progressai.ForeColor = Color.FromArgb(79, 195, 247);
+            label_progressai.Font = new Font("Consolas", 10F, FontStyle.Bold);
+            label_progressai.BackColor = Color.Transparent;
+
             picImage.SizeMode = PictureBoxSizeMode.Zoom;
             picEdge.SizeMode = PictureBoxSizeMode.Zoom;
 
+            // 리스트 박스 폰트 및 색상
             listImages.ForeColor = Color.FromArgb(0, 191, 255);
             listImages.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
+
+            listBox_delete.ForeColor = Color.FromArgb(0, 191, 255);
+            listBox_delete.Font = new Font("Consolas", 9.5F, FontStyle.Regular);
 
             // 4. DIGITAL DASHBOARD LABELS (속도, 앵글 텍스트 대시보드화)
             label_throttle.BackColor = Color.FromArgb(13, 13, 24);
@@ -183,7 +193,7 @@ namespace Datamanager
                 sc.SplitterWidth = 4;  // 바 두께
                 sc.IsSplitterFixed = false;  // 드래그 가능
             }
-            
+
             StyleSplitContainer(splitContainer_up);
             StyleSplitContainer(splitContainer_allwindow);
             StyleSplitContainer(splitContainer_down);
@@ -266,6 +276,18 @@ namespace Datamanager
                 {
                     chart_loss.Series[0].Color = Color.FromArgb(32, 201, 151);
                 }
+                if (chart_loss.Series.IndexOf("Epoch") >= 0)
+                {
+                    chart_loss.Series["Epoch"].ChartType = SeriesChartType.Line;
+                    chart_loss.Series["Epoch"].Color = Color.FromArgb(32, 201, 151);
+                    chart_loss.Series["Epoch"].BorderWidth = 2;
+                }
+                if (chart_loss.Series.IndexOf("Loss") >= 0)
+                {
+                    chart_loss.Series["Loss"].ChartType = SeriesChartType.Line;
+                    chart_loss.Series["Loss"].Color = Color.FromArgb(255, 167, 38);
+                    chart_loss.Series["Loss"].BorderWidth = 2;
+                }
             }
 
             // 데이터 경로 로드
@@ -282,8 +304,6 @@ namespace Datamanager
 
             Directory.CreateDirectory(trashFolderPath);
 
-            LoadImageFolder(imageFolderPath);
-
             try
             {
                 LoadCatalog();
@@ -293,6 +313,11 @@ namespace Datamanager
             {
                 MessageBox.Show("카탈로그 로드 오류: " + ex.Message);
             }
+            LoadImageFolder(imageFolderPath);
+            LoadCompareCombo();
+            LoadTrashFolders();
+            LoadTrashList();
+            LoadVenvList();
 
             // 부모-자식 관계를 설정하여 완전한 투명(유리판) 효과를 구현
             picNeedleSpeed.Parent = picture_Gage;
@@ -337,40 +362,147 @@ namespace Datamanager
             StyleProgressBar(progre_compangle, Color.FromArgb(79, 195, 247));
             StyleProgressBar(progre_aithro, Color.FromArgb(255, 167, 38));
             StyleProgressBar(progre_aiangle, Color.FromArgb(255, 167, 38));
+            // 학습률 프로그레스바
+            StyleProgressBar(progressBar_learn, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progressDelete, Color.FromArgb(239, 83, 80));
 
-            // 콤보박스 아이템 로드
+            cmbTrashList.SelectedIndexChanged += (s, e) =>
+            {
+                listBox_delete.Items.Clear();
+
+                string selectedFolder = cmbTrashList.SelectedItem?.ToString();
+                string targetPath = selectedFolder == "전체"
+                    ? trashFolderPath
+                    : Path.Combine(trashFolderPath, selectedFolder);
+
+                if (!Directory.Exists(targetPath)) return;
+
+                string[] files = Directory.GetFiles(targetPath, "*.jpg", SearchOption.AllDirectories)
+                    .OrderBy(f => ExtractNumber(Path.GetFileNameWithoutExtension(f)))
+                    .ToArray();
+
+                foreach (string file in files)
+                    listBox_delete.Items.Add(Path.GetFileName(file));
+            };
+
+            // 속도 앵글 차트 체크박스
+            checkBox_throttle.CheckedChanged += (s, e) =>
+            {
+                chart_data.Series["Throttle"].Enabled = checkBox_throttle.Checked;
+            };
+
+            checkBox_angle.CheckedChanged += (s, e) =>
+            {
+                chart_data.Series["Angle"].Enabled = checkBox_angle.Checked;
+            };
+
+            // 초기 상태 체크
+            checkBox_throttle.Checked = true;
+            checkBox_angle.Checked = true;
+
+            /*// 콤보박스 아이템 로드
             combo_compare.SelectedIndexChanged += (s, e) =>
             {
                 if (combo_compare.SelectedIndex < 0) return;
 
-                int idx = combo_compare.SelectedIndex;
+                // 선택된 파일명으로 실제 이미지 경로 찾기
+                string selectedFile = combo_compare.SelectedItem.ToString();
+                string imagePath = imageFiles?.FirstOrDefault(f => Path.GetFileName(f) == selectedFile);
 
+                if (imagePath == null) return;
+
+                // 카탈로그에서 실제값 가져오기
+                int idx = ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile));
                 if (catalogData.ContainsKey(idx))
                 {
                     var entry = catalogData[idx];
                     double realAngle = entry.user_angle;
                     double realThrottle = entry.user_throttle;
 
-                    // 실제값 표시
                     label_compthroNum.Text = realThrottle.ToString("F3");
                     label_compangleNum.Text = realAngle.ToString("F3");
-
-                    // ProgressBar 실제값
-                    progre_compthro.Value = (int)(Math.Abs(realThrottle) * 100);
-                    progre_compangle.Value = (int)((realAngle + 1) / 2 * 100);
-
-                    // AI 예측값은 학습 완료 후 연동
-                    // label_aithroNum.Text = aiThrottle.ToString("F3");
-                    // label_aiangleNum.Text = aiAngle.ToString("F3");
-
-                    // 오차 표시
-                    // double diff = Math.Abs(realAngle - aiAngle);
-                    // label_ocha.Text = $"오차: {diff:F3}";
-                    // label_ocha.ForeColor = diff < 0.1
-                    //     ? Color.FromArgb(102, 187, 106)
-                    //     : Color.FromArgb(239, 83, 80);
+                    progre_compthro.Value = Math.Min(100, (int)(Math.Abs(realThrottle) * 100));
+                    progre_compangle.Value = Math.Min(100, (int)((realAngle + 1) / 2 * 100));
                 }
-            };
+
+                // model.h5 없으면 AI 예측 스킵
+                string modelPath = Path.Combine(baseDir, "model.h5");
+                if (!File.Exists(modelPath)) return;
+
+                // AI 예측값 가져오기
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        string wslImagePath = imagePath.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+                        string wslBase = baseDir.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+
+                        string condaBase = "";
+                        ProcessStartInfo condaPsi = new ProcessStartInfo();
+                        condaPsi.FileName = "wsl";
+                        condaPsi.Arguments = "bash -ic \"conda info --base 2>/dev/null | tail -1\"";
+                        condaPsi.UseShellExecute = false;
+                        condaPsi.RedirectStandardOutput = true;
+                        condaPsi.CreateNoWindow = true;
+                        Process condaProc = Process.Start(condaPsi);
+                        string condaOutput = condaProc.StandardOutput.ReadToEnd();
+                        condaProc.WaitForExit();
+                        var match = System.Text.RegularExpressions.Regex.Match(condaOutput, @"(/[^\s*]+miniconda\d*)");
+                        if (match.Success) condaBase = match.Value.Trim();
+
+                        string pythonPath = envName == "base"
+                            ? $"{condaBase}/bin/python"
+                            : $"{condaBase}/envs/{envName}/bin/python";
+
+                        ProcessStartInfo psi = new ProcessStartInfo();
+                        psi.FileName = "wsl";
+                        psi.Arguments = $"bash -c \"cd {wslBase} && {pythonPath} evaluate_single.py {wslImagePath}\"";
+                        psi.UseShellExecute = false;
+                        psi.RedirectStandardOutput = true;
+                        psi.CreateNoWindow = true;
+
+                        Process p = Process.Start(psi);
+                        string output = p.StandardOutput.ReadToEnd();
+                        p.WaitForExit();
+
+                        // JSON 파싱
+                        var resultMatch = System.Text.RegularExpressions.Regex.Match(output, @"\{.*\}");
+                        if (resultMatch.Success)
+                        {
+                            dynamic result = JsonConvert.DeserializeObject(resultMatch.Value);
+                            double aiAngle = (double)result["angle"];
+                            double aiThrottle = (double)result["throttle"];
+
+                            this.Invoke((Action)(() =>
+                            {
+                                label_aithroNum.Text = aiThrottle.ToString("F3");
+                                label_aiangleNum.Text = aiAngle.ToString("F3");
+                                progre_aithro.Value = Math.Min(100, (int)(Math.Abs(aiThrottle) * 100));
+                                progre_aiangle.Value = Math.Min(100, (int)((aiAngle + 1) / 2 * 100));
+
+                                // 오차 표시
+                                if (catalogData.ContainsKey(ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile))))
+                                {
+                                    var entry = catalogData[ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile))];
+                                    double diff = Math.Abs(entry.user_angle - aiAngle);
+                                    label_ocha.Text = $"오차: {diff:F3}";
+                                    label_ocha.ForeColor = diff < 0.1
+                                        ? Color.FromArgb(102, 187, 106)
+                                        : Color.FromArgb(239, 83, 80);
+                                }
+                            }));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Invoke((Action)(() =>
+                        {
+                            label_aithroNum.Text = "오류";
+                            label_aiangleNum.Text = "오류";
+                        }));
+                    }
+                });
+            };*/
 
             // 오차 레이블
             label_ocha.ForeColor = Color.FromArgb(102, 187, 106);
@@ -424,7 +556,269 @@ namespace Datamanager
             StyleComboBox(combo_compare, 15F, "Consolas"); // AI 수치 비교 콤보박스
             StyleComboBox(comboBox_venv, 10F);             // 가상환경 콤보박스
 
+            // chart_loss 시리즈 초기화
+            if (chart_loss.Series.Count == 0)
+            {
+                var trainSeries = new Series("Train Loss");
+                trainSeries.ChartType = SeriesChartType.Line;
+                trainSeries.Color = Color.FromArgb(32, 201, 151);
+                trainSeries.BorderWidth = 2;
+                chart_loss.Series.Add(trainSeries);
+
+                var valSeries = new Series("Val Loss");
+                valSeries.ChartType = SeriesChartType.Line;
+                valSeries.Color = Color.FromArgb(255, 167, 38);
+                valSeries.BorderWidth = 2;
+                chart_loss.Series.Add(valSeries);
+            }
+            combo_compare.SelectedIndexChanged += combo_compare_SelectedIndexChanged;
+
         }
+
+        void LoadVenvList()
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "wsl";
+                psi.Arguments = "bash -ic \"conda env list | awk '{print $1}' | grep -v '#' | grep -v '^$'\"";
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
+                psi.CreateNoWindow = true;
+
+                Process p = Process.Start(psi);
+                string output = p.StandardOutput.ReadToEnd();
+                p.WaitForExit();
+
+                comboBox_venv.Items.Clear();
+                foreach (string line in output.Split('\n'))
+                {
+                    string env = line.Trim();
+                    if (!string.IsNullOrEmpty(env))
+                        comboBox_venv.Items.Add(env);
+                }
+
+                if (comboBox_venv.Items.Count > 0)
+                    comboBox_venv.SelectedIndex = 0;
+            }
+            catch
+            {
+                // WSL 없거나 conda 없으면 수동 입력 가능하게
+                comboBox_venv.Items.Add("base");
+            }
+        }
+
+
+        private void combo_compare_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (combo_compare.SelectedIndex < 0) return;
+            if (imageFiles == null || imageFiles.Length == 0) return;
+
+            string selectedFile = combo_compare.SelectedItem?.ToString();
+            if (selectedFile == null) return;
+
+            string imagePath = imageFiles.FirstOrDefault(f => Path.GetFileName(f) == selectedFile);
+            if (imagePath == null) return;
+
+            int idx = ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile));
+            if (catalogData.ContainsKey(idx))
+            {
+                var entry = catalogData[idx];
+                label_compthroNum.Text = entry.user_throttle.ToString("F3");
+                label_compangleNum.Text = entry.user_angle.ToString("F3");
+                progre_compthro.Value = Math.Min(100, (int)(Math.Abs(entry.user_throttle) * 100));
+                progre_compangle.Value = Math.Min(100, (int)((entry.user_angle + 1) / 2 * 100));
+            }
+
+            string modelPath = Path.Combine(baseDir, "model.h5");
+            if (!File.Exists(modelPath)) return;
+
+            string capturedFile = selectedFile;
+            string capturedImagePath = imagePath;
+            string capturedEnvName = comboBox_venv.Text.Trim().Split(new char[] { ' ', '\t' })[0]; // ← envName 캡처
+
+            Task.Run(() => RunAiPredict(capturedFile, capturedImagePath, capturedEnvName));
+        }
+
+        private void RunAiPredict(string selectedFile, string imagePath, string envName)
+        {
+            try
+            {
+                string wslImagePath = imagePath.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+                string wslBase = baseDir.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+
+                // conda 경로 가져오기
+                string condaBase = "";
+                ProcessStartInfo condaPsi = new ProcessStartInfo();
+                condaPsi.FileName = "wsl";
+                condaPsi.Arguments = "bash -ic \"conda info --base 2>/dev/null | tail -1\"";
+                condaPsi.UseShellExecute = false;
+                condaPsi.RedirectStandardOutput = true;
+                condaPsi.CreateNoWindow = true;
+                Process condaProc = Process.Start(condaPsi);
+                string condaOutput = condaProc.StandardOutput.ReadToEnd();
+                condaProc.WaitForExit();
+                var matchConda = System.Text.RegularExpressions.Regex.Match(condaOutput, @"(/[^\s*]+miniconda\d*)");
+                if (matchConda.Success) condaBase = matchConda.Value.Trim();
+
+                string pythonPath = envName == "base"
+                    ? $"{condaBase}/bin/python"
+                    : $"{condaBase}/envs/{envName}/bin/python";
+
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "wsl";
+                psi.Arguments = $"bash -c \"cd {wslBase} && {pythonPath} evaluate_single.py {wslImagePath}\"";
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;  // ← 추가
+                psi.CreateNoWindow = true;
+
+                Process p = Process.Start(psi);
+                string output = p.StandardOutput.ReadToEnd();
+                string error = p.StandardError.ReadToEnd();  // ← 추가
+                p.WaitForExit();
+
+                // 디버그 로그
+                this.Invoke((Action)(() =>
+                {
+                    System.Diagnostics.Debug.WriteLine($"output: {output}");
+                    System.Diagnostics.Debug.WriteLine($"error: {error}");
+                    System.Diagnostics.Debug.WriteLine($"ExitCode: {p.ExitCode}");
+                }));
+
+                var resultMatch = System.Text.RegularExpressions.Regex.Match(output, @"\{.*\}");
+                if (resultMatch.Success)
+                {
+                    dynamic result = JsonConvert.DeserializeObject(resultMatch.Value);
+                    double aiAngle = (double)result["angle"];
+                    double aiThrottle = (double)result["throttle"];
+
+                    this.Invoke((Action)(() =>
+                    {
+                        label_aithroNum.Text = aiThrottle.ToString("F3");
+                        label_aiangleNum.Text = aiAngle.ToString("F3");
+                        progre_aithro.Value = Math.Min(100, (int)(Math.Abs(aiThrottle) * 100));
+                        progre_aiangle.Value = Math.Min(100, (int)((aiAngle + 1) / 2 * 100));
+
+                        int idx = ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile));
+                        if (catalogData.ContainsKey(idx))
+                        {
+                            double diff = Math.Abs(catalogData[idx].user_angle - aiAngle);
+                            label_ocha.Text = $"오차: {diff:F3}";
+                            label_ocha.ForeColor = diff < 0.1
+                                ? Color.FromArgb(102, 187, 106)
+                                : Color.FromArgb(239, 83, 80);
+                        }
+                    }));
+                }
+                else
+                {
+                    this.Invoke((Action)(() =>
+                    {
+                        System.Diagnostics.Debug.WriteLine($"JSON 파싱 실패. output: {output}");
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Invoke((Action)(() =>
+                {
+                    System.Diagnostics.Debug.WriteLine($"RunAiPredict 오류: {ex.Message}");
+                    label_aithroNum.Text = "오류";
+                    label_aiangleNum.Text = "오류";
+                }));
+            }
+        }
+
+        private void RunAiPredict(string selectedFile, string imagePath)
+        {
+            try
+            {
+                string wslImagePath = imagePath.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+                string wslBase = baseDir.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+
+                string condaBase = "";
+                ProcessStartInfo condaPsi = new ProcessStartInfo();
+                condaPsi.FileName = "wsl";
+                condaPsi.Arguments = "bash -ic \"conda info --base 2>/dev/null | tail -1\"";
+                condaPsi.UseShellExecute = false;
+                condaPsi.RedirectStandardOutput = true;
+                condaPsi.CreateNoWindow = true;
+                Process condaProc = Process.Start(condaPsi);
+                string condaOutput = condaProc.StandardOutput.ReadToEnd();
+                condaProc.WaitForExit();
+                var match = System.Text.RegularExpressions.Regex.Match(condaOutput, @"(/[^\s*]+miniconda\d*)");
+                if (match.Success) condaBase = match.Value.Trim();
+
+                string pythonPath = envName == "base"
+                    ? $"{condaBase}/bin/python"
+                    : $"{condaBase}/envs/{envName}/bin/python";
+
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "wsl";
+                psi.Arguments = $"bash -c \"cd {wslBase} && {pythonPath} evaluate_single.py {wslImagePath}\"";
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
+                psi.CreateNoWindow = true;
+
+                Process p = Process.Start(psi);
+                string output = p.StandardOutput.ReadToEnd();
+                p.WaitForExit();
+
+                var resultMatch = System.Text.RegularExpressions.Regex.Match(output, @"\{.*\}");
+                if (resultMatch.Success)
+                {
+                    dynamic result = JsonConvert.DeserializeObject(resultMatch.Value);
+                    double aiAngle = (double)result["angle"];
+                    double aiThrottle = (double)result["throttle"];
+
+                    this.Invoke((Action)(() =>
+                    {
+                        label_aithroNum.Text = aiThrottle.ToString("F3");
+                        label_aiangleNum.Text = aiAngle.ToString("F3");
+                        progre_aithro.Value = Math.Min(100, (int)(Math.Abs(aiThrottle) * 100));
+                        progre_aiangle.Value = Math.Min(100, (int)((aiAngle + 1) / 2 * 100));
+
+                        int idx = ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile));
+                        if (catalogData.ContainsKey(idx))
+                        {
+                            double diff = Math.Abs(catalogData[idx].user_angle - aiAngle);
+                            label_ocha.Text = $"오차: {diff:F3}";
+                            label_ocha.ForeColor = diff < 0.1
+                                ? Color.FromArgb(102, 187, 106)
+                                : Color.FromArgb(239, 83, 80);
+                        }
+                    }));
+                }
+            }
+            catch { }
+        }
+
+        // AI 수치 비교용 콤보박스에 랜덤 5개 아이템 로드
+        void LoadCompareCombo()
+        {
+            combo_compare.Items.Clear();
+
+            if (imageFiles == null || imageFiles.Length == 0)
+                return;
+
+            // 랜덤 5개 선택
+            var random = new Random();
+            var randomIndices = Enumerable.Range(0, imageFiles.Length)
+                .OrderBy(x => random.Next())
+                .Take(5)
+                .OrderBy(x => x)  // 인덱스 순서로 정렬
+                .ToList();
+
+            foreach (int idx in randomIndices)
+            {
+                combo_compare.Items.Add(Path.GetFileName(imageFiles[idx]));
+            }
+
+            if (combo_compare.Items.Count > 0)
+                combo_compare.SelectedIndex = 0;
+        }
+
         // 콤보박스 하이테크 스타일 적용 공통 메서드
         private void StyleComboBox(System.Windows.Forms.ComboBox cmb)
         {
@@ -582,6 +976,40 @@ namespace Datamanager
             pb.ForeColor = color;
             pb.BackColor = Color.FromArgb(26, 26, 48);
         }
+        // 삭제된 이미지 리스트 로드 및 초기화
+        void LoadTrashList()
+        {
+            listBox_delete.Items.Clear();
+
+            if (!Directory.Exists(trashFolderPath))
+                return;
+
+            string[] trashFiles = Directory.GetFiles(trashFolderPath, "*.jpg", SearchOption.AllDirectories)
+                .OrderBy(f => ExtractNumber(Path.GetFileNameWithoutExtension(f)))
+                .ToArray();
+
+            foreach (string file in trashFiles)
+            {
+                string relativePath = file.Replace(trashFolderPath + "\\", "");
+                listBox_delete.Items.Add(relativePath);
+            }
+        }
+        void LoadTrashFolders()
+        {
+            cmbTrashList.Items.Clear();
+            cmbTrashList.Items.Add("전체");
+
+            if (!Directory.Exists(trashFolderPath))
+                return;
+
+            string[] subFolders = Directory.GetDirectories(trashFolderPath);
+            foreach (string folder in subFolders)
+            {
+                cmbTrashList.Items.Add(Path.GetFileName(folder));
+            }
+
+            cmbTrashList.SelectedIndex = 0;
+        }
 
         void LoadImageFolder(string folderPath) // 이미지 폴더 로드 및 초기화
         {
@@ -616,11 +1044,12 @@ namespace Datamanager
             if (imageFiles.Length > 0)
             {
                 trackBar_frame.Enabled = true;
-
                 trackBar_frame.Minimum = 0;
                 trackBar_frame.Maximum = imageFiles.Length - 1;
 
-                SetCurrentIndex(0);
+                // validIndices가 채워진 후에만 SetCurrentIndex 호출
+                if (validIndices != null && validIndices.Count > 0)
+                    SetCurrentIndex(0);
             }
             else
             {
@@ -1033,8 +1462,156 @@ namespace Datamanager
 
             originalCatalogData = new Dictionary<int, CatalogEntry>(catalogData);
         }
-
         private void RunPythonTrain(string modelType)
+        {
+            string script = modelType == "cnn" ? "train.py" : "train_lstm.py";
+            string wslBase = baseDir.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+
+            // conda base 경로 동적으로 가져오기
+            string condaBase = "";
+            try
+            {
+                ProcessStartInfo condaPsi = new ProcessStartInfo();
+                condaPsi.FileName = "wsl";
+                //condaPsi.Arguments = "bash -ic \"conda info --base\"";
+                condaPsi.Arguments = "bash -c \"$(which conda 2>/dev/null || echo /home/$(whoami)/miniconda3/bin/conda) info --base 2>/dev/null | tail -1\"";
+                condaPsi.UseShellExecute = false;
+                condaPsi.RedirectStandardOutput = true;
+                condaPsi.CreateNoWindow = true;
+                Process condaProc = Process.Start(condaPsi);
+                string output = condaProc.StandardOutput.ReadToEnd();
+                condaProc.WaitForExit();
+                // 정규식으로 추출 후 추가 정리
+                var match = System.Text.RegularExpressions.Regex.Match(output, @"(/[^\s*]+miniconda\d*)");
+                if (match.Success)
+                    condaBase = match.Value.Trim();
+            }
+            catch { }
+
+            string pythonPath;
+            // btn_train_Click 또는 RunPythonTrain에서
+            envName = envName.Trim().Split(new char[] { ' ', '\t' })[0];
+            if (envName == "base")
+                pythonPath = $"{condaBase}/bin/python";
+            else
+                pythonPath = $"{condaBase}/envs/{envName}/bin/python";
+
+            // pythonPath에서 공백/탭으로 분리된 첫 번째 부분만 사용
+            pythonPath = pythonPath.Trim().Split(new char[] { ' ', '\t' })[0];
+
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "wsl";
+            psi.Arguments = $"bash -c \"cd {wslBase} && {pythonPath} {script} --data data --epochs 10\"";
+
+            // 디버그용
+            list_log.Items.Add($"condaBase: {condaBase}");
+            list_log.Items.Add($"python 경로: {pythonPath}");
+            list_log.Items.Add($"명령어: {psi.Arguments}");
+
+            psi.WorkingDirectory = baseDir;
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+            psi.CreateNoWindow = true;
+            // 나머지 동일...
+
+            trainProcess = Process.Start(psi);
+
+            // 실시간 로그 출력
+            trainProcess.OutputDataReceived += (s, args) =>
+            {
+                if (args.Data == null) return;
+                this.Invoke((Action)(() =>
+                {
+                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] {args.Data}");
+                    list_log.SelectedIndex = list_log.Items.Count - 1;
+
+                    // epoch 진행률 파싱 (예: "Epoch 3/10")
+                    if (args.Data.Contains("Epoch"))
+                    {
+                        try
+                        {
+                            var match = System.Text.RegularExpressions.Regex.Match(
+                                args.Data, @"Epoch (\d+)/(\d+)");
+                            if (match.Success)
+                            {
+                                int current = int.Parse(match.Groups[1].Value);
+                                int total = int.Parse(match.Groups[2].Value);
+                                int percent = (int)((double)current / total * 100);
+                                progressBar_learn.Value = Math.Min(percent, 100);
+                                label_progressai.Text = $"진행률: {percent}% ({current}/{total} epoch)";
+                            }
+                        }
+                        catch { }
+                    }
+
+                    // loss 값 파싱 (예: "loss: 0.0019 - val_loss: 0.0087")
+                    if (args.Data.Contains("loss:") && args.Data.Contains("val_loss:"))
+                    {
+                        try
+                        {
+                            var lossMatch = System.Text.RegularExpressions.Regex.Match(
+                                args.Data, @"loss: ([\d.]+) - val_loss: ([\d.]+)");
+                            if (lossMatch.Success)
+                            {
+                                double trainLoss = double.Parse(lossMatch.Groups[1].Value);
+                                double valLoss = double.Parse(lossMatch.Groups[2].Value);
+                                int epochNum = chart_loss.Series["Epoch"].Points.Count + 1;
+
+                                chart_loss.Series["Epoch"].Points.AddXY(epochNum, trainLoss);
+                                chart_loss.Series["Loss"].Points.AddXY(epochNum, valLoss);
+                            }
+                        }
+                        catch { }
+                    }
+                }));
+            };
+
+            trainProcess.ErrorDataReceived += (s, args) =>
+            {
+                if (args.Data == null) return;
+                this.Invoke((Action)(() =>
+                {
+                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⚠️ {args.Data}");
+                    list_log.SelectedIndex = list_log.Items.Count - 1;
+                }));
+            };
+
+            trainProcess.Start();
+            trainProcess.BeginOutputReadLine();
+            trainProcess.BeginErrorReadLine();
+            trainProcess.WaitForExit();
+
+            this.Invoke((Action)(() =>
+            {
+                if (trainProcess.ExitCode == 0)
+                {
+                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ✅ 학습 완료!");
+
+                    // 학습 완료 후 score.json 읽어서 점수 표시
+                    string scorePath = Path.Combine(baseDir, "score.json");
+                    if (File.Exists(scorePath))
+                    {
+                        string json = File.ReadAllText(scorePath);
+                        dynamic result = JsonConvert.DeserializeObject(json);
+                        double valLoss = result["val_loss"];
+                        UpdateScore(valLoss);
+                    }
+
+                    LoadCompareCombo();
+                }
+                else
+                {
+                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 학습 실패 (ExitCode: {trainProcess.ExitCode})");
+                }
+
+                list_log.SelectedIndex = list_log.Items.Count - 1;
+                btn_train.Enabled = true;
+                btn_stopTrain.Enabled = false;
+                trainProcess = null;
+            }));
+        }
+        /*private void RunPythonTrain(string modelType)
         {
             envName = comboBox_venv.Text;
 
@@ -1089,6 +1666,27 @@ namespace Datamanager
 
             string scorePath =
                 Path.Combine(baseDir, "score.json");
+        }*/
+
+        void UpdateScore(double valLoss)
+        {
+            double score = Math.Max(0, (1.0 - valLoss * 2.0)) * 100;
+            score = Math.Round(score, 1);
+
+            string grade;
+            Color gradeColor;
+
+            if (score >= 90) { grade = "S  매우 우수"; gradeColor = Color.FromArgb(79, 195, 247); }
+            else if (score >= 75) { grade = "A  우수"; gradeColor = Color.FromArgb(102, 187, 106); }
+            else if (score >= 60) { grade = "B  보통"; gradeColor = Color.FromArgb(255, 167, 38); }
+            else if (score >= 40) { grade = "C  미흡"; gradeColor = Color.FromArgb(239, 83, 80); }
+            else { grade = "D  불량"; gradeColor = Color.FromArgb(150, 50, 50); }
+
+            label_score.Text = $"{score:F1}";
+            label_score.ForeColor = gradeColor;
+            label_grade.Text = grade;
+            label_grade.ForeColor = gradeColor;
+            progressBar_score.Value = (int)score;
         }
         private void RunPythonEvaluate(String modelType)
         {
@@ -1187,6 +1785,7 @@ namespace Datamanager
 
         private void btn_train_Click(object sender, EventArgs e)
         {
+
             // 1. 데이터 검증
             if (imageFiles == null || imageFiles.Length == 0)
             {
@@ -1203,6 +1802,12 @@ namespace Datamanager
             // 2. 초기화
             string imagesPath = Path.Combine(baseDir, "data", "images");
             string wbImagesPath = Path.Combine(baseDir, "data", "wbimages");
+            progressBar_learn.Value = 0;
+            list_log.Items.Clear();
+            if (chart_loss.Series.IndexOf("Epoch") >= 0)
+                chart_loss.Series["Epoch"].Points.Clear();
+            if (chart_loss.Series.IndexOf("Loss") >= 0)
+                chart_loss.Series["Loss"].Points.Clear();
 
             Directory.CreateDirectory(wbImagesPath);
 
@@ -1356,13 +1961,65 @@ namespace Datamanager
                 MessageBox.Show($"❌ 오류:\n{ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 오류: {ex.Message}");
             }
-            finally
+            /*finally
             {
                 btn_train.Enabled = true;
-            }
+            }*/ //학습이 비동기로 처리되므로 우선 주석처리함
 
             //////////////////////////////////////////// 모델 학습 및 평가
+            ///
+            // 가상환경 확인
+            if (string.IsNullOrWhiteSpace(comboBox_venv.Text))
+            {
+                MessageBox.Show("가상환경을 선택하세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                btn_train.Enabled = true;
+                return;
+            }
 
+            // 모델 확인
+            if (combo_model.SelectedIndex < 0)
+            {
+                MessageBox.Show("모델을 선택하세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                btn_train.Enabled = true;
+                return;
+            }
+
+            string modelType = combo_model.SelectedItem.ToString().ToLower();
+            envName = comboBox_venv.Text;
+
+            list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🚀 학습 시작 (모델: {modelType}, 환경: {envName})");
+            list_log.SelectedIndex = list_log.Items.Count - 1;
+
+            btn_stopTrain.Enabled = true;
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    RunPythonTrain(modelType);
+                }
+                catch (Exception ex)
+                {
+                    this.Invoke((Action)(() =>
+                    {
+                        list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 학습 오류: {ex.Message}");
+                        btn_train.Enabled = true;
+                        btn_stopTrain.Enabled = false;
+                    }));
+                }
+            });
+        }
+        // 학습 중단 버튼 클릭 시
+        private void btn_stopTrain_Click(object sender, EventArgs e)
+        {
+            if (trainProcess != null && !trainProcess.HasExited)
+            {
+                trainProcess.Kill();
+                list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}]  학습 중단됨");
+                btn_train.Enabled = true;
+                btn_stopTrain.Enabled = false;
+                trainProcess = null;
+            }
         }
 
         void LoadThumbnails(int centerIndex)
@@ -1549,6 +2206,7 @@ namespace Datamanager
 
             // 앞서 만든 이진 탐색 기반 SetCurrentIndex 덕분에 1,000장이 지워졌어도 렉 없이 즉시 다음 프레임을 찾아갑니다.
             SetCurrentIndex(minIdx);
+
         }
 
         void RefreshImageListUI()
@@ -1572,7 +2230,7 @@ namespace Datamanager
             isScrolling = false;
         }
 
-        private void btn_restore_Click(object sender, EventArgs e)
+        /*private void btn_restore_Click(object sender, EventArgs e)
         {
             // 1. 예외 처리: 선택된 항목이 없을 때
             if (listBox_delete.SelectedItems.Count == 0)
@@ -1625,6 +2283,113 @@ namespace Datamanager
                 // 현재 복원된 첫 번째 프레임으로 화면 이동하여 확인시켜줌
                 SetCurrentIndex(indicesToRestore.Min());
             }
+
+            LoadTrashList();
+        }*/
+
+        private void btn_restore_Click(object sender, EventArgs e)
+        {
+            // 1. 예외 처리: 선택된 항목이 없을 때
+            if (listBox_delete.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("복원할 프레임을 삭제 목록에서 선택해 주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 선택된 항목들을 담을 리스트 (인덱스 반복 및 UI 순회 꼬임 방지용 복사본)
+            List<string> selectedItemsCopy = new List<string>();
+            foreach (var item in listBox_delete.SelectedItems)
+            {
+                selectedItemsCopy.Add(item.ToString());
+            }
+
+            List<int> indicesToRestore = new List<int>();
+
+            // "Frame 123" 형태 또는 실제 파일명에서 숫자 추출
+            foreach (string itemText in selectedItemsCopy)
+            {
+                if (itemText.StartsWith("Frame "))
+                {
+                    if (int.TryParse(itemText.Replace("Frame ", ""), out int resIdx))
+                    {
+                        indicesToRestore.Add(resIdx);
+                    }
+                }
+                else
+                {
+                    // 만약 파일명 형태(예: image_0123.jpg)로 들어있을 경우를 대비한 안전장치
+                    int resIdx = ExtractNumber(Path.GetFileNameWithoutExtension(itemText));
+                    if (resIdx != int.MaxValue)
+                    {
+                        indicesToRestore.Add(resIdx);
+                    }
+                }
+            }
+
+            int restoreCount = 0;
+
+            // ListBox 업데이트 일시 중지 (렉 방지 및 연동 꼬임 방지)
+            listBox_delete.BeginUpdate();
+
+            foreach (int idx in indicesToRestore)
+            {
+                // 원본 백업 데이터(originalCatalogData)에서 데이터를 찾아 catalogData에 재삽입
+                if (originalCatalogData != null && originalCatalogData.ContainsKey(idx))
+                {
+                    if (!catalogData.ContainsKey(idx))
+                    {
+                        catalogData.Add(idx, originalCatalogData[idx]);
+                    }
+
+                    // 전역 삭제 리스트에서 제거
+                    deletedIndices.Remove(idx);
+
+                    // UI 목록에서 '내가 선택했던 그 항목'만 정확하게 한 줄 제거
+                    string exactFrameKey = $"Frame {idx}";
+                    object itemToRemove = null;
+                    foreach (var item in listBox_delete.Items)
+                    {
+                        if (item.ToString() == exactFrameKey || ExtractNumber(Path.GetFileNameWithoutExtension(item.ToString())) == idx)
+                        {
+                            itemToRemove = item;
+                            break;
+                        }
+                    }
+                    if (itemToRemove != null)
+                    {
+                        listBox_delete.Items.Remove(itemToRemove);
+                    }
+
+                    restoreCount++;
+                }
+            }
+
+            listBox_delete.EndUpdate();
+
+            // 2. 복원된 데이터가 있을 때만 핵심 마스터 리스트 갱신 및 차트 업데이트
+            if (restoreCount > 0)
+            {
+                // 유효 인덱스 리스트 정렬 갱신
+                validIndices = catalogData.Keys.OrderBy(k => k).ToList();
+
+                // 메인 이미지 리스트박스(listImages) UI 동기화 새로고침
+                RefreshImageListUI();
+
+                // 차트 데이터에 복원된 수치 반영
+                UpdateDataChart();
+
+                MessageBox.Show($"{restoreCount}개의 프레임이 성공적으로 복원되었습니다.", "복원 완료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // 복원된 프레임 중 가장 첫 번째 프레임으로 화면을 즉시 이동시켜 시각적 확인 제공
+                SetCurrentIndex(indicesToRestore.Min());
+            }
+            else
+            {
+                MessageBox.Show("복원 가능한 원본 카탈로그 데이터를 찾지 못했습니다.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            // ⚠️ [중요] 기존에 무조건 전체를 다시 긁어오던 LoadTrashList() 호출을 제거하여 
+            // 메모리 주석 복원과 하드디스크 쓰레기통 폴더 조회가 충돌하는 현상을 원천 차단합니다.
         }
 
         private void btnSetStart_Click(object sender, EventArgs e)
