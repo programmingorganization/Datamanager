@@ -982,7 +982,7 @@ namespace Datamanager
 
         private void RunPythonTrain(string modelType)
         {
-            envName = txtEnv.Text;
+            //envName = txtEnv.Text;
 
             string script = "";
 
