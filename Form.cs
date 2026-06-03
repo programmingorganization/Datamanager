@@ -33,6 +33,13 @@ namespace Datamanager
         string historyPath;
         string envName = "";
 
+        private List<int> validIndices = new List<int>();   //  catalog에 존재하는 인덱스만 저장
+        private List<int> deletedIndices = new List<int>(); //  삭제된 인덱스 저장 (복구 시 활용)
+        private Dictionary<int, CatalogEntry> originalCatalogData; // 복원용 백업 딕셔너리 추가
+
+
+        private int startFrameIndex = -1;   //  삭제할 첫 프레임 인덱스
+        private int endFrameIndex = -1; //  삭제할 끝 프레임 인덱스
 
         bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
 
@@ -716,22 +723,56 @@ namespace Datamanager
 
         void SetCurrentIndex(int index) // 인덱스 설정 및 이미지 로드
         {
-            if (imageFiles.Length == 0)
+            if (imageFiles.Length == 0) return;
+
+            // 0. 가짜 삭제로 인해 validIndices가 비어있다면 처리 중단
+            if (validIndices == null || validIndices.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("유효한 Catalog 데이터가 없습니다.");
                 return;
+            }
 
-            if (index < 0)
-                index = imageFiles.Length - 1;
+            // 배열 범위를 벗어나는 요청이 오면 순환 처리
+            if (index >= imageFiles.Length) index = 0;
+            if (index < 0) index = imageFiles.Length - 1;
 
-            if (index >= imageFiles.Length)
-                index = 0;
+            int targetIndex = index;
 
-            currentIndex = index;
+            // 1. [핵심] 현재 요청된 index가 catalogData에 없다면?
+            if (!catalogData.ContainsKey(targetIndex))
+            {
+                // 이진 탐색(BinarySearch)을 이용해 가장 가까운 '다음 유효 인덱스'의 위치를 찾습니다.
+                int pos = validIndices.BinarySearch(targetIndex);
+
+                if (pos < 0)
+                {
+                    // pos가 음수면 targetIndex보다 큰 가장 가까운 원소의 bitwise complement(~pos)를 반환함
+                    int nextValidPointer = ~pos;
+
+                    // 만약 리스트 범위를 벗어나면 (뒤쪽에 유효한 게 없으면) 처음(0번째)으로 돌림
+                    if (nextValidPointer >= validIndices.Count)
+                        nextValidPointer = 0;
+
+                    targetIndex = validIndices[nextValidPointer];
+                }
+            }
+
+            // 최종 결정된 유효 인덱스 적용
+            currentIndex = targetIndex;
 
             // 이벤트 중복 방지
             isScrolling = true;
 
-            listImages.SelectedIndex = currentIndex;
-            trackBar_frame.Value = currentIndex;
+            // currentIndex가 validIndices에서 몇 번째 위치(Pointer)에 있는지 찾습니다.
+            int uiPointer = validIndices.IndexOf(currentIndex);
+
+            if (uiPointer != -1)
+            {
+                if (listImages.Items.Count > uiPointer)
+                    listImages.SelectedIndex = uiPointer; // ListBox 포커스 이동
+
+                trackBar_frame.Value = uiPointer; // 트랙바 위치도 유효 범위 내로 동기화
+            }
 
             isScrolling = false;
 
@@ -782,6 +823,8 @@ namespace Datamanager
 
         void ProcessFrame(Mat frame)
         {
+            Mat originalFrame = frame.Clone();
+
             leftDetected = false;
             rightDetected = false;
 
@@ -850,7 +893,11 @@ namespace Datamanager
                 picEdge.Image = null;
             }
 
-            picImage.Image = frame.ToBitmap();
+            if (checkBox1.Checked)
+                picImage.Image = frame.ToBitmap();
+            else
+                picImage.Image = originalFrame.ToBitmap();
+
             picEdge.Image = roiEdge.ToBitmap();
         }
 
@@ -978,11 +1025,17 @@ namespace Datamanager
                     catalogData[entry._index] = entry;
                 }
             }
+
+            validIndices = catalogData.Keys.OrderBy(k => k).ToList();
+            // 만약 trackBar_frame이 있다면 최대값도 맞춰줍니다.
+            trackBar_frame.Maximum = validIndices.Count - 1;
+
+            originalCatalogData = new Dictionary<int, CatalogEntry>(catalogData);
         }
 
         private void RunPythonTrain(string modelType)
         {
-            //envName = txtEnv.Text;
+            envName = comboBox_venv.Text;
 
             string script = "";
 
@@ -1083,10 +1136,14 @@ namespace Datamanager
 
         private void listImages_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (isScrolling)
-                return;
+            if (isScrolling) return; // 자동 스크롤 중이면 무시
+            if (listImages.SelectedIndex == -1) return;
 
-            SetCurrentIndex(listImages.SelectedIndex);
+            // 클릭된 행 번호를 통해 실제 유효한 catalog 인덱스를 찾음
+            int targetIdx = validIndices[listImages.SelectedIndex];
+
+            // 해당 인덱스로 이동
+            SetCurrentIndex(targetIdx);
 
             // 썸네일 강조
             for (int i = 0; i < flowPanel_thumbnails.Controls.Count; i++)
@@ -1304,7 +1361,7 @@ namespace Datamanager
             }
 
             //////////////////////////////////////////// 모델 학습 및 평가
-            
+
         }
 
         void LoadThumbnails(int centerIndex)
@@ -1364,98 +1421,173 @@ namespace Datamanager
 
         private void btn_delete_Click(object sender, EventArgs e)
         {
-            if (imageFiles.Length == 0)
+            // 1. 예외 처리
+            if (startFrameIndex == -1 || endFrameIndex == -1)
+            {
+                MessageBox.Show("시작 프레임과 끝 프레임을 먼저 설정해 주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
-
-            // 현재 표시 이미지 해제
-            if (picImage.Image != null)
-            {
-                picImage.Image.Dispose();
-                picImage.Image = null;
             }
 
-            if (picEdge.Image != null)
+            // 2. 현재 표시 중인 이미지 자원 해제
+            if (picImage.Image != null) { picImage.Image.Dispose(); picImage.Image = null; }
+            if (picEdge.Image != null) { picEdge.Image.Dispose(); picEdge.Image = null; }
+
+            // 3. 정렬 보정
+            int minIdx = Math.Min(startFrameIndex, endFrameIndex);
+            int maxIdx = Math.Max(startFrameIndex, endFrameIndex);
+
+            int totalToProcess = maxIdx - minIdx + 1;
+            progressDelete.Minimum = 0;
+            progressDelete.Maximum = totalToProcess;
+            progressDelete.Value = 0;
+
+            int deleteCount = 0;
+            int currentLoopCount = 0;
+
+            // ListBox 업데이트를 일시 중지하여 속도 최적화
+            listBox_delete.BeginUpdate();
+
+            // 4. 해당 구간의 Catalog 데이터를 주석 처리 및 삭제 리스트에 추가
+            for (int i = minIdx; i <= maxIdx; i++)
             {
-                picEdge.Image.Dispose();
-                picEdge.Image = null;
+                currentLoopCount++;
+
+                if (catalogData.ContainsKey(i))
+                {
+                    // 아직 삭제 목록에 없는 인덱스만 추가 (중복 방지)
+                    if (!deletedIndices.Contains(i))
+                    {
+                        deletedIndices.Add(i);
+                        listBox_delete.Items.Add($"Frame {i}");
+                    }
+
+                    catalogData.Remove(i);
+                    deleteCount++;
+                }
+
+                // [추가] 100프레임마다 ProgressBar와 UI를 갱신 (성능 저하 방지 및 부드러운 연동)
+                if (currentLoopCount % 100 == 0 || currentLoopCount == totalToProcess)
+                {
+                    progressDelete.Value = currentLoopCount;
+                    Application.DoEvents(); // UI가 멈추지 않고 실시간으로 그려지도록 강제 갱신
+                }
             }
 
-            string sourcePath = imageFiles[currentIndex];
+            // 삭제 리스트 오름차순 정렬 (보기 좋게 정렬)
+            deletedIndices.Sort();
 
-            string fileName = Path.GetFileName(sourcePath);
+            // ListBox 업데이트 재개
+            listBox_delete.EndUpdate();
 
-            string destPath = Path.Combine(trashFolderPath, fileName);
+            // 5. 대량 삭제 최적화: 유효 인덱스 리스트 갱신
+            validIndices = catalogData.Keys.OrderBy(k => k).ToList();
 
-            deletedFiles.Push(destPath);
-            deletedHistory.Add(destPath);
-            SaveDeleteHistory();
+            RefreshImageListUI();
 
-            // 이미 trash에 같은 파일이 있으면 삭제
-            if (File.Exists(destPath))
+            MessageBox.Show($"{minIdx} ~ {maxIdx} 구간에서 {deleteCount}개의 프레임 데이터가 삭제(주석 처리)되었습니다.", "삭제 완료");
+
+            // 6. 사용한 선택 변수 초기화
+            startFrameIndex = -1;
+            endFrameIndex = -1;
+            progressDelete.Value = 0;
+
+            //lblStartStatus.Text = "시작: 미지정";
+            //lblEndStatus.Text = "끝: 미지정";
+
+            // 앞서 만든 이진 탐색 기반 SetCurrentIndex 덕분에 1,000장이 지워졌어도 렉 없이 즉시 다음 프레임을 찾아갑니다.
+            SetCurrentIndex(minIdx);
+        }
+        void RefreshImageListUI()
+        {
+            // 이벤트 중복 발생 및 UI 깜빡임 방지
+            isScrolling = true;
+            listImages.BeginUpdate();
+
+            listImages.Items.Clear();
+
+            // validIndices에 살아남은 프레임들만 ListBox에 추가
+            foreach (int idx in validIndices)
             {
-                File.Delete(destPath);
+                // 예: "Frame 0015 (image_0015.jpg)" 형태로 보기 좋게 출력
+                // 원본 파일명을 보여주고 싶다면 Path.GetFileName(imageFiles[idx]) 활용
+                string fileName = Path.GetFileName(imageFiles[idx]);
+                listImages.Items.Add($"{fileName}");
             }
 
-            File.Move(sourcePath, destPath);
-
-            ReloadCurrentFolder();
+            listImages.EndUpdate();
+            isScrolling = false;
         }
 
         private void btn_restore_Click(object sender, EventArgs e)
         {
-            string lastFile;
-
-            // 실행 중 삭제 기록 사용
-            if (deletedFiles.Count > 0)
+            // 1. 예외 처리: 선택된 항목이 없을 때
+            if (listBox_delete.SelectedItems.Count == 0)
             {
-                lastFile = deletedFiles.Pop();
+                MessageBox.Show("복원할 프레임을 삭제 목록에서 선택해 주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-                // JSON 기록에서도 제거
-                if (deletedHistory.Count > 0)
+            // 선택된 항목들을 역순으로 순회하면서 복원 (인덱스 꼬임 방지)
+            List<int> indicesToRestore = new List<int>();
+
+            foreach (var item in listBox_delete.SelectedItems)
+            {
+                // "Frame 123" 형태의 문자열에서 숫자만 추출
+                string itemText = item.ToString();
+                if (int.TryParse(itemText.Replace("Frame ", ""), out int resIdx))
                 {
-                    deletedHistory.RemoveAt(deletedHistory.Count - 1);
-                    SaveDeleteHistory();
+                    indicesToRestore.Add(resIdx);
                 }
             }
-            else
+
+            int restoreCount = 0;
+
+            foreach (int idx in indicesToRestore)
             {
-                // JSON 기록 사용
-                if (deletedHistory.Count == 0)
+                // 원본 백업 데이터(originalCatalogData)에서 데이터를 찾아 catalogData에 재삽입
+                if (originalCatalogData != null && originalCatalogData.ContainsKey(idx))
                 {
-                    MessageBox.Show("복구할 파일 없음");
-                    return;
+                    if (!catalogData.ContainsKey(idx))
+                    {
+                        catalogData.Add(idx, originalCatalogData[idx]);
+                    }
+
+                    // 전역 삭제 리스트와 ListBox UI에서 제거
+                    deletedIndices.Remove(idx);
+                    listBox_delete.Items.Remove($"Frame {idx}");
+                    restoreCount++;
                 }
-
-                lastFile = deletedHistory.Last();
-
-                deletedHistory.RemoveAt(deletedHistory.Count - 1);
-
-                SaveDeleteHistory();
             }
 
-            string fileName = Path.GetFileName(lastFile);
-
-            string restorePath = Path.Combine(currentFolderPath, fileName);
-
-            // 이미 있으면 덮어쓰기 위해 삭제
-            if (File.Exists(restorePath))
+            if (restoreCount > 0)
             {
-                File.Delete(restorePath);
+                // 유효 인덱스 리스트 다시 갱신
+                validIndices = catalogData.Keys.OrderBy(k => k).ToList();
+
+                RefreshImageListUI();
+
+                MessageBox.Show($"{restoreCount}개의 프레임이 성공적으로 복원되었습니다.", "복원 완료");
+
+                // 현재 복원된 첫 번째 프레임으로 화면 이동하여 확인시켜줌
+                SetCurrentIndex(indicesToRestore.Min());
             }
 
-            File.Move(lastFile, restorePath);
-
-            ReloadCurrentFolder();
         }
 
         private void btnSetStart_Click(object sender, EventArgs e)
         {
-            SetCurrentIndex(0);
+            startFrameIndex = currentIndex;
+
+            System.Diagnostics.Debug.WriteLine($"시작 프레임 설정됨: {startFrameIndex}");
+            //lblStartStatus.Text = $"시작: {startFrameIndex}"; 
         }
 
         private void btnSetEnd_Click(object sender, EventArgs e)
         {
-            SetCurrentIndex(imageFiles.Length - 1);
+            endFrameIndex = currentIndex;
+
+            System.Diagnostics.Debug.WriteLine($"끝 프레임 설정됨: {endFrameIndex}");
+            //lblEndStatus.Text = $"끝: {endFrameIndex}"; 
         }
 
         private void btn_changquality_Click(object sender, EventArgs e)
@@ -1496,7 +1628,7 @@ namespace Datamanager
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void train_Click(object sender, EventArgs e)
         {
             if (combo_model.SelectedIndex < 0)
             {
@@ -1525,6 +1657,26 @@ namespace Datamanager
 
             label_score.Text =
                 result["score"].ToString();
+        }
+
+        private const int BaseInterval = 100;
+        private void comboBox_play_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox_play.SelectedItem == null) return;
+
+            // 현재 선택된 아이템 글자 (예: "x1.5배속")
+            string selectedItemText = comboBox_play.SelectedItem.ToString();
+
+            // "x"와 "배속"을 모두 지워서 숫자("1.5")만 남깁니다.
+            string speedValue = selectedItemText.Replace("x", "").Replace("배속", "");
+
+            // 숫자로 변환하여 타이머 Interval 계산
+            if (double.TryParse(speedValue, out double speed))
+            {
+                // 공식: 기본 주기 / 배속
+                // 예: x2.0배속 선택 시 -> 100 / 2.0 = 50ms (2배 빨라짐)
+                timer1.Interval = (int)(BaseInterval / speed);
+            }
         }
     }
 
