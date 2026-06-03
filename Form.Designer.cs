@@ -430,7 +430,7 @@
             checkBox_filter.TabIndex = 17;
             checkBox_filter.Text = "필터링";
             checkBox_filter.UseVisualStyleBackColor = true;
-            checkBox_filter.CheckedChanged += checkBox_filter_CheckedChanged;
+            //checkBox_filter.CheckedChanged += checkBox_filter_CheckedChanged;
             // 
             // checkBox1
             // 
@@ -1313,5 +1313,6 @@
         private Label label4;
         private Label label3;
         private ComboBox comboBox_venv;
+        private Button btnDetect;
     }
 }
