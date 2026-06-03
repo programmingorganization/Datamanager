@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl = new TabControl();
             tab_data = new TabPage();
             splitContainer_allwindow = new SplitContainer();
@@ -83,6 +83,8 @@
             checkBox_throttle = new CheckBox();
             tab_train = new TabPage();
             split_learnLeft = new SplitContainer();
+            test = new Button();
+            txtEnv = new TextBox();
             combo_model = new ComboBox();
             progressBar_learn = new ProgressBar();
             btn_train = new Button();
@@ -700,26 +702,26 @@
             // chart_data
             // 
             chart_data.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea1.Name = "ChartArea1";
-            chart_data.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            chart_data.Legends.Add(legend1);
+            chartArea4.Name = "ChartArea1";
+            chart_data.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            chart_data.Legends.Add(legend4);
             chart_data.Location = new Point(3, 64);
             chart_data.Name = "chart_data";
-            series1.BorderWidth = 2;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Color = Color.Green;
-            series1.Legend = "Legend1";
-            series1.Name = "Throttle";
-            series2.BorderWidth = 2;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Color = Color.FromArgb(79, 195, 247);
-            series2.Legend = "Legend1";
-            series2.Name = "Angle";
-            chart_data.Series.Add(series1);
-            chart_data.Series.Add(series2);
+            series7.BorderWidth = 2;
+            series7.ChartArea = "ChartArea1";
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series7.Color = Color.Green;
+            series7.Legend = "Legend1";
+            series7.Name = "Throttle";
+            series8.BorderWidth = 2;
+            series8.ChartArea = "ChartArea1";
+            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series8.Color = Color.FromArgb(79, 195, 247);
+            series8.Legend = "Legend1";
+            series8.Name = "Angle";
+            chart_data.Series.Add(series7);
+            chart_data.Series.Add(series8);
             chart_data.Size = new Size(608, 271);
             chart_data.TabIndex = 2;
             chart_data.Text = "chart1";
@@ -755,6 +757,8 @@
             // 
             // split_learnLeft.Panel1
             // 
+            split_learnLeft.Panel1.Controls.Add(test);
+            split_learnLeft.Panel1.Controls.Add(txtEnv);
             split_learnLeft.Panel1.Controls.Add(combo_model);
             split_learnLeft.Panel1.Controls.Add(progressBar_learn);
             split_learnLeft.Panel1.Controls.Add(btn_train);
@@ -768,6 +772,23 @@
             split_learnLeft.SplitterDistance = 367;
             split_learnLeft.SplitterWidth = 6;
             split_learnLeft.TabIndex = 8;
+            // 
+            // test
+            // 
+            test.Location = new Point(30, 171);
+            test.Name = "test";
+            test.Size = new Size(75, 23);
+            test.TabIndex = 9;
+            test.Text = "test";
+            test.UseVisualStyleBackColor = true;
+            test.Click += button1_Click;
+            // 
+            // txtEnv
+            // 
+            txtEnv.Location = new Point(14, 130);
+            txtEnv.Name = "txtEnv";
+            txtEnv.Size = new Size(100, 23);
+            txtEnv.TabIndex = 8;
             // 
             // combo_model
             // 
@@ -840,32 +861,32 @@
             splitContainer_ai.Panel2.Controls.Add(panel_grade);
             splitContainer_ai.Panel2.Controls.Add(label_aicompare);
             splitContainer_ai.Panel2.Controls.Add(panel_compare);
-            splitContainer_ai.Size = new Size(1101, 821);
-            splitContainer_ai.SplitterDistance = 745;
+            splitContainer_ai.Size = new Size(1095, 821);
+            splitContainer_ai.SplitterDistance = 739;
             splitContainer_ai.TabIndex = 5;
             // 
             // chart_loss
             // 
             chart_loss.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea2.Name = "ChartArea1";
-            chart_loss.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            chart_loss.Legends.Add(legend2);
+            chartArea3.Name = "ChartArea1";
+            chart_loss.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            chart_loss.Legends.Add(legend3);
             chart_loss.Location = new Point(2, 2);
             chart_loss.Margin = new Padding(2);
             chart_loss.Name = "chart_loss";
             chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Legend = "Legend1";
-            series3.Name = "Epoch";
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series4.Legend = "Legend1";
-            series4.Name = "Loss";
-            chart_loss.Series.Add(series3);
-            chart_loss.Series.Add(series4);
-            chart_loss.Size = new Size(741, 817);
+            series5.ChartArea = "ChartArea1";
+            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series5.Legend = "Legend1";
+            series5.Name = "Epoch";
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series6.Legend = "Legend1";
+            series6.Name = "Loss";
+            chart_loss.Series.Add(series5);
+            chart_loss.Series.Add(series6);
+            chart_loss.Size = new Size(735, 817);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
             // 
@@ -1163,6 +1184,7 @@
             ((System.ComponentModel.ISupportInitialize)chart_data).EndInit();
             tab_train.ResumeLayout(false);
             split_learnLeft.Panel1.ResumeLayout(false);
+            split_learnLeft.Panel1.PerformLayout();
             split_learnLeft.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)split_learnLeft).EndInit();
             split_learnLeft.ResumeLayout(false);
@@ -1258,5 +1280,7 @@
         private SplitContainer splitContainer_down;
         private Panel panel2;
         private Button btnHelp;
+        private TextBox txtEnv;
+        private Button test;
     }
 }

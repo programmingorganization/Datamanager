@@ -31,6 +31,7 @@ namespace Datamanager
         string backupFolderPath;    // 압축 전 원본 이미지를 보관하는 폴더 경로
 
         string historyPath;
+        string envName = "";
 
 
         bool isScrolling = false;   // 트랙바 스크롤 중인지 여부
@@ -53,7 +54,7 @@ namespace Datamanager
         int rightTopX = 0;
 
         bool leftDetected = false;
-        bool rightDetected = false;        
+        bool rightDetected = false;
 
         // catalog 데이터 저장할 딕셔너리
         Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
@@ -161,7 +162,7 @@ namespace Datamanager
 
                 btn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
                 btn.Cursor = Cursors.Hand;
-                
+
             }
 
             // 콤보박스
@@ -981,10 +982,10 @@ namespace Datamanager
 
         private void RunPythonTrain(string modelType)
         {
+            envName = txtEnv.Text;
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "wsl";
-
-            psi.Arguments = $"train.py --data data --model {modelType} --epochs 10";
+            psi.Arguments = $"bash -ic \"conda activate {envName} && python train.py --data data --model {modelType} --epochs 10\"";
 
             psi.WorkingDirectory = baseDir;
 
@@ -1000,24 +1001,59 @@ namespace Datamanager
 
             p.WaitForExit();
 
+            File.WriteAllText(
+                Path.Combine(baseDir, "train_log.txt"),
+                output + Environment.NewLine +
+                "===== STDERR =====" + Environment.NewLine +
+                error
+            );
+
             list_log.Items.Add(output);
             if (!string.IsNullOrEmpty(error))
                 list_log.Items.Add("ERROR: " + error);
 
             RunPythonEvaluate();
+
+            string scorePath =
+                Path.Combine(baseDir, "score.json");
         }
         private void RunPythonEvaluate()
         {
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "python";
-            psi.Arguments = "evaluate.py";
+            ProcessStartInfo psi =
+            new ProcessStartInfo();
+
+            psi.FileName = "wsl";
+
+            psi.Arguments =
+                $"bash -ic \"conda activate {envName} && pwd && ls && python evaluate.py\"";
+
+            psi.WorkingDirectory = baseDir;
 
             psi.UseShellExecute = false;
             psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
             psi.CreateNoWindow = true;
 
             Process p = Process.Start(psi);
+
+            string output =
+                p.StandardOutput.ReadToEnd();
+
+            string error =
+                p.StandardError.ReadToEnd();
+
             p.WaitForExit();
+
+            list_log.Items.Add(output);
+
+            if (!string.IsNullOrEmpty(error))
+                list_log.Items.Add(error);
+
+            p.WaitForExit();
+
+            list_log.Items.Add(
+                "EXIT CODE = " + p.ExitCode
+            );
         }
 
         private void listImages_SelectedIndexChanged(object sender, EventArgs e)
@@ -1241,25 +1277,8 @@ namespace Datamanager
                 btn_train.Enabled = true;
             }
 
-            if (combo_model.SelectedIndex < 0)
-            {
-                MessageBox.Show("모델을 선택하세요");
-                return;
-            }
-
-            string modelType = combo_model.SelectedItem.ToString().ToLower();
-
-            RunPythonTrain(modelType);
-
-            while (!File.Exists("score.json"))
-            {
-                Application.DoEvents();
-            }
-
-            string json = File.ReadAllText("score.json");
-            dynamic result = JsonConvert.DeserializeObject(json);
-
-            label_score.Text = result["score"].ToString();
+            //////////////////////////////////////////// 모델 학습 및 평가
+            
         }
 
         void LoadThumbnails(int centerIndex)
@@ -1449,6 +1468,37 @@ namespace Datamanager
         private void label2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (combo_model.SelectedIndex < 0)
+            {
+                MessageBox.Show("모델을 선택하세요");
+                return;
+            }
+
+
+            string modelType = combo_model.SelectedItem.ToString().ToLower();
+
+            RunPythonTrain(modelType);
+
+            string scorePath = Path.Combine(baseDir, "score.json");
+
+            if (!File.Exists(scorePath))
+            {
+                MessageBox.Show("평가 결과가 생성되지 않았습니다.");
+                return;
+            }
+
+            string json =
+                File.ReadAllText(scorePath);
+
+            dynamic result =
+                JsonConvert.DeserializeObject(json);
+
+            label_score.Text =
+                result["score"].ToString();
         }
     }
 
