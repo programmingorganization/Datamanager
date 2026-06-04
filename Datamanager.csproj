@@ -9,9 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Form_backup.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Emgu.CV" Version="4.13.0.5924" />
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.13.0.5924" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.13.0.5924" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="WinForms.DataVisualization" Version="1.10.2" />
   </ItemGroup>
 
