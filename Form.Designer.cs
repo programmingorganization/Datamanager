@@ -261,6 +261,7 @@
             btnHelp.TabIndex = 22;
             btnHelp.Text = "도움말";
             btnHelp.UseVisualStyleBackColor = false;
+            btnHelp.Click += btnHelp_Click;
             // 
             // lblTotalFrame
             // 
@@ -544,7 +545,7 @@
             btnDetect.Location = new Point(322, 184);
             btnDetect.Margin = new Padding(1);
             btnDetect.Name = "btnDetect";
-            btnDetect.Size = new Size(130, 40);
+            btnDetect.Size = new Size(140, 40);
             btnDetect.TabIndex = 26;
             btnDetect.Text = "이상 탐지 기능";
             btnDetect.UseVisualStyleBackColor = false;
@@ -630,7 +631,7 @@
             listImages.FormattingEnabled = true;
             listImages.Location = new Point(17, 36);
             listImages.Name = "listImages";
-            listImages.SelectionMode = SelectionMode.MultiSimple;
+            listImages.SelectionMode = SelectionMode.MultiExtended;
             listImages.Size = new Size(288, 302);
             listImages.TabIndex = 14;
             listImages.SelectedIndexChanged += listImages_SelectedIndexChanged;
@@ -650,7 +651,7 @@
             // 
             // cmbTrashList
             // 
-            cmbTrashList.Anchor = AnchorStyles.Top;
+            cmbTrashList.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             cmbTrashList.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTrashList.FormattingEnabled = true;
             cmbTrashList.Location = new Point(282, 175);
@@ -660,7 +661,7 @@
             // 
             // lblTrash
             // 
-            lblTrash.Anchor = AnchorStyles.Top;
+            lblTrash.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblTrash.AutoSize = true;
             lblTrash.BackColor = Color.Gray;
             lblTrash.ForeColor = Color.Black;
@@ -686,7 +687,7 @@
             // 
             // btn_restore
             // 
-            btn_restore.Anchor = AnchorStyles.Top;
+            btn_restore.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btn_restore.BackColor = Color.Gray;
             btn_restore.FlatStyle = FlatStyle.Flat;
             btn_restore.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -709,7 +710,6 @@
             label2.Size = new Size(159, 25);
             label2.TabIndex = 18;
             label2.Text = "삭제 프레임 목록";
-            label2.Click += label2_Click;
             // 
             // checkBox_angle
             // 
@@ -835,6 +835,7 @@
             // 
             // comboBox_venv
             // 
+            comboBox_venv.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             comboBox_venv.FormattingEnabled = true;
             comboBox_venv.Location = new Point(20, 60);
             comboBox_venv.Margin = new Padding(1);
@@ -844,6 +845,7 @@
             // 
             // combo_model
             // 
+            combo_model.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             combo_model.FormattingEnabled = true;
             combo_model.Location = new Point(20, 125);
             combo_model.Margin = new Padding(2);
@@ -861,7 +863,7 @@
             // 
             // btn_train
             // 
-            btn_train.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            btn_train.Anchor = AnchorStyles.Right;
             btn_train.BackColor = Color.Gray;
             btn_train.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_train.Location = new Point(218, 48);
@@ -885,7 +887,7 @@
             // 
             // btn_stopTrain
             // 
-            btn_stopTrain.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            btn_stopTrain.Anchor = AnchorStyles.Right;
             btn_stopTrain.BackColor = Color.Gray;
             btn_stopTrain.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btn_stopTrain.Location = new Point(218, 113);
@@ -913,8 +915,8 @@
             splitContainer_ai.Panel2.Controls.Add(panel_grade);
             splitContainer_ai.Panel2.Controls.Add(label_aicompare);
             splitContainer_ai.Panel2.Controls.Add(panel_compare);
-            splitContainer_ai.Size = new Size(1169, 926);
-            splitContainer_ai.SplitterDistance = 793;
+            splitContainer_ai.Size = new Size(1175, 926);
+            splitContainer_ai.SplitterDistance = 802;
             splitContainer_ai.SplitterWidth = 2;
             splitContainer_ai.TabIndex = 5;
             // 
@@ -939,14 +941,14 @@
             series4.Name = "Loss";
             chart_loss.Series.Add(series3);
             chart_loss.Series.Add(series4);
-            chart_loss.Size = new Size(791, 924);
+            chart_loss.Size = new Size(800, 924);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
             // 
             // label_learningNum
             // 
             label_learningNum.AutoSize = true;
-            label_learningNum.Location = new Point(16, 438);
+            label_learningNum.Location = new Point(16, 474);
             label_learningNum.Name = "label_learningNum";
             label_learningNum.Size = new Size(87, 15);
             label_learningNum.TabIndex = 3;
@@ -962,7 +964,7 @@
             panel_grade.Controls.Add(progressBar_score);
             panel_grade.Location = new Point(9, 527);
             panel_grade.Name = "panel_grade";
-            panel_grade.Size = new Size(357, 392);
+            panel_grade.Size = new Size(337, 392);
             panel_grade.TabIndex = 2;
             // 
             // label_progreScore
@@ -981,7 +983,7 @@
             label_scoreUnit.Anchor = AnchorStyles.None;
             label_scoreUnit.AutoSize = true;
             label_scoreUnit.Font = new Font("맑은 고딕", 12F);
-            label_scoreUnit.Location = new Point(148, 136);
+            label_scoreUnit.Location = new Point(138, 136);
             label_scoreUnit.Name = "label_scoreUnit";
             label_scoreUnit.Size = new Size(65, 21);
             label_scoreUnit.TabIndex = 2;
@@ -992,7 +994,7 @@
             label_grade.Anchor = AnchorStyles.None;
             label_grade.AutoSize = true;
             label_grade.Font = new Font("맑은 고딕", 20F);
-            label_grade.Location = new Point(78, 198);
+            label_grade.Location = new Point(86, 192);
             label_grade.Name = "label_grade";
             label_grade.Size = new Size(71, 37);
             label_grade.TabIndex = 1;
@@ -1003,7 +1005,7 @@
             label_score.Anchor = AnchorStyles.None;
             label_score.AutoSize = true;
             label_score.Font = new Font("맑은 고딕", 40F);
-            label_score.Location = new Point(148, 28);
+            label_score.Location = new Point(138, 28);
             label_score.Name = "label_score";
             label_score.Size = new Size(60, 72);
             label_score.TabIndex = 1;
@@ -1014,7 +1016,7 @@
             progressBar_score.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             progressBar_score.Location = new Point(25, 298);
             progressBar_score.Name = "progressBar_score";
-            progressBar_score.Size = new Size(317, 42);
+            progressBar_score.Size = new Size(297, 42);
             progressBar_score.TabIndex = 0;
             // 
             // label_aicompare
@@ -1048,23 +1050,23 @@
             panel_compare.Controls.Add(combo_compare);
             panel_compare.Location = new Point(9, 63);
             panel_compare.Name = "panel_compare";
-            panel_compare.Size = new Size(357, 308);
+            panel_compare.Size = new Size(337, 333);
             panel_compare.TabIndex = 0;
             // 
             // progre_aiangle
             // 
             progre_aiangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progre_aiangle.Location = new Point(181, 280);
+            progre_aiangle.Location = new Point(181, 275);
             progre_aiangle.Name = "progre_aiangle";
-            progre_aiangle.Size = new Size(161, 23);
+            progre_aiangle.Size = new Size(141, 23);
             progre_aiangle.TabIndex = 2;
             // 
             // progre_aithro
             // 
             progre_aithro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progre_aithro.Location = new Point(181, 239);
+            progre_aithro.Location = new Point(181, 234);
             progre_aithro.Name = "progre_aithro";
-            progre_aithro.Size = new Size(161, 23);
+            progre_aithro.Size = new Size(141, 23);
             progre_aithro.TabIndex = 2;
             // 
             // progre_compangle
@@ -1072,7 +1074,7 @@
             progre_compangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compangle.Location = new Point(181, 162);
             progre_compangle.Name = "progre_compangle";
-            progre_compangle.Size = new Size(161, 23);
+            progre_compangle.Size = new Size(141, 23);
             progre_compangle.TabIndex = 2;
             // 
             // progre_compthro
@@ -1080,7 +1082,7 @@
             progre_compthro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compthro.Location = new Point(181, 121);
             progre_compthro.Name = "progre_compthro";
-            progre_compthro.Size = new Size(161, 23);
+            progre_compthro.Size = new Size(141, 23);
             progre_compthro.TabIndex = 2;
             // 
             // label_aiangle
@@ -1088,7 +1090,7 @@
             label_aiangle.AutoSize = true;
             label_aiangle.Font = new Font("맑은 고딕", 12F);
             label_aiangle.ForeColor = SystemColors.ButtonFace;
-            label_aiangle.Location = new Point(17, 280);
+            label_aiangle.Location = new Point(17, 275);
             label_aiangle.Name = "label_aiangle";
             label_aiangle.Size = new Size(80, 21);
             label_aiangle.TabIndex = 1;
@@ -1099,7 +1101,7 @@
             label_aithrottle.AutoSize = true;
             label_aithrottle.Font = new Font("맑은 고딕", 12F);
             label_aithrottle.ForeColor = SystemColors.ButtonFace;
-            label_aithrottle.Location = new Point(17, 241);
+            label_aithrottle.Location = new Point(17, 236);
             label_aithrottle.Name = "label_aithrottle";
             label_aithrottle.Size = new Size(80, 21);
             label_aithrottle.TabIndex = 1;
@@ -1121,7 +1123,7 @@
             label_aiangleNum.AutoSize = true;
             label_aiangleNum.Font = new Font("맑은 고딕", 12F);
             label_aiangleNum.ForeColor = SystemColors.ButtonFace;
-            label_aiangleNum.Location = new Point(95, 280);
+            label_aiangleNum.Location = new Point(95, 275);
             label_aiangleNum.Name = "label_aiangleNum";
             label_aiangleNum.Size = new Size(80, 21);
             label_aiangleNum.TabIndex = 1;
@@ -1132,7 +1134,7 @@
             label_aithroNum.AutoSize = true;
             label_aithroNum.Font = new Font("맑은 고딕", 12F);
             label_aithroNum.ForeColor = SystemColors.ButtonFace;
-            label_aithroNum.Location = new Point(95, 241);
+            label_aithroNum.Location = new Point(95, 236);
             label_aithroNum.Name = "label_aithroNum";
             label_aithroNum.Size = new Size(80, 21);
             label_aithroNum.TabIndex = 1;
@@ -1155,7 +1157,7 @@
             label_ocha.AutoSize = true;
             label_ocha.Font = new Font("맑은 고딕", 12F);
             label_ocha.ForeColor = SystemColors.ButtonFace;
-            label_ocha.Location = new Point(241, 30);
+            label_ocha.Location = new Point(221, 30);
             label_ocha.Name = "label_ocha";
             label_ocha.Size = new Size(46, 21);
             label_ocha.TabIndex = 1;
