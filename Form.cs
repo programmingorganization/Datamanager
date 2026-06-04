@@ -2060,7 +2060,7 @@ namespace Datamanager
                 thumb.Click += (sender, e) =>
                 {
                     int thumbIndex = (int)((PictureBox)sender).Tag;
-                    SetCurrentIndex(thumbIndex); 
+                    SetCurrentIndex(thumbIndex);
                 };
 
                 flowPanel_thumbnails.Controls.Add(thumb);
@@ -2086,7 +2086,7 @@ namespace Datamanager
                 }
             }
         }
-        
+
         // 이미지 파일 검증
         private bool IsValidImage(string imagePath, out string errorReason)
         {
@@ -2658,6 +2658,11 @@ namespace Datamanager
                 // 예: x2.0배속 선택 시 -> 100 / 2.0 = 50ms (2배 빨라짐)
                 timer1.Interval = (int)(BaseInterval / speed);
             }
+        }
+
+        private void tabPage1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
