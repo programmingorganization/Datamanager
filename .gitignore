@@ -370,3 +370,6 @@ data/
 model.h5
 score.json
 train_log.txt
+history.json
+history_lstm.json
+model_lstm.h5

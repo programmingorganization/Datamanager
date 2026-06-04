@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl = new TabControl();
             tab_data = new TabPage();
             splitContainer_allwindow = new SplitContainer();
@@ -86,8 +86,9 @@
             checkBox_throttle = new CheckBox();
             tab_train = new TabPage();
             split_learnLeft = new SplitContainer();
-            lblModel = new Label();
-            lblvenv = new Label();
+            label_progressai = new Label();
+            label4 = new Label();
+            label_venv = new Label();
             comboBox_venv = new ComboBox();
             combo_model = new ComboBox();
             progressBar_learn = new ProgressBar();
@@ -243,7 +244,7 @@
             // comboBox_play
             // 
             comboBox_play.FormattingEnabled = true;
-            comboBox_play.Items.AddRange(new object[] { "x2.0배속", "x3.0배속" });
+            comboBox_play.Items.AddRange(new object[] { "x1.0배속", "x2.0배속", "x3.0배속" });
             comboBox_play.Location = new Point(178, 463);
             comboBox_play.Margin = new Padding(2, 1, 2, 1);
             comboBox_play.Name = "comboBox_play";
@@ -630,6 +631,7 @@
             listImages.FormattingEnabled = true;
             listImages.Location = new Point(17, 36);
             listImages.Name = "listImages";
+            listImages.SelectionMode = SelectionMode.MultiSimple;
             listImages.Size = new Size(288, 302);
             listImages.TabIndex = 14;
             listImages.SelectedIndexChanged += listImages_SelectedIndexChanged;
@@ -651,17 +653,13 @@
             // 
             // btnDeleteEnd
             // 
-            btnDeleteEnd.BackColor = Color.Gray;
-            btnDeleteEnd.FlatStyle = FlatStyle.Flat;
-            btnDeleteEnd.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            btnDeleteEnd.ForeColor = Color.Black;
-            btnDeleteEnd.Location = new Point(275, 111);
-            btnDeleteEnd.Margin = new Padding(1);
-            btnDeleteEnd.Name = "btnDeleteEnd";
-            btnDeleteEnd.Size = new Size(115, 40);
-            btnDeleteEnd.TabIndex = 27;
-            btnDeleteEnd.Text = "끝 프레임";
-            btnDeleteEnd.UseVisualStyleBackColor = false;
+            cmbTrashList.Anchor = AnchorStyles.Top;
+            cmbTrashList.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTrashList.FormattingEnabled = true;
+            cmbTrashList.Location = new Point(282, 175);
+            cmbTrashList.Name = "cmbTrashList";
+            cmbTrashList.Size = new Size(96, 33);
+            cmbTrashList.TabIndex = 22;
             // 
             // btnDeleteStart
             // 
@@ -689,7 +687,7 @@
             // 
             // lblTrash
             // 
-            lblTrash.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblTrash.Anchor = AnchorStyles.Top;
             lblTrash.AutoSize = true;
             lblTrash.BackColor = Color.Gray;
             lblTrash.ForeColor = Color.Black;
@@ -701,7 +699,7 @@
             // 
             // listBox_delete
             // 
-            listBox_delete.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            listBox_delete.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             listBox_delete.BackColor = Color.FromArgb(22, 27, 3);
             listBox_delete.BorderStyle = BorderStyle.FixedSingle;
             listBox_delete.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -709,12 +707,13 @@
             listBox_delete.Location = new Point(22, 46);
             listBox_delete.Margin = new Padding(2);
             listBox_delete.Name = "listBox_delete";
+            listBox_delete.SelectionMode = SelectionMode.MultiExtended;
             listBox_delete.Size = new Size(237, 332);
             listBox_delete.TabIndex = 14;
             // 
             // btn_restore
             // 
-            btn_restore.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btn_restore.Anchor = AnchorStyles.Top;
             btn_restore.BackColor = Color.Gray;
             btn_restore.FlatStyle = FlatStyle.Flat;
             btn_restore.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -753,26 +752,26 @@
             // chart_data
             // 
             chart_data.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea3.Name = "ChartArea1";
-            chart_data.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            chart_data.Legends.Add(legend3);
+            chartArea1.Name = "ChartArea1";
+            chart_data.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            chart_data.Legends.Add(legend1);
             chart_data.Location = new Point(3, 64);
             chart_data.Name = "chart_data";
-            series5.BorderWidth = 2;
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series5.Color = Color.Green;
-            series5.Legend = "Legend1";
-            series5.Name = "Throttle";
-            series6.BorderWidth = 2;
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series6.Color = Color.FromArgb(79, 195, 247);
-            series6.Legend = "Legend1";
-            series6.Name = "Angle";
-            chart_data.Series.Add(series5);
-            chart_data.Series.Add(series6);
+            series1.BorderWidth = 2;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Color = Color.Green;
+            series1.Legend = "Legend1";
+            series1.Name = "Throttle";
+            series2.BorderWidth = 2;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Color = Color.FromArgb(79, 195, 247);
+            series2.Legend = "Legend1";
+            series2.Name = "Angle";
+            chart_data.Series.Add(series1);
+            chart_data.Series.Add(series2);
             chart_data.Size = new Size(613, 322);
             chart_data.TabIndex = 2;
             chart_data.Text = "chart1";
@@ -808,8 +807,9 @@
             // 
             // split_learnLeft.Panel1
             // 
-            split_learnLeft.Panel1.Controls.Add(lblModel);
-            split_learnLeft.Panel1.Controls.Add(lblvenv);
+            split_learnLeft.Panel1.Controls.Add(label_progressai);
+            split_learnLeft.Panel1.Controls.Add(label4);
+            split_learnLeft.Panel1.Controls.Add(label_venv);
             split_learnLeft.Panel1.Controls.Add(comboBox_venv);
             split_learnLeft.Panel1.Controls.Add(combo_model);
             split_learnLeft.Panel1.Controls.Add(progressBar_learn);
@@ -825,28 +825,40 @@
             split_learnLeft.SplitterWidth = 3;
             split_learnLeft.TabIndex = 8;
             // 
-            // lblModel
+            // label_progressai
             // 
-            lblModel.AutoSize = true;
-            lblModel.Font = new Font("맑은 고딕", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            lblModel.ForeColor = SystemColors.ButtonFace;
-            lblModel.Location = new Point(20, 93);
-            lblModel.Margin = new Padding(2, 0, 2, 0);
-            lblModel.Name = "lblModel";
-            lblModel.Size = new Size(95, 25);
-            lblModel.TabIndex = 8;
-            lblModel.Text = "모델 선택";
+            label_progressai.AutoSize = true;
+            label_progressai.Font = new Font("맑은 고딕", 12F);
+            label_progressai.ForeColor = SystemColors.ButtonFace;
+            label_progressai.Location = new Point(9, 194);
+            label_progressai.Name = "label_progressai";
+            label_progressai.Size = new Size(62, 21);
+            label_progressai.TabIndex = 9;
+            label_progressai.Text = "진행률:";
             // 
-            // lblvenv
+            // label4
             // 
-            lblvenv.Font = new Font("맑은 고딕", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 129);
-            lblvenv.ForeColor = SystemColors.ButtonFace;
-            lblvenv.Location = new Point(20, 25);
-            lblvenv.Margin = new Padding(2, 0, 2, 0);
-            lblvenv.Name = "lblvenv";
-            lblvenv.Size = new Size(139, 25);
-            lblvenv.TabIndex = 8;
-            lblvenv.Text = "가상환경 선택";
+            label4.AutoSize = true;
+            label4.Font = new Font("맑은 고딕", 12F);
+            label4.ForeColor = SystemColors.ButtonFace;
+            label4.Location = new Point(20, 93);
+            label4.Margin = new Padding(2, 0, 2, 0);
+            label4.Name = "label4";
+            label4.Size = new Size(80, 21);
+            label4.TabIndex = 8;
+            label4.Text = "모델 선택";
+            // 
+            // label_venv
+            // 
+            label_venv.AutoSize = true;
+            label_venv.Font = new Font("맑은 고딕", 12F);
+            label_venv.ForeColor = SystemColors.ButtonFace;
+            label_venv.Location = new Point(20, 29);
+            label_venv.Margin = new Padding(2, 0, 2, 0);
+            label_venv.Name = "label_venv";
+            label_venv.Size = new Size(112, 21);
+            label_venv.TabIndex = 8;
+            label_venv.Text = "가상환경 선택";
             // 
             // comboBox_venv
             // 
@@ -929,33 +941,33 @@
             splitContainer_ai.Panel2.Controls.Add(panel_grade);
             splitContainer_ai.Panel2.Controls.Add(label_aicompare);
             splitContainer_ai.Panel2.Controls.Add(panel_compare);
-            splitContainer_ai.Size = new Size(1163, 926);
-            splitContainer_ai.SplitterDistance = 807;
+            splitContainer_ai.Size = new Size(1168, 926);
+            splitContainer_ai.SplitterDistance = 793;
             splitContainer_ai.SplitterWidth = 2;
             splitContainer_ai.TabIndex = 5;
             // 
             // chart_loss
             // 
             chart_loss.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea4.Name = "ChartArea1";
-            chart_loss.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            chart_loss.Legends.Add(legend4);
+            chartArea2.Name = "ChartArea1";
+            chart_loss.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            chart_loss.Legends.Add(legend2);
             chart_loss.Location = new Point(1, 1);
             chart_loss.Margin = new Padding(1);
             chart_loss.Name = "chart_loss";
             chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series7.ChartArea = "ChartArea1";
-            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series7.Legend = "Legend1";
-            series7.Name = "Epoch";
-            series8.ChartArea = "ChartArea1";
-            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series8.Legend = "Legend1";
-            series8.Name = "Loss";
-            chart_loss.Series.Add(series7);
-            chart_loss.Series.Add(series8);
-            chart_loss.Size = new Size(805, 924);
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.Name = "Epoch";
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.Name = "Loss";
+            chart_loss.Series.Add(series3);
+            chart_loss.Series.Add(series4);
+            chart_loss.Size = new Size(791, 924);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
             // 
@@ -980,7 +992,7 @@
             panel_grade.Controls.Add(progressBar_score);
             panel_grade.Location = new Point(9, 527);
             panel_grade.Name = "panel_grade";
-            panel_grade.Size = new Size(342, 392);
+            panel_grade.Size = new Size(354, 392);
             panel_grade.TabIndex = 2;
             // 
             // label_progreScore
@@ -1000,8 +1012,7 @@
             label_scoreUnit.Anchor = AnchorStyles.None;
             label_scoreUnit.AutoSize = true;
             label_scoreUnit.Font = new Font("맑은 고딕", 12F);
-            label_scoreUnit.ForeColor = Color.White;
-            label_scoreUnit.Location = new Point(141, 136);
+            label_scoreUnit.Location = new Point(147, 136);
             label_scoreUnit.Name = "label_scoreUnit";
             label_scoreUnit.Size = new Size(65, 21);
             label_scoreUnit.TabIndex = 2;
@@ -1012,8 +1023,7 @@
             label_grade.Anchor = AnchorStyles.None;
             label_grade.AutoSize = true;
             label_grade.Font = new Font("맑은 고딕", 20F);
-            label_grade.ForeColor = Color.White;
-            label_grade.Location = new Point(135, 190);
+            label_grade.Location = new Point(77, 198);
             label_grade.Name = "label_grade";
             label_grade.Size = new Size(71, 37);
             label_grade.TabIndex = 1;
@@ -1024,8 +1034,7 @@
             label_score.Anchor = AnchorStyles.None;
             label_score.AutoSize = true;
             label_score.Font = new Font("맑은 고딕", 40F);
-            label_score.ForeColor = Color.White;
-            label_score.Location = new Point(141, 28);
+            label_score.Location = new Point(147, 28);
             label_score.Name = "label_score";
             label_score.Size = new Size(60, 72);
             label_score.TabIndex = 1;
@@ -1036,7 +1045,7 @@
             progressBar_score.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             progressBar_score.Location = new Point(25, 298);
             progressBar_score.Name = "progressBar_score";
-            progressBar_score.Size = new Size(302, 42);
+            progressBar_score.Size = new Size(314, 42);
             progressBar_score.TabIndex = 0;
             // 
             // label_aicompare
@@ -1071,7 +1080,7 @@
             panel_compare.Controls.Add(combo_compare);
             panel_compare.Location = new Point(9, 63);
             panel_compare.Name = "panel_compare";
-            panel_compare.Size = new Size(342, 308);
+            panel_compare.Size = new Size(354, 308);
             panel_compare.TabIndex = 0;
             // 
             // progre_aiangle
@@ -1079,7 +1088,7 @@
             progre_aiangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aiangle.Location = new Point(181, 280);
             progre_aiangle.Name = "progre_aiangle";
-            progre_aiangle.Size = new Size(146, 23);
+            progre_aiangle.Size = new Size(158, 23);
             progre_aiangle.TabIndex = 2;
             // 
             // progre_aithro
@@ -1087,7 +1096,7 @@
             progre_aithro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aithro.Location = new Point(181, 239);
             progre_aithro.Name = "progre_aithro";
-            progre_aithro.Size = new Size(146, 23);
+            progre_aithro.Size = new Size(158, 23);
             progre_aithro.TabIndex = 2;
             // 
             // progre_compangle
@@ -1095,7 +1104,7 @@
             progre_compangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compangle.Location = new Point(181, 162);
             progre_compangle.Name = "progre_compangle";
-            progre_compangle.Size = new Size(146, 23);
+            progre_compangle.Size = new Size(158, 23);
             progre_compangle.TabIndex = 2;
             // 
             // progre_compthro
@@ -1103,7 +1112,7 @@
             progre_compthro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compthro.Location = new Point(181, 121);
             progre_compthro.Name = "progre_compthro";
-            progre_compthro.Size = new Size(146, 23);
+            progre_compthro.Size = new Size(158, 23);
             progre_compthro.TabIndex = 2;
             // 
             // label_aiangle
@@ -1178,7 +1187,7 @@
             label_ocha.AutoSize = true;
             label_ocha.Font = new Font("맑은 고딕", 12F);
             label_ocha.ForeColor = SystemColors.ButtonFace;
-            label_ocha.Location = new Point(226, 48);
+            label_ocha.Location = new Point(238, 30);
             label_ocha.Name = "label_ocha";
             label_ocha.Size = new Size(46, 21);
             label_ocha.TabIndex = 1;
@@ -1357,11 +1366,10 @@
         private Panel panel2;
         private Button btnHelp;
         private ComboBox comboBox_play;
-        private Label lblModel;
-        private Label lblvenv;
+        private Label label4;
+        private Label label_venv;
         private ComboBox comboBox_venv;
         private Button btnDetect;
-        private Button btnDeleteEnd;
-        private Button btnDeleteStart;
+        private Label label_progressai;
     }
 }
