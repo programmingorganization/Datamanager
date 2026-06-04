@@ -400,110 +400,6 @@ namespace Datamanager
             checkBox_throttle.Checked = true;
             checkBox_angle.Checked = true;
 
-            /*// 콤보박스 아이템 로드
-            combo_compare.SelectedIndexChanged += (s, e) =>
-            {
-                if (combo_compare.SelectedIndex < 0) return;
-
-                // 선택된 파일명으로 실제 이미지 경로 찾기
-                string selectedFile = combo_compare.SelectedItem.ToString();
-                string imagePath = imageFiles?.FirstOrDefault(f => Path.GetFileName(f) == selectedFile);
-
-                if (imagePath == null) return;
-
-                // 카탈로그에서 실제값 가져오기
-                int idx = ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile));
-                if (catalogData.ContainsKey(idx))
-                {
-                    var entry = catalogData[idx];
-                    double realAngle = entry.user_angle;
-                    double realThrottle = entry.user_throttle;
-
-                    label_compthroNum.Text = realThrottle.ToString("F3");
-                    label_compangleNum.Text = realAngle.ToString("F3");
-                    progre_compthro.Value = Math.Min(100, (int)(Math.Abs(realThrottle) * 100));
-                    progre_compangle.Value = Math.Min(100, (int)((realAngle + 1) / 2 * 100));
-                }
-
-                // model.h5 없으면 AI 예측 스킵
-                string modelPath = Path.Combine(baseDir, "model.h5");
-                if (!File.Exists(modelPath)) return;
-
-                // AI 예측값 가져오기
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        string wslImagePath = imagePath.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
-                        string wslBase = baseDir.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
-
-                        string condaBase = "";
-                        ProcessStartInfo condaPsi = new ProcessStartInfo();
-                        condaPsi.FileName = "wsl";
-                        condaPsi.Arguments = "bash -ic \"conda info --base 2>/dev/null | tail -1\"";
-                        condaPsi.UseShellExecute = false;
-                        condaPsi.RedirectStandardOutput = true;
-                        condaPsi.CreateNoWindow = true;
-                        Process condaProc = Process.Start(condaPsi);
-                        string condaOutput = condaProc.StandardOutput.ReadToEnd();
-                        condaProc.WaitForExit();
-                        var match = System.Text.RegularExpressions.Regex.Match(condaOutput, @"(/[^\s*]+miniconda\d*)");
-                        if (match.Success) condaBase = match.Value.Trim();
-
-                        string pythonPath = envName == "base"
-                            ? $"{condaBase}/bin/python"
-                            : $"{condaBase}/envs/{envName}/bin/python";
-
-                        ProcessStartInfo psi = new ProcessStartInfo();
-                        psi.FileName = "wsl";
-                        psi.Arguments = $"bash -c \"cd {wslBase} && {pythonPath} evaluate_single.py {wslImagePath}\"";
-                        psi.UseShellExecute = false;
-                        psi.RedirectStandardOutput = true;
-                        psi.CreateNoWindow = true;
-
-                        Process p = Process.Start(psi);
-                        string output = p.StandardOutput.ReadToEnd();
-                        p.WaitForExit();
-
-                        // JSON 파싱
-                        var resultMatch = System.Text.RegularExpressions.Regex.Match(output, @"\{.*\}");
-                        if (resultMatch.Success)
-                        {
-                            dynamic result = JsonConvert.DeserializeObject(resultMatch.Value);
-                            double aiAngle = (double)result["angle"];
-                            double aiThrottle = (double)result["throttle"];
-
-                            this.Invoke((Action)(() =>
-                            {
-                                label_aithroNum.Text = aiThrottle.ToString("F3");
-                                label_aiangleNum.Text = aiAngle.ToString("F3");
-                                progre_aithro.Value = Math.Min(100, (int)(Math.Abs(aiThrottle) * 100));
-                                progre_aiangle.Value = Math.Min(100, (int)((aiAngle + 1) / 2 * 100));
-
-                                // 오차 표시
-                                if (catalogData.ContainsKey(ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile))))
-                                {
-                                    var entry = catalogData[ExtractNumber(Path.GetFileNameWithoutExtension(selectedFile))];
-                                    double diff = Math.Abs(entry.user_angle - aiAngle);
-                                    label_ocha.Text = $"오차: {diff:F3}";
-                                    label_ocha.ForeColor = diff < 0.1
-                                        ? Color.FromArgb(102, 187, 106)
-                                        : Color.FromArgb(239, 83, 80);
-                                }
-                            }));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        this.Invoke((Action)(() =>
-                        {
-                            label_aithroNum.Text = "오류";
-                            label_aiangleNum.Text = "오류";
-                        }));
-                    }
-                });
-            };*/
-
             // 오차 레이블
             label_ocha.ForeColor = Color.FromArgb(102, 187, 106);
             label_ocha.Font = new Font("Consolas", 15F, FontStyle.Bold);
@@ -1621,62 +1517,6 @@ namespace Datamanager
                 trainProcess = null;
             }));
         }
-        /*private void RunPythonTrain(string modelType)
-        {
-            envName = comboBox_venv.Text;
-
-            string script = "";
-
-            if (modelType == "cnn")
-                script = "train.py";
-            else if (modelType == "lstm")
-                script = "train_lstm.py";
-            else
-                throw new Exception("invalid modelType");
-
-            string wslBase = baseDir.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
-
-
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "wsl";
-            psi.Arguments = $"bash -ic \"cd {wslBase} && conda activate {envName} && python {script} --data data --epochs 10\"";
-
-            psi.WorkingDirectory = baseDir;
-
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
-            psi.CreateNoWindow = true;
-
-            Process p = Process.Start(psi);
-
-            string output = p.StandardOutput.ReadToEnd();
-            string error = p.StandardError.ReadToEnd();
-
-            p.WaitForExit();
-
-            if (p.ExitCode != 0)
-            {
-                MessageBox.Show("Train 실패");
-                return;
-            }
-
-            File.WriteAllText(
-                Path.Combine(baseDir, "train_log.txt"),
-                output + Environment.NewLine +
-                "===== STDERR =====" + Environment.NewLine +
-                error
-            );
-
-            list_log.Items.Add(output);
-            if (!string.IsNullOrEmpty(error))
-                list_log.Items.Add("ERROR: " + error);
-
-            RunPythonEvaluate(modelType);
-
-            string scorePath =
-                Path.Combine(baseDir, "score.json");
-        }*/
 
         void UpdateScore(double valLoss)
         {
@@ -2060,7 +1900,7 @@ namespace Datamanager
                 thumb.Click += (sender, e) =>
                 {
                     int thumbIndex = (int)((PictureBox)sender).Tag;
-                    SetCurrentIndex(thumbIndex); 
+                    SetCurrentIndex(thumbIndex);
                 };
 
                 flowPanel_thumbnails.Controls.Add(thumb);
@@ -2086,7 +1926,7 @@ namespace Datamanager
                 }
             }
         }
-        
+
         // 이미지 파일 검증
         private bool IsValidImage(string imagePath, out string errorReason)
         {
@@ -2240,63 +2080,6 @@ namespace Datamanager
             isScrolling = false;
         }
 
-        /*private void btn_restore_Click(object sender, EventArgs e)
-        {
-            // 1. 예외 처리: 선택된 항목이 없을 때
-            if (listBox_delete.SelectedItems.Count == 0)
-            {
-                MessageBox.Show("복원할 프레임을 삭제 목록에서 선택해 주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // 선택된 항목들을 역순으로 순회하면서 복원 (인덱스 꼬임 방지)
-            List<int> indicesToRestore = new List<int>();
-
-            foreach (var item in listBox_delete.SelectedItems)
-            {
-                // "Frame 123" 형태의 문자열에서 숫자만 추출
-                string itemText = item.ToString();
-                if (int.TryParse(itemText.Replace("Frame ", ""), out int resIdx))
-                {
-                    indicesToRestore.Add(resIdx);
-                }
-            }
-
-            int restoreCount = 0;
-
-            foreach (int idx in indicesToRestore)
-            {
-                // 원본 백업 데이터(originalCatalogData)에서 데이터를 찾아 catalogData에 재삽입
-                if (originalCatalogData != null && originalCatalogData.ContainsKey(idx))
-                {
-                    if (!catalogData.ContainsKey(idx))
-                    {
-                        catalogData.Add(idx, originalCatalogData[idx]);
-                    }
-
-                    // 전역 삭제 리스트와 ListBox UI에서 제거
-                    deletedIndices.Remove(idx);
-                    listBox_delete.Items.Remove($"Frame {idx}");
-                    restoreCount++;
-                }
-            }
-
-            if (restoreCount > 0)
-            {
-                // 유효 인덱스 리스트 다시 갱신
-                validIndices = catalogData.Keys.OrderBy(k => k).ToList();
-
-                RefreshImageListUI();
-
-                MessageBox.Show($"{restoreCount}개의 프레임이 성공적으로 복원되었습니다.", "복원 완료");
-
-                // 현재 복원된 첫 번째 프레임으로 화면 이동하여 확인시켜줌
-                SetCurrentIndex(indicesToRestore.Min());
-            }
-
-            LoadTrashList();
-        }*/
-
         private void btn_restore_Click(object sender, EventArgs e)
         {
             // 1. 예외 처리: 선택된 항목이 없을 때
@@ -2444,16 +2227,6 @@ namespace Datamanager
             CompressAllImages(quality, 1.0);
 
             MessageBox.Show($"전체 이미지 품질 {quality} 적용 완료");
-        }
-
-        private void progressDelete_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
         }
         private void btnDetect_Click(object sender, EventArgs e)
         {
@@ -2658,6 +2431,12 @@ namespace Datamanager
                 // 예: x2.0배속 선택 시 -> 100 / 2.0 = 50ms (2배 빨라짐)
                 timer1.Interval = (int)(BaseInterval / speed);
             }
+        }
+
+        private void btnHelp_Click(object sender, EventArgs e)
+        {
+            HelpForm helpForm = new HelpForm();
+            helpForm.ShowDialog(this);
         }
     }
 
