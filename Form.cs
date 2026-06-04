@@ -1503,10 +1503,13 @@ namespace Datamanager
             psi.FileName = "wsl";
             psi.Arguments = $"bash -c \"cd {wslBase} && {pythonPath} {script} --data data --epochs 10\"";
 
-            // 디버그용
-            list_log.Items.Add($"condaBase: {condaBase}");
-            list_log.Items.Add($"python 경로: {pythonPath}");
-            list_log.Items.Add($"명령어: {psi.Arguments}");
+            //디버그용
+            this.Invoke((Action)(() =>
+            {
+                list_log.Items.Add($"condaBase: {condaBase}");
+                list_log.Items.Add($"python 경로: {pythonPath}");
+                list_log.Items.Add($"명령어: {psi.Arguments}");
+            }));
 
             psi.WorkingDirectory = baseDir;
             psi.UseShellExecute = false;
