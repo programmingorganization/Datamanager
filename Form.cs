@@ -1209,6 +1209,13 @@ namespace Datamanager
 
             LoadImage();
 
+            // 썸네일 업데이트
+            LoadThumbnails(currentIndex);
+
+            // 프레임 번호 표시
+            lblCurrentFrame.Text = $"현재 프레임: {currentIndex}";
+            lblTotalFrame.Text = $"전체 프레임: {imageFiles.Length}";
+
             // 데이터 연동 및 계기판 네온 바늘 실시간 호출 연계
             if (catalogData.ContainsKey(currentIndex))
             {
@@ -2052,8 +2059,8 @@ namespace Datamanager
 
                 thumb.Click += (sender, e) =>
                 {
-                    currentIndex = (int)((PictureBox)sender).Tag;
-                    listImages.SelectedIndex = currentIndex;
+                    int thumbIndex = (int)((PictureBox)sender).Tag;
+                    SetCurrentIndex(thumbIndex); 
                 };
 
                 flowPanel_thumbnails.Controls.Add(thumb);
