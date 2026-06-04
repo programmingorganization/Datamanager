@@ -91,7 +91,7 @@
             combo_model = new ComboBox();
             progressBar_learn = new ProgressBar();
             btn_train = new Button();
-            list_log = new ListBox();
+            this.list_log = new AutoScrollListBox();
             btn_stopTrain = new Button();
             splitContainer_ai = new SplitContainer();
             chart_loss = new System.Windows.Forms.DataVisualization.Charting.Chart();
@@ -882,7 +882,7 @@
             list_log.Location = new Point(7, 313);
             list_log.Margin = new Padding(1);
             list_log.Name = "list_log";
-            list_log.Size = new Size(337, 574);
+            list_log.Size = new Size(337, 604);
             list_log.TabIndex = 1;
             // 
             // btn_stopTrain
@@ -915,7 +915,7 @@
             splitContainer_ai.Panel2.Controls.Add(panel_grade);
             splitContainer_ai.Panel2.Controls.Add(label_aicompare);
             splitContainer_ai.Panel2.Controls.Add(panel_compare);
-            splitContainer_ai.Size = new Size(1175, 926);
+            splitContainer_ai.Size = new Size(1179, 926);
             splitContainer_ai.SplitterDistance = 802;
             splitContainer_ai.SplitterWidth = 2;
             splitContainer_ai.TabIndex = 5;
@@ -964,7 +964,7 @@
             panel_grade.Controls.Add(progressBar_score);
             panel_grade.Location = new Point(9, 527);
             panel_grade.Name = "panel_grade";
-            panel_grade.Size = new Size(337, 392);
+            panel_grade.Size = new Size(349, 392);
             panel_grade.TabIndex = 2;
             // 
             // label_progreScore
@@ -983,7 +983,7 @@
             label_scoreUnit.Anchor = AnchorStyles.None;
             label_scoreUnit.AutoSize = true;
             label_scoreUnit.Font = new Font("맑은 고딕", 12F);
-            label_scoreUnit.Location = new Point(138, 136);
+            label_scoreUnit.Location = new Point(144, 136);
             label_scoreUnit.Name = "label_scoreUnit";
             label_scoreUnit.Size = new Size(65, 21);
             label_scoreUnit.TabIndex = 2;
@@ -994,7 +994,7 @@
             label_grade.Anchor = AnchorStyles.None;
             label_grade.AutoSize = true;
             label_grade.Font = new Font("맑은 고딕", 20F);
-            label_grade.Location = new Point(86, 192);
+            label_grade.Location = new Point(92, 192);
             label_grade.Name = "label_grade";
             label_grade.Size = new Size(71, 37);
             label_grade.TabIndex = 1;
@@ -1005,7 +1005,7 @@
             label_score.Anchor = AnchorStyles.None;
             label_score.AutoSize = true;
             label_score.Font = new Font("맑은 고딕", 40F);
-            label_score.Location = new Point(138, 28);
+            label_score.Location = new Point(144, 28);
             label_score.Name = "label_score";
             label_score.Size = new Size(60, 72);
             label_score.TabIndex = 1;
@@ -1016,7 +1016,7 @@
             progressBar_score.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             progressBar_score.Location = new Point(25, 298);
             progressBar_score.Name = "progressBar_score";
-            progressBar_score.Size = new Size(297, 42);
+            progressBar_score.Size = new Size(309, 42);
             progressBar_score.TabIndex = 0;
             // 
             // label_aicompare
@@ -1050,7 +1050,7 @@
             panel_compare.Controls.Add(combo_compare);
             panel_compare.Location = new Point(9, 63);
             panel_compare.Name = "panel_compare";
-            panel_compare.Size = new Size(337, 333);
+            panel_compare.Size = new Size(349, 333);
             panel_compare.TabIndex = 0;
             // 
             // progre_aiangle
@@ -1058,7 +1058,7 @@
             progre_aiangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aiangle.Location = new Point(181, 275);
             progre_aiangle.Name = "progre_aiangle";
-            progre_aiangle.Size = new Size(141, 23);
+            progre_aiangle.Size = new Size(153, 23);
             progre_aiangle.TabIndex = 2;
             // 
             // progre_aithro
@@ -1066,7 +1066,7 @@
             progre_aithro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aithro.Location = new Point(181, 234);
             progre_aithro.Name = "progre_aithro";
-            progre_aithro.Size = new Size(141, 23);
+            progre_aithro.Size = new Size(153, 23);
             progre_aithro.TabIndex = 2;
             // 
             // progre_compangle
@@ -1074,7 +1074,7 @@
             progre_compangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compangle.Location = new Point(181, 162);
             progre_compangle.Name = "progre_compangle";
-            progre_compangle.Size = new Size(141, 23);
+            progre_compangle.Size = new Size(153, 23);
             progre_compangle.TabIndex = 2;
             // 
             // progre_compthro
@@ -1082,7 +1082,7 @@
             progre_compthro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compthro.Location = new Point(181, 121);
             progre_compthro.Name = "progre_compthro";
-            progre_compthro.Size = new Size(141, 23);
+            progre_compthro.Size = new Size(153, 23);
             progre_compthro.TabIndex = 2;
             // 
             // label_aiangle
@@ -1157,7 +1157,7 @@
             label_ocha.AutoSize = true;
             label_ocha.Font = new Font("맑은 고딕", 12F);
             label_ocha.ForeColor = SystemColors.ButtonFace;
-            label_ocha.Location = new Point(221, 30);
+            label_ocha.Location = new Point(233, 30);
             label_ocha.Name = "label_ocha";
             label_ocha.Size = new Size(46, 21);
             label_ocha.TabIndex = 1;
@@ -1268,7 +1268,7 @@
         private PictureBox picImage;
         private Button btn_train;
         private ComboBox combo_model;
-        private ListBox list_log;
+        private AutoScrollListBox list_log;
         private Button btn_stopTrain;
         private PictureBox picture_Gage;
         private Panel panel1;

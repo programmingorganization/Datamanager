@@ -22,6 +22,9 @@ namespace Datamanager
     {
         string baseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));   //  프로젝트 루트 경로
         private Process trainProcess = null;
+        bool userScrollingLog = false;
+        System.Windows.Forms.Timer scrollResumeTimer;
+        int savedTopIndex = -1;
 
         string[] imageFiles;
         int currentIndex = 0;
@@ -143,7 +146,7 @@ namespace Datamanager
 
             // 진행률 레이블 스타일
             label_progressai.ForeColor = Color.FromArgb(79, 195, 247);
-            label_progressai.Font = new Font("Consolas", 10F, FontStyle.Bold);
+            label_progressai.Font = new Font("Consolas", 13F, FontStyle.Bold);
             label_progressai.BackColor = Color.Transparent;
 
             picImage.SizeMode = PictureBoxSizeMode.Zoom;
@@ -235,6 +238,7 @@ namespace Datamanager
             StyleButton(btn_before, Color.FromArgb(102, 187, 106));
             StyleButton(btn_imgnext, Color.FromArgb(102, 187, 106));
             StyleButton(btnHelp, Color.FromArgb(79, 195, 247));
+            StyleButton(btnDetect, Color.FromArgb(171, 71, 188));  // 이상탐지기능
 
             //6.TRACKBAR(순정 스타일 제거 후 네온 렌더링 세팅)
 
@@ -502,6 +506,30 @@ namespace Datamanager
                 // WSL 없거나 conda 없으면 수동 입력 가능하게
                 comboBox_venv.Items.Add("base");
             }
+
+            // 사용자가 스크롤하면 자동 스크롤 중지
+            list_log.MouseDown += (s, e) =>
+            {
+                userScrollingLog = true;
+                savedTopIndex = list_log.TopIndex;
+            };
+
+            list_log.MouseUp += (s, e) =>
+            {
+                savedTopIndex = list_log.TopIndex;
+            };
+
+            list_log.MouseMove += (s, e) =>
+            {
+                if (userScrollingLog)
+                    savedTopIndex = list_log.TopIndex;
+            };
+
+            list_log.MouseLeave += (s, e) =>
+            {
+                userScrollingLog = false;
+            };
+
         }
 
 
@@ -1430,8 +1458,13 @@ namespace Datamanager
                 this.Invoke((Action)(() =>
                 {
                     list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] {args.Data}");
-                    list_log.SelectedIndex = list_log.Items.Count - 1;
 
+                    if (list_log.UserAutoScroll)
+                    {
+                        int visibleItems = (int)(list_log.Height / list_log.ItemHeight);
+                        if (list_log.Items.Count > visibleItems)
+                            list_log.TopIndex = list_log.Items.Count - visibleItems;
+                    }
                     // epoch 진행률 파싱 (예: "Epoch 3/10")
                     if (args.Data.Contains("Epoch"))
                     {
@@ -1478,8 +1511,14 @@ namespace Datamanager
                 if (args.Data == null) return;
                 this.Invoke((Action)(() =>
                 {
-                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⚠️ {args.Data}");
-                    list_log.SelectedIndex = list_log.Items.Count - 1;
+                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] {args.Data}");
+
+                    if (list_log.UserAutoScroll)
+                    {
+                        int visibleItems = (int)(list_log.Height / list_log.ItemHeight);
+                        if (list_log.Items.Count > visibleItems)
+                            list_log.TopIndex = list_log.Items.Count - visibleItems;
+                    }
                 }));
             };
 
@@ -1511,7 +1550,12 @@ namespace Datamanager
                     list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 학습 실패 (ExitCode: {trainProcess.ExitCode})");
                 }
 
-                list_log.SelectedIndex = list_log.Items.Count - 1;
+                if (list_log.UserAutoScroll)
+                {
+                    int visibleItems = (int)(list_log.Height / list_log.ItemHeight);
+                    if (list_log.Items.Count > visibleItems)
+                        list_log.TopIndex = list_log.Items.Count - visibleItems;
+                }
                 btn_train.Enabled = true;
                 btn_stopTrain.Enabled = false;
                 trainProcess = null;
@@ -1744,7 +1788,17 @@ namespace Datamanager
                         {
                             int percentage = (int)((double)processedCount / totalImages * 100);
                             list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 진행률: {percentage}% ({processedCount}/{totalImages}장)");
-                            list_log.SelectedIndex = list_log.Items.Count - 1;
+                            if (userScrollingLog && savedTopIndex >= 0)
+                            {
+                                // 사용자가 보던 위치 유지
+                                list_log.TopIndex = savedTopIndex;
+                            }
+                            else
+                            {
+                                // 자동 스크롤
+                                list_log.SelectedIndex = list_log.Items.Count - 1;
+                                list_log.ClearSelected();
+                            }
                             Application.DoEvents();
                         }
                     }
@@ -1787,7 +1841,17 @@ namespace Datamanager
                 list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ⏭️ 스킵: {skippedCount}장 (angle==0 또는 throttle<=0)");
                 list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ❌ 실패: {failedImages.Count}장");
                 list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] ═══════════════════════════");
-                list_log.SelectedIndex = list_log.Items.Count - 1;
+                if (userScrollingLog && savedTopIndex >= 0)
+                {
+                    // 사용자가 보던 위치 유지
+                    list_log.TopIndex = savedTopIndex;
+                }
+                else
+                {
+                    // 자동 스크롤
+                    list_log.SelectedIndex = list_log.Items.Count - 1;
+                    list_log.ClearSelected();
+                }
 
                 // 완료 메시지
                 string resultMessage = $"✅ 학습 데이터 준비 완료!\n\n";
@@ -1838,7 +1902,17 @@ namespace Datamanager
             envName = comboBox_venv.Text;
 
             list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🚀 학습 시작 (모델: {modelType}, 환경: {envName})");
-            list_log.SelectedIndex = list_log.Items.Count - 1;
+            if (userScrollingLog && savedTopIndex >= 0)
+            {
+                // 사용자가 보던 위치 유지
+                list_log.TopIndex = savedTopIndex;
+            }
+            else
+            {
+                // 자동 스크롤
+                list_log.SelectedIndex = list_log.Items.Count - 1;
+                list_log.ClearSelected();
+            }
 
             btn_stopTrain.Enabled = true;
 
@@ -2447,5 +2521,30 @@ namespace Datamanager
         public string cam_image_array { get; set; }
         public double user_angle { get; set; }
         public double user_throttle { get; set; }
+    }
+
+    public class AutoScrollListBox : ListBox
+    {
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+        public new bool UserAutoScroll { get; set; } = true;
+
+        private const int WM_VSCROLL = 0x0115;
+        private const int WM_MOUSEWHEEL = 0x020A;
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_VSCROLL || m.Msg == WM_MOUSEWHEEL)
+            {
+                base.WndProc(ref m);
+
+                int visibleItems = (int)(Height / ItemHeight);
+                // 맨 아래에서 10칸 이내면 자동 스크롤 ON
+                bool isNearBottom = (TopIndex >= Items.Count - visibleItems - 10);
+
+                UserAutoScroll = isNearBottom;
+                return;
+            }
+            base.WndProc(ref m);
+        }
     }
 }
