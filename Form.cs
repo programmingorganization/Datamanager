@@ -103,7 +103,7 @@ namespace Datamanager
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
 
             // 2. TAB CONTROL 하이테크 스타일 매칭
-            tabControl.ItemSize = new Size(610, 35);
+            tabControl.ItemSize = new Size(480, 35);
             tabControl.Appearance = TabAppearance.FlatButtons;
             tabControl.SizeMode = TabSizeMode.Fixed;
 
