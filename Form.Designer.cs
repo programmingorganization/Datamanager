@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl = new TabControl();
             tab_data = new TabPage();
             splitContainer_allwindow = new SplitContainer();
@@ -121,26 +121,27 @@
             panel3 = new Panel();
             lblAngleError = new Label();
             lblSpeedError = new Label();
-            progressAngle2 = new ProgressBar();
+            progressAngleAI = new ProgressBar();
             progressSpeed2 = new ProgressBar();
             progressAngle = new ProgressBar();
-            progressSpeed = new ProgressBar();
-            label_aiangle2 = new Label();
-            label_aithrottle2 = new Label();
-            label_compangle2 = new Label();
-            label_aiangle3 = new Label();
-            label_aithrottle3 = new Label();
-            label_compangle3 = new Label();
+            progressSpeedAI = new ProgressBar();
+            label_aiangarena = new Label();
+            label_aithroarena = new Label();
+            label_companglearena = new Label();
+            label_aiangarenaNum = new Label();
+            label_aithroarenaNum = new Label();
+            label_compangarenaNum = new Label();
             label12 = new Label();
-            label_compthrottle3 = new Label();
-            label_compthrottle2 = new Label();
+            label_compthroarenaNum = new Label();
+            label_compthrottlearena = new Label();
             lblCurrentFrame2 = new Label();
             btnAfterFrame = new Button();
             btnStart = new Button();
             trackImage = new TrackBar();
-            flowLayoutPanel1 = new FlowLayoutPanel();
+            flowLayout_arena = new FlowLayoutPanel();
             picboxImage = new PictureBox();
             btnbeforeFrame = new Button();
+            list_log = new AutoScrollListBox();
             timer1 = new System.Windows.Forms.Timer(components);
             tabControl.SuspendLayout();
             tab_data.SuspendLayout();
@@ -752,26 +753,26 @@
             // chart_data
             // 
             chart_data.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea3.Name = "ChartArea1";
-            chart_data.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            chart_data.Legends.Add(legend3);
+            chartArea1.Name = "ChartArea1";
+            chart_data.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            chart_data.Legends.Add(legend1);
             chart_data.Location = new Point(3, 64);
             chart_data.Name = "chart_data";
-            series5.BorderWidth = 2;
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series5.Color = Color.Green;
-            series5.Legend = "Legend1";
-            series5.Name = "Throttle";
-            series6.BorderWidth = 2;
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series6.Color = Color.FromArgb(79, 195, 247);
-            series6.Legend = "Legend1";
-            series6.Name = "Angle";
-            chart_data.Series.Add(series5);
-            chart_data.Series.Add(series6);
+            series1.BorderWidth = 2;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Color = Color.Green;
+            series1.Legend = "Legend1";
+            series1.Name = "Throttle";
+            series2.BorderWidth = 2;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Color = Color.FromArgb(79, 195, 247);
+            series2.Legend = "Legend1";
+            series2.Name = "Angle";
+            chart_data.Series.Add(series1);
+            chart_data.Series.Add(series2);
             chart_data.Size = new Size(613, 322);
             chart_data.TabIndex = 2;
             chart_data.Text = "chart1";
@@ -931,7 +932,7 @@
             splitContainer_ai.Panel2.Controls.Add(panel_grade);
             splitContainer_ai.Panel2.Controls.Add(label_aicompare);
             splitContainer_ai.Panel2.Controls.Add(panel_compare);
-            splitContainer_ai.Size = new Size(1174, 926);
+            splitContainer_ai.Size = new Size(1179, 926);
             splitContainer_ai.SplitterDistance = 793;
             splitContainer_ai.SplitterWidth = 2;
             splitContainer_ai.TabIndex = 5;
@@ -939,24 +940,24 @@
             // chart_loss
             // 
             chart_loss.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea4.Name = "ChartArea1";
-            chart_loss.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            chart_loss.Legends.Add(legend4);
+            chartArea2.Name = "ChartArea1";
+            chart_loss.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            chart_loss.Legends.Add(legend2);
             chart_loss.Location = new Point(1, 1);
             chart_loss.Margin = new Padding(1);
             chart_loss.Name = "chart_loss";
             chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series7.ChartArea = "ChartArea1";
-            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series7.Legend = "Legend1";
-            series7.Name = "Epoch";
-            series8.ChartArea = "ChartArea1";
-            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series8.Legend = "Legend1";
-            series8.Name = "Loss";
-            chart_loss.Series.Add(series7);
-            chart_loss.Series.Add(series8);
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Legend = "Legend1";
+            series3.Name = "Epoch";
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Legend = "Legend1";
+            series4.Name = "Loss";
+            chart_loss.Series.Add(series3);
+            chart_loss.Series.Add(series4);
             chart_loss.Size = new Size(791, 924);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
@@ -982,7 +983,7 @@
             panel_grade.Controls.Add(progressBar_score);
             panel_grade.Location = new Point(9, 527);
             panel_grade.Name = "panel_grade";
-            panel_grade.Size = new Size(372, 392);
+            panel_grade.Size = new Size(387, 392);
             panel_grade.TabIndex = 2;
             // 
             // label_progreScore
@@ -1002,7 +1003,7 @@
             label_scoreUnit.Anchor = AnchorStyles.None;
             label_scoreUnit.AutoSize = true;
             label_scoreUnit.Font = new Font("맑은 고딕", 12F);
-            label_scoreUnit.Location = new Point(156, 136);
+            label_scoreUnit.Location = new Point(163, 136);
             label_scoreUnit.Name = "label_scoreUnit";
             label_scoreUnit.Size = new Size(65, 21);
             label_scoreUnit.TabIndex = 2;
@@ -1013,7 +1014,7 @@
             label_grade.Anchor = AnchorStyles.None;
             label_grade.AutoSize = true;
             label_grade.Font = new Font("맑은 고딕", 20F);
-            label_grade.Location = new Point(86, 198);
+            label_grade.Location = new Point(93, 198);
             label_grade.Name = "label_grade";
             label_grade.Size = new Size(71, 37);
             label_grade.TabIndex = 1;
@@ -1024,7 +1025,7 @@
             label_score.Anchor = AnchorStyles.None;
             label_score.AutoSize = true;
             label_score.Font = new Font("맑은 고딕", 40F);
-            label_score.Location = new Point(156, 28);
+            label_score.Location = new Point(163, 28);
             label_score.Name = "label_score";
             label_score.Size = new Size(60, 72);
             label_score.TabIndex = 1;
@@ -1035,7 +1036,7 @@
             progressBar_score.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             progressBar_score.Location = new Point(25, 298);
             progressBar_score.Name = "progressBar_score";
-            progressBar_score.Size = new Size(332, 42);
+            progressBar_score.Size = new Size(347, 42);
             progressBar_score.TabIndex = 0;
             // 
             // label_aicompare
@@ -1070,7 +1071,7 @@
             panel_compare.Controls.Add(combo_compare);
             panel_compare.Location = new Point(9, 63);
             panel_compare.Name = "panel_compare";
-            panel_compare.Size = new Size(372, 308);
+            panel_compare.Size = new Size(387, 308);
             panel_compare.TabIndex = 0;
             // 
             // progre_aiangle
@@ -1078,7 +1079,7 @@
             progre_aiangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aiangle.Location = new Point(181, 275);
             progre_aiangle.Name = "progre_aiangle";
-            progre_aiangle.Size = new Size(176, 23);
+            progre_aiangle.Size = new Size(191, 23);
             progre_aiangle.TabIndex = 2;
             // 
             // progre_aithro
@@ -1086,7 +1087,7 @@
             progre_aithro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aithro.Location = new Point(181, 234);
             progre_aithro.Name = "progre_aithro";
-            progre_aithro.Size = new Size(176, 23);
+            progre_aithro.Size = new Size(191, 23);
             progre_aithro.TabIndex = 2;
             // 
             // progre_compangle
@@ -1094,7 +1095,7 @@
             progre_compangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compangle.Location = new Point(181, 162);
             progre_compangle.Name = "progre_compangle";
-            progre_compangle.Size = new Size(176, 23);
+            progre_compangle.Size = new Size(191, 23);
             progre_compangle.TabIndex = 2;
             // 
             // progre_compthro
@@ -1102,7 +1103,7 @@
             progre_compthro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compthro.Location = new Point(181, 121);
             progre_compthro.Name = "progre_compthro";
-            progre_compthro.Size = new Size(176, 23);
+            progre_compthro.Size = new Size(191, 23);
             progre_compthro.TabIndex = 2;
             // 
             // label_aiangle
@@ -1177,7 +1178,7 @@
             label_ocha.AutoSize = true;
             label_ocha.Font = new Font("맑은 고딕", 12F);
             label_ocha.ForeColor = SystemColors.ButtonFace;
-            label_ocha.Location = new Point(256, 30);
+            label_ocha.Location = new Point(271, 30);
             label_ocha.Name = "label_ocha";
             label_ocha.Size = new Size(46, 21);
             label_ocha.TabIndex = 1;
@@ -1223,7 +1224,7 @@
             tabPilotArena.Controls.Add(btnAfterFrame);
             tabPilotArena.Controls.Add(btnStart);
             tabPilotArena.Controls.Add(trackImage);
-            tabPilotArena.Controls.Add(flowLayoutPanel1);
+            tabPilotArena.Controls.Add(flowLayout_arena);
             tabPilotArena.Controls.Add(picboxImage);
             tabPilotArena.Controls.Add(btnbeforeFrame);
             tabPilotArena.ForeColor = Color.Black;
@@ -1239,19 +1240,19 @@
             panel3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panel3.Controls.Add(lblAngleError);
             panel3.Controls.Add(lblSpeedError);
-            panel3.Controls.Add(progressAngle2);
+            panel3.Controls.Add(progressAngleAI);
             panel3.Controls.Add(progressSpeed2);
             panel3.Controls.Add(progressAngle);
-            panel3.Controls.Add(progressSpeed);
-            panel3.Controls.Add(label_aiangle2);
-            panel3.Controls.Add(label_aithrottle2);
-            panel3.Controls.Add(label_compangle2);
-            panel3.Controls.Add(label_aiangle3);
-            panel3.Controls.Add(label_aithrottle3);
-            panel3.Controls.Add(label_compangle3);
+            panel3.Controls.Add(progressSpeedAI);
+            panel3.Controls.Add(label_aiangarena);
+            panel3.Controls.Add(label_aithroarena);
+            panel3.Controls.Add(label_companglearena);
+            panel3.Controls.Add(label_aiangarenaNum);
+            panel3.Controls.Add(label_aithroarenaNum);
+            panel3.Controls.Add(label_compangarenaNum);
             panel3.Controls.Add(label12);
-            panel3.Controls.Add(label_compthrottle3);
-            panel3.Controls.Add(label_compthrottle2);
+            panel3.Controls.Add(label_compthroarenaNum);
+            panel3.Controls.Add(label_compthrottlearena);
             panel3.Location = new Point(1001, 59);
             panel3.Name = "panel3";
             panel3.Size = new Size(416, 558);
@@ -1281,13 +1282,13 @@
             lblSpeedError.TabIndex = 3;
             lblSpeedError.Text = "속도 오차:";
             // 
-            // progressAngle2
+            // progressAngleAI
             // 
-            progressAngle2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progressAngle2.Location = new Point(104, 369);
-            progressAngle2.Name = "progressAngle2";
-            progressAngle2.Size = new Size(293, 23);
-            progressAngle2.TabIndex = 2;
+            progressAngleAI.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            progressAngleAI.Location = new Point(104, 369);
+            progressAngleAI.Name = "progressAngleAI";
+            progressAngleAI.Size = new Size(293, 23);
+            progressAngleAI.TabIndex = 2;
             // 
             // progressSpeed2
             // 
@@ -1305,79 +1306,79 @@
             progressAngle.Size = new Size(293, 23);
             progressAngle.TabIndex = 2;
             // 
-            // progressSpeed
+            // progressSpeedAI
             // 
-            progressSpeed.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progressSpeed.Location = new Point(104, 82);
-            progressSpeed.Name = "progressSpeed";
-            progressSpeed.Size = new Size(293, 23);
-            progressSpeed.TabIndex = 2;
+            progressSpeedAI.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            progressSpeedAI.Location = new Point(104, 82);
+            progressSpeedAI.Name = "progressSpeedAI";
+            progressSpeedAI.Size = new Size(293, 23);
+            progressSpeedAI.TabIndex = 2;
             // 
-            // label_aiangle2
+            // label_aiangarena
             // 
-            label_aiangle2.AutoSize = true;
-            label_aiangle2.Font = new Font("맑은 고딕", 12F);
-            label_aiangle2.ForeColor = SystemColors.ButtonFace;
-            label_aiangle2.Location = new Point(17, 330);
-            label_aiangle2.Name = "label_aiangle2";
-            label_aiangle2.Size = new Size(80, 21);
-            label_aiangle2.TabIndex = 1;
-            label_aiangle2.Text = "예측 앵글";
+            label_aiangarena.AutoSize = true;
+            label_aiangarena.Font = new Font("맑은 고딕", 12F);
+            label_aiangarena.ForeColor = SystemColors.ButtonFace;
+            label_aiangarena.Location = new Point(17, 330);
+            label_aiangarena.Name = "label_aiangarena";
+            label_aiangarena.Size = new Size(80, 21);
+            label_aiangarena.TabIndex = 1;
+            label_aiangarena.Text = "예측 앵글";
             // 
-            // label_aithrottle2
+            // label_aithroarena
             // 
-            label_aithrottle2.AutoSize = true;
-            label_aithrottle2.Font = new Font("맑은 고딕", 12F);
-            label_aithrottle2.ForeColor = SystemColors.ButtonFace;
-            label_aithrottle2.Location = new Point(17, 241);
-            label_aithrottle2.Name = "label_aithrottle2";
-            label_aithrottle2.Size = new Size(80, 21);
-            label_aithrottle2.TabIndex = 1;
-            label_aithrottle2.Text = "예측 속도";
+            label_aithroarena.AutoSize = true;
+            label_aithroarena.Font = new Font("맑은 고딕", 12F);
+            label_aithroarena.ForeColor = SystemColors.ButtonFace;
+            label_aithroarena.Location = new Point(17, 241);
+            label_aithroarena.Name = "label_aithroarena";
+            label_aithroarena.Size = new Size(80, 21);
+            label_aithroarena.TabIndex = 1;
+            label_aithroarena.Text = "예측 속도";
             // 
-            // label_compangle2
+            // label_companglearena
             // 
-            label_compangle2.AutoSize = true;
-            label_compangle2.Font = new Font("맑은 고딕", 12F);
-            label_compangle2.ForeColor = SystemColors.ButtonFace;
-            label_compangle2.Location = new Point(17, 141);
-            label_compangle2.Name = "label_compangle2";
-            label_compangle2.Size = new Size(80, 21);
-            label_compangle2.TabIndex = 1;
-            label_compangle2.Text = "실제 앵글";
+            label_companglearena.AutoSize = true;
+            label_companglearena.Font = new Font("맑은 고딕", 12F);
+            label_companglearena.ForeColor = SystemColors.ButtonFace;
+            label_companglearena.Location = new Point(17, 141);
+            label_companglearena.Name = "label_companglearena";
+            label_companglearena.Size = new Size(80, 21);
+            label_companglearena.TabIndex = 1;
+            label_companglearena.Text = "실제 앵글";
             // 
-            // label_aiangle3
+            // label_aiangarenaNum
             // 
-            label_aiangle3.AutoSize = true;
-            label_aiangle3.Font = new Font("맑은 고딕", 12F);
-            label_aiangle3.ForeColor = SystemColors.ButtonFace;
-            label_aiangle3.Location = new Point(18, 369);
-            label_aiangle3.Name = "label_aiangle3";
-            label_aiangle3.Size = new Size(80, 21);
-            label_aiangle3.TabIndex = 1;
-            label_aiangle3.Text = "예측 앵글";
+            label_aiangarenaNum.AutoSize = true;
+            label_aiangarenaNum.Font = new Font("맑은 고딕", 12F);
+            label_aiangarenaNum.ForeColor = SystemColors.ButtonFace;
+            label_aiangarenaNum.Location = new Point(18, 369);
+            label_aiangarenaNum.Name = "label_aiangarenaNum";
+            label_aiangarenaNum.Size = new Size(80, 21);
+            label_aiangarenaNum.TabIndex = 1;
+            label_aiangarenaNum.Text = "예측 앵글";
             // 
-            // label_aithrottle3
+            // label_aithroarenaNum
             // 
-            label_aithrottle3.AutoSize = true;
-            label_aithrottle3.Font = new Font("맑은 고딕", 12F);
-            label_aithrottle3.ForeColor = SystemColors.ButtonFace;
-            label_aithrottle3.Location = new Point(18, 282);
-            label_aithrottle3.Name = "label_aithrottle3";
-            label_aithrottle3.Size = new Size(80, 21);
-            label_aithrottle3.TabIndex = 1;
-            label_aithrottle3.Text = "예측 속도";
+            label_aithroarenaNum.AutoSize = true;
+            label_aithroarenaNum.Font = new Font("맑은 고딕", 12F);
+            label_aithroarenaNum.ForeColor = SystemColors.ButtonFace;
+            label_aithroarenaNum.Location = new Point(18, 282);
+            label_aithroarenaNum.Name = "label_aithroarenaNum";
+            label_aithroarenaNum.Size = new Size(80, 21);
+            label_aithroarenaNum.TabIndex = 1;
+            label_aithroarenaNum.Text = "예측 속도";
             // 
-            // label_compangle3
+            // label_compangarenaNum
             // 
-            label_compangle3.AutoSize = true;
-            label_compangle3.Font = new Font("맑은 고딕", 12F);
-            label_compangle3.ForeColor = SystemColors.ButtonFace;
-            label_compangle3.Location = new Point(18, 180);
-            label_compangle3.Name = "label_compangle3";
-            label_compangle3.Size = new Size(80, 21);
-            label_compangle3.TabIndex = 1;
-            label_compangle3.Text = "실제 앵글";
+            label_compangarenaNum.AutoSize = true;
+            label_compangarenaNum.Font = new Font("맑은 고딕", 12F);
+            label_compangarenaNum.ForeColor = SystemColors.ButtonFace;
+            label_compangarenaNum.Location = new Point(18, 180);
+            label_compangarenaNum.Name = "label_compangarenaNum";
+            label_compangarenaNum.Size = new Size(80, 21);
+            label_compangarenaNum.TabIndex = 1;
+            label_compangarenaNum.Text = "실제 앵글";
             // 
             // label12
             // 
@@ -1391,27 +1392,27 @@
             label12.TabIndex = 1;
             label12.Text = "오차:";
             // 
-            // label_compthrottle3
+            // label_compthroarenaNum
             // 
-            label_compthrottle3.AutoSize = true;
-            label_compthrottle3.Font = new Font("맑은 고딕", 12F);
-            label_compthrottle3.ForeColor = SystemColors.ButtonFace;
-            label_compthrottle3.Location = new Point(18, 84);
-            label_compthrottle3.Name = "label_compthrottle3";
-            label_compthrottle3.Size = new Size(80, 21);
-            label_compthrottle3.TabIndex = 1;
-            label_compthrottle3.Text = "실제 속도";
+            label_compthroarenaNum.AutoSize = true;
+            label_compthroarenaNum.Font = new Font("맑은 고딕", 12F);
+            label_compthroarenaNum.ForeColor = SystemColors.ButtonFace;
+            label_compthroarenaNum.Location = new Point(18, 84);
+            label_compthroarenaNum.Name = "label_compthroarenaNum";
+            label_compthroarenaNum.Size = new Size(80, 21);
+            label_compthroarenaNum.TabIndex = 1;
+            label_compthroarenaNum.Text = "실제 속도";
             // 
-            // label_compthrottle2
+            // label_compthrottlearena
             // 
-            label_compthrottle2.AutoSize = true;
-            label_compthrottle2.Font = new Font("맑은 고딕", 12F);
-            label_compthrottle2.ForeColor = SystemColors.ButtonFace;
-            label_compthrottle2.Location = new Point(17, 39);
-            label_compthrottle2.Name = "label_compthrottle2";
-            label_compthrottle2.Size = new Size(80, 21);
-            label_compthrottle2.TabIndex = 1;
-            label_compthrottle2.Text = "실제 속도";
+            label_compthrottlearena.AutoSize = true;
+            label_compthrottlearena.Font = new Font("맑은 고딕", 12F);
+            label_compthrottlearena.ForeColor = SystemColors.ButtonFace;
+            label_compthrottlearena.Location = new Point(17, 39);
+            label_compthrottlearena.Name = "label_compthrottlearena";
+            label_compthrottlearena.Size = new Size(80, 21);
+            label_compthrottlearena.TabIndex = 1;
+            label_compthrottlearena.Text = "실제 속도";
             // 
             // lblCurrentFrame2
             // 
@@ -1458,14 +1459,15 @@
             trackImage.Size = new Size(1032, 45);
             trackImage.TabIndex = 6;
             // 
-            // flowLayoutPanel1
+            // flowLayout_arena
             // 
-            flowLayoutPanel1.AutoScroll = true;
-            flowLayoutPanel1.BackColor = Color.Black;
-            flowLayoutPanel1.Location = new Point(0, 748);
-            flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(1510, 147);
-            flowLayoutPanel1.TabIndex = 1;
+            flowLayout_arena.AutoScroll = true;
+            flowLayout_arena.BackColor = Color.Black;
+            flowLayout_arena.Location = new Point(0, 748);
+            flowLayout_arena.Name = "flowLayout_arena";
+            flowLayout_arena.Size = new Size(1510, 147);
+            flowLayout_arena.TabIndex = 1;
+            flowLayout_arena.WrapContents = false;
             // 
             // picboxImage
             // 
@@ -1488,6 +1490,13 @@
             btnbeforeFrame.TabIndex = 5;
             btnbeforeFrame.Text = "프레임 ◀";
             btnbeforeFrame.UseVisualStyleBackColor = false;
+            // 
+            // list_log
+            // 
+            list_log.Location = new Point(0, 0);
+            list_log.Name = "list_log";
+            list_log.Size = new Size(120, 96);
+            list_log.TabIndex = 0;
             // 
             // timer1
             // 
@@ -1658,21 +1667,21 @@
         private Button btnStart;
         private TrackBar trackImage;
         private Button btnbeforeFrame;
-        private FlowLayoutPanel flowLayoutPanel1;
+        private FlowLayoutPanel flowLayout_arena;
         private Panel panel3;
-        private ProgressBar progressAngle2;
+        private ProgressBar progressAngleAI;
         private ProgressBar progressSpeed2;
         private ProgressBar progressAngle;
-        private ProgressBar progressSpeed;
-        private Label label_aiangle2;
-        private Label label_aithrottle2;
-        private Label label_compangle2;
-        private Label label_aiangle3;
-        private Label label_aithrottle3;
-        private Label label_compangle3;
+        private ProgressBar progressSpeedAI;
+        private Label label_aiangarena;
+        private Label label_aithroarena;
+        private Label label_companglearena;
+        private Label label_aiangarenaNum;
+        private Label label_aithroarenaNum;
+        private Label label_compangarenaNum;
         private Label label12;
-        private Label label_compthrottle3;
-        private Label label_compthrottle2;
+        private Label label_compthroarenaNum;
+        private Label label_compthrottlearena;
         private Label lblAngleError;
         private Label lblSpeedError;
     }

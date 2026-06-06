@@ -244,8 +244,10 @@ namespace Datamanager
 
             trackBar_frame.BackColor = Color.FromArgb(13, 13, 24);
             trackBar_frame.TickStyle = TickStyle.None;
-            trackBar_frame.ValueChanged += (sender, e) => trackBar_frame.Invalidate();
-
+            trackBar_frame.ValueChanged += (sender, e) =>
+            {
+                trackBar_frame.Invalidate();
+            };
             // 8. 학습 탭 하이테크 테마 디자인
             list_log.BackColor = Color.FromArgb(7, 7, 15);
             list_log.ForeColor = Color.FromArgb(0, 191, 255);
@@ -472,7 +474,106 @@ namespace Datamanager
                 chart_loss.Series.Add(valSeries);
             }
             combo_compare.SelectedIndexChanged += combo_compare_SelectedIndexChanged;
+            // 파일럿 아레나 탭 디자인
+            tabPilotArena.BackColor = Color.FromArgb(13, 13, 24);
 
+            StyleButton(btnStart, Color.FromArgb(102, 187, 106));
+            StyleButton(btnbeforeFrame, Color.FromArgb(102, 187, 106));
+            StyleButton(btnAfterFrame, Color.FromArgb(102, 187, 106));
+
+            trackImage.BackColor = Color.FromArgb(13, 13, 24);
+            trackImage.TickStyle = TickStyle.None;
+
+            StyleProgressBar(progressSpeedAI, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progressAngle, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progressSpeedAI, Color.FromArgb(255, 167, 38));
+            StyleProgressBar(progressAngleAI, Color.FromArgb(255, 167, 38));
+
+            StyleNumLabel(label_compthroarenaNum, Color.FromArgb(79, 195, 247));
+            StyleNumLabel(label_compangarenaNum, Color.FromArgb(79, 195, 247));
+            StyleNumLabel(label_compthrottlearena, Color.FromArgb(79, 195, 247));
+            StyleNumLabel(label_companglearena, Color.FromArgb(79, 195, 247));
+            StyleNumLabel(label_aithroarenaNum, Color.FromArgb(255, 167, 38));
+            StyleNumLabel(label_aiangarenaNum, Color.FromArgb(255, 167, 38));
+            StyleNumLabel(label_aithroarena, Color.FromArgb(255, 167, 38));
+            StyleNumLabel(label_aiangarena, Color.FromArgb(255, 167, 38));
+
+            flowLayout_arena.BackColor = Color.FromArgb(7, 7, 15);
+            flowLayout_arena.AutoScroll = true;
+
+            // 파일럿 아레나 버튼 이벤트
+            btnbeforeFrame.Click += (s, e) =>
+            {
+                SetCurrentIndex(currentIndex - 1);
+                LoadArenaThumbnails(currentIndex);
+            };
+
+            btnAfterFrame.Click += (s, e) =>
+            {
+                SetCurrentIndex(currentIndex + 1);
+                LoadArenaThumbnails(currentIndex);
+            };
+
+            trackImage.Scroll += (s, e) =>
+            {
+                SetCurrentIndex(trackImage.Value);
+                LoadArenaThumbnails(currentIndex);
+            };
+
+            btnStart.Click += (s, e) =>
+            {
+                if (timer1.Enabled)
+                {
+                    timer1.Stop();
+                    btnStart.Text = "▶";
+                    LoadThumbnails(currentIndex);
+                    LoadArenaThumbnails(currentIndex);
+                }
+                else
+                {
+                    timer1.Start();
+                    btnStart.Text = "정지";
+                }
+            };
+
+            LoadArenaThumbnails(currentIndex);
+
+            panelTrackBarProgress.Paint += (sender, e) =>
+            {
+                if (startFrameIndex == -1 || validIndices.Count == 0) return;
+
+                int startPointer = validIndices.IndexOf(startFrameIndex);
+                if (startPointer == -1)
+                {
+                    int pos = validIndices.BinarySearch(startFrameIndex);
+                    startPointer = pos < 0 ? ~pos : pos;
+                }
+
+                int endPointer = trackBar_frame.Value;
+
+                if (startPointer > endPointer)
+                {
+                    int temp = startPointer;
+                    startPointer = endPointer;
+                    endPointer = temp;
+                }
+
+                int max = trackBar_frame.Maximum;
+                if (max == 0) return;
+
+                int trackWidth = panelTrackBarProgress.Width - 20;
+                int trackLeft = 10;
+                int trackY = panelTrackBarProgress.Height / 2;
+                int trackHeight = 6;
+
+                int x1 = trackLeft + (int)((double)startPointer / max * trackWidth);
+                int x2 = trackLeft + (int)((double)endPointer / max * trackWidth);
+
+                using (SolidBrush brush = new SolidBrush(Color.FromArgb(239, 83, 80)))
+                {
+                    e.Graphics.FillRectangle(brush, x1, trackY - trackHeight / 2, x2 - x1, trackHeight);
+                }
+            };
         }
 
         void LoadVenvList()
@@ -529,6 +630,7 @@ namespace Datamanager
             {
                 userScrollingLog = false;
             };
+
 
         }
 
@@ -1076,86 +1178,57 @@ namespace Datamanager
             LoadImageFolder(currentFolderPath);
         }
 
-        void SetCurrentIndex(int index) // 인덱스 설정 및 이미지 로드
+        void SetCurrentIndex(int index)
         {
             if (imageFiles.Length == 0) return;
+            if (validIndices == null || validIndices.Count == 0) return;
 
-            // 0. 가짜 삭제로 인해 validIndices가 비어있다면 처리 중단
-            if (validIndices == null || validIndices.Count == 0)
-            {
-                System.Diagnostics.Debug.WriteLine("유효한 Catalog 데이터가 없습니다.");
-                return;
-            }
-
-            // 배열 범위를 벗어나는 요청이 오면 순환 처리
             if (index >= imageFiles.Length) index = 0;
             if (index < 0) index = imageFiles.Length - 1;
 
             int targetIndex = index;
 
-            // 1. [핵심] 현재 요청된 index가 catalogData에 없다면?
             if (!catalogData.ContainsKey(targetIndex))
             {
-                // 이진 탐색(BinarySearch)을 이용해 가장 가까운 '다음 유효 인덱스'의 위치를 찾습니다.
                 int pos = validIndices.BinarySearch(targetIndex);
-
                 if (pos < 0)
                 {
-                    // pos가 음수면 targetIndex보다 큰 가장 가까운 원소의 bitwise complement(~pos)를 반환함
                     int nextValidPointer = ~pos;
-
-                    // 만약 리스트 범위를 벗어나면 (뒤쪽에 유효한 게 없으면) 처음(0번째)으로 돌림
                     if (nextValidPointer >= validIndices.Count)
                         nextValidPointer = 0;
-
                     targetIndex = validIndices[nextValidPointer];
                 }
             }
 
-            // 최종 결정된 유효 인덱스 적용
             currentIndex = targetIndex;
 
-            // 이벤트 중복 방지
             isScrolling = true;
-
-            // currentIndex가 validIndices에서 몇 번째 위치(Pointer)에 있는지 찾습니다.
             int uiPointer = validIndices.IndexOf(currentIndex);
-
             if (uiPointer != -1)
             {
-                if (listImages.Items.Count > uiPointer)
-                    listImages.SelectedIndex = uiPointer; // ListBox 포커스 이동
-
-                trackBar_frame.Value = uiPointer; // 트랙바 위치도 유효 범위 내로 동기화
+                trackBar_frame.Value = uiPointer;
+                if (!timer1.Enabled && listImages.Items.Count > uiPointer)
+                    listImages.SelectedIndex = uiPointer;
             }
-
             isScrolling = false;
 
             LoadImage();
 
-            // 썸네일 업데이트
-            LoadThumbnails(currentIndex);
-
-            // 프레임 번호 표시
             lblCurrentFrame.Text = $"현재 프레임: {currentIndex}";
             lblTotalFrame.Text = $"전체 프레임: {imageFiles.Length}";
 
-            // 데이터 연동 및 계기판 네온 바늘 실시간 호출 연계
             if (catalogData.ContainsKey(currentIndex))
             {
                 var entry = catalogData[currentIndex];
-                // 디버그용 임시 추가
-                System.Diagnostics.Debug.WriteLine($"index:{currentIndex} throttle:{entry.user_throttle} angle:{entry.user_angle}");
                 label_throttle.Text = $"{entry.user_throttle:F3}";
                 label_angle.Text = $"{entry.user_angle:F3}";
-
-                //데이터 인덱스 변화에 맞춰 계기판 바늘을 갱신합니다.
                 DrawDashboardNeedles(entry.user_throttle, entry.user_angle);
             }
-            else
+
+            if (!timer1.Enabled)
             {
-                // 키가 없는 경우 확인
-                System.Diagnostics.Debug.WriteLine($"catalogData에 키 없음: {currentIndex}");
+                LoadThumbnails(currentIndex);
+                LoadArenaThumbnails(currentIndex);
             }
         }
 
@@ -1368,6 +1441,8 @@ namespace Datamanager
 
             foreach (string file in catalogFiles)
             {
+                if (Path.GetFileName(file) == "training_data.catalog") continue;  // ← 추가
+
                 if (file.EndsWith("_manifest")) continue;
 
                 string[] lines = File.ReadAllLines(file);
@@ -1629,16 +1704,13 @@ namespace Datamanager
 
         private void listImages_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (isScrolling) return; // 자동 스크롤 중이면 무시
+            if (isScrolling) return;
             if (listImages.SelectedIndex == -1) return;
+            if (timer1.Enabled) return;
 
-            // 클릭된 행 번호를 통해 실제 유효한 catalog 인덱스를 찾음
             int targetIdx = validIndices[listImages.SelectedIndex];
-
-            // 해당 인덱스로 이동
             SetCurrentIndex(targetIdx);
 
-            // 썸네일 강조
             for (int i = 0; i < flowPanel_thumbnails.Controls.Count; i++)
             {
                 var thumb = (PictureBox)flowPanel_thumbnails.Controls[i];
@@ -1650,11 +1722,9 @@ namespace Datamanager
 
         private void trackBar_frame_Scroll(object sender, EventArgs e)
         {
-            if (isScrolling)
-                return;
-
+            if (isScrolling) return;
             SetCurrentIndex(trackBar_frame.Value);
-        }
+         }
 
         private void btn_before_Click(object sender, EventArgs e)
         {
@@ -1673,8 +1743,27 @@ namespace Datamanager
 
         private void btnPlay_Click(object sender, EventArgs e)
         {
-            if (timer1.Enabled) { timer1.Stop(); btnPlay.Text = "▶"; }
-            else { timer1.Start(); btnPlay.Text = "정지"; }
+            if (timer1.Enabled)
+            {
+                timer1.Stop();
+                btnPlay.Text = "▶";
+
+                int uiPointer = validIndices.IndexOf(currentIndex);
+                if (uiPointer != -1 && listImages.Items.Count > uiPointer)
+                {
+                    isScrolling = true;
+                    listImages.SelectedIndex = uiPointer;
+                    isScrolling = false;
+                }
+
+                LoadThumbnails(currentIndex);
+                LoadArenaThumbnails(currentIndex);
+            }
+            else
+            {
+                timer1.Start();
+                btnPlay.Text = "정지";
+            }
         }
 
         private void btn_train_Click(object sender, EventArgs e)
@@ -2262,17 +2351,13 @@ namespace Datamanager
         private void btnSetStart_Click(object sender, EventArgs e)
         {
             startFrameIndex = currentIndex;
-
-            System.Diagnostics.Debug.WriteLine($"시작 프레임 설정됨: {startFrameIndex}");
-            //lblStartStatus.Text = $"시작: {startFrameIndex}"; 
+            int uiPointer = validIndices.IndexOf(currentIndex);
         }
 
         private void btnSetEnd_Click(object sender, EventArgs e)
         {
             endFrameIndex = currentIndex;
-
-            System.Diagnostics.Debug.WriteLine($"끝 프레임 설정됨: {endFrameIndex}");
-            //lblEndStatus.Text = $"끝: {endFrameIndex}"; 
+            int uiPointer = validIndices.IndexOf(currentIndex);
         }
 
         private void btn_changquality_Click(object sender, EventArgs e)
@@ -2512,6 +2597,40 @@ namespace Datamanager
             HelpForm helpForm = new HelpForm();
             helpForm.ShowDialog(this);
         }
+        void LoadArenaThumbnails(int centerIndex)
+        {
+            if (imageFiles == null || imageFiles.Length == 0) return;
+
+            flowLayout_arena.Controls.Clear();
+
+            int start = Math.Max(0, centerIndex - 10);
+            int end = Math.Min(imageFiles.Length - 1, centerIndex + 10);
+
+            for (int i = start; i <= end; i++)
+            {
+                PictureBox thumb = new PictureBox();
+                thumb.Size = new Size(160, 120);
+                thumb.SizeMode = PictureBoxSizeMode.Zoom;
+                thumb.BackColor = Color.FromArgb(7, 7, 15);
+                thumb.Cursor = Cursors.Hand;
+                thumb.Tag = i;
+                thumb.BorderStyle = i == centerIndex
+                    ? BorderStyle.Fixed3D
+                    : BorderStyle.FixedSingle;
+
+                try { thumb.Image = Image.FromFile(imageFiles[i]); }
+                catch { }
+
+                thumb.Click += (sender, e) =>
+                {
+                    int thumbIndex = (int)((PictureBox)sender).Tag;
+                    SetCurrentIndex(thumbIndex);
+                    LoadArenaThumbnails(thumbIndex);
+                };
+
+                flowLayout_arena.Controls.Add(thumb);
+            }
+        }
     }
 
 
@@ -2547,4 +2666,5 @@ namespace Datamanager
             base.WndProc(ref m);
         }
     }
+    
 }
