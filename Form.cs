@@ -29,11 +29,20 @@ namespace Datamanager
         string[] imageFiles;
         int currentIndex = 0;
 
+        private List<PredictionRecord> predictions =
+            new List<PredictionRecord>();
+
+        private int currentFrame = 0;   //  파일럿 아레나에서 현재 보고 있는 프레임 인덱스
+
         string currentFolderPath = "";  // 현재 이미지 폴더 경로
         string trashFolderPath = "";    // 삭제된 이미지 보관 폴더 경로
         Stack<string> deletedFiles = new Stack<string>();   // 삭제된 파일 순서를 저장하는 스택
         List<string> deletedHistory = new List<string>();
         string backupFolderPath;    // 압축 전 원본 이미지를 보관하는 폴더 경로
+
+        private string pythonPath;
+
+        private bool isPlaying = false;
 
         string historyPath;
         string envName = "";
@@ -66,6 +75,12 @@ namespace Datamanager
 
         bool leftDetected = false;
         bool rightDetected = false;
+
+        private double actualAngle = 0; //  실제 앵글 값
+        private double predictedAngle = 0;  //  AI가 예측한 앵글 값
+
+        private double actualThrottle = 0;  //  실제 스로틀 값
+        private double predictedThrottle = 0;   //  AI가 예측한 스로틀 값
 
         // catalog 데이터 저장할 딕셔너리
         Dictionary<int, CatalogEntry> catalogData = new Dictionary<int, CatalogEntry>();
@@ -1494,7 +1509,7 @@ namespace Datamanager
             }
             catch { }
 
-            string pythonPath;
+
             // btn_train_Click 또는 RunPythonTrain에서
             envName = envName.Trim().Split(new char[] { ' ', '\t' })[0];
             if (envName == "base")
@@ -1597,7 +1612,6 @@ namespace Datamanager
                 }));
             };
 
-            trainProcess.Start();
             trainProcess.BeginOutputReadLine();
             trainProcess.BeginErrorReadLine();
             trainProcess.WaitForExit();
@@ -1619,6 +1633,13 @@ namespace Datamanager
                     }
 
                     LoadCompareCombo();
+
+                    Task.Run(() =>
+                    {
+                        RunPredictionGeneration(modelType);
+                    });
+
+                    LoadPredictions();
                 }
                 else
                 {
@@ -1635,6 +1656,143 @@ namespace Datamanager
                 btn_stopTrain.Enabled = false;
                 trainProcess = null;
             }));
+
+
+        }
+
+        private void LoadPredictions()
+        {
+            string path =
+                Path.Combine(
+                    baseDir,
+                    "predictions.json"
+                );
+
+            if (!File.Exists(path))
+                return;
+
+            string json =
+                File.ReadAllText(path);
+
+            predictions =
+                JsonConvert.DeserializeObject<
+                    List<PredictionRecord>
+                >(json);
+        }
+
+        private void RunPredictionGeneration(string modelType)
+        {
+            try
+            {
+                string scripts = "predict_all.py";
+
+                string wslBase =
+                    baseDir.Replace("C:\\", "/mnt/c/")
+                           .Replace("\\", "/");
+
+                ProcessStartInfo psi =
+                    new ProcessStartInfo();
+
+                psi.FileName = "wsl";
+
+                psi.Arguments =
+                    $"bash -c \"cd {wslBase} && {pythonPath} {scripts} {modelType}\"";
+
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;
+                psi.CreateNoWindow = true;
+
+                Process proc = Process.Start(psi);
+
+                string stdout =
+                    proc.StandardOutput.ReadToEnd();
+
+                string stderr =
+                    proc.StandardError.ReadToEnd();
+
+                proc.WaitForExit();
+
+                if (proc.ExitCode == 0)
+                {
+                    list_log.Items.Add(
+                        $"[{DateTime.Now:HH:mm:ss}] ✅ 예측 데이터 생성 완료"
+                    );
+
+                    MessageBox.Show("예측 데이터 생성 완료");
+                }
+                else
+                {
+                    list_log.Items.Add(
+                        $"[{DateTime.Now:HH:mm:ss}] ❌ 예측 생성 실패"
+                    );
+
+                    list_log.Items.Add(stderr);
+                }
+            }
+            catch (Exception ex)
+            {
+                list_log.Items.Add(
+                    $"[{DateTime.Now:HH:mm:ss}] ❌ 예측 오류 : {ex.Message}"
+                );
+            }
+        }
+        private void ShowFrame(int index)
+        {
+            currentFrame = index;
+
+            string imagePath =
+                Path.Combine(
+                    baseDir,
+                    "data",
+                    "images",
+                    predictions[index].image
+                );
+
+            if (picboxImage.Image != null)
+                picboxImage.Image.Dispose();
+
+            picboxImage.Image =
+                Image.FromFile(imagePath);
+
+            picboxImage.Invalidate();
+
+        }
+
+        private void DrawDriveLine(
+            Graphics g,
+            double angle,
+            double throttle,
+            Pen pen)
+        {
+            int centerX = picboxImage.Width / 2;
+            int bottomY = picboxImage.Height - 20;
+
+            int minLength = 30;
+            int maxLength = 180;
+
+            int length =
+                minLength +
+                (int)((maxLength - minLength) * throttle);
+
+            double rad =
+                angle * Math.PI / 2.0;
+
+            int endX =
+                centerX +
+                (int)(Math.Sin(rad) * length);
+
+            int endY =
+                bottomY -
+                (int)(Math.Cos(rad) * length);
+
+            g.DrawLine(
+                pen,
+                centerX,
+                bottomY,
+                endX,
+                endY
+            );
         }
 
         void UpdateScore(double valLoss)
@@ -1724,7 +1882,7 @@ namespace Datamanager
         {
             if (isScrolling) return;
             SetCurrentIndex(trackBar_frame.Value);
-         }
+        }
 
         private void btn_before_Click(object sender, EventArgs e)
         {
@@ -1768,6 +1926,10 @@ namespace Datamanager
 
         private void btn_train_Click(object sender, EventArgs e)
         {
+            bool useBackupImages =
+                Directory.Exists(backupFolderPath) &&
+                Directory.GetFiles(backupFolderPath).Length > 0;    //  백업 폴더에 이미지가 존재하는 경우
+
 
             // 1. 데이터 검증
             if (imageFiles == null || imageFiles.Length == 0)
@@ -1858,7 +2020,7 @@ namespace Datamanager
                         // 레코드 생성
                         var record = new Dictionary<string, object>
                         {
-                            ["_index"] = recordIndex,
+                            ["_index"] = recordIndex++,
                             ["_timestamp"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"),
                             ["cam/image_array"] = $"images/{fileName}",
                             ["cam/image_wb"] = $"wbimages/{fileName}",
@@ -1867,7 +2029,67 @@ namespace Datamanager
                         };
 
                         jsonRecords.Add(record);
-                        recordIndex++;
+
+                        if (useBackupImages)
+                        {
+                            string backupImage =
+                                Path.Combine(
+                                    backupFolderPath,
+                                    fileName
+                                );
+
+                            if (File.Exists(backupImage))
+                            {
+                                string backupFileName =
+                                    "original_" + fileName;
+
+                                string wbBackupPath =
+                                    Path.Combine(
+                                        wbImagesPath,
+                                        backupFileName
+                                    );
+
+                                if (!File.Exists(wbBackupPath))
+                                {
+                                    using (Mat frame = CvInvoke.Imread(backupImage, ImreadModes.AnyColor))
+                                    {
+                                        if (!frame.IsEmpty)
+                                        {
+                                            using (Mat processedRoi = CreateRoiEdge(frame))
+                                            {
+                                                using (Mat finalImage = new Mat())
+                                                {
+                                                    CvInvoke.CvtColor(
+                                                        processedRoi,
+                                                        finalImage,
+                                                        ColorConversion.Gray2Bgr
+                                                    );
+
+                                                    CvInvoke.Imwrite(
+                                                        wbBackupPath,
+                                                        finalImage
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                var backupRecord =
+                                    new Dictionary<string, object>
+                                    {
+                                        ["_index"] = recordIndex++,
+                                        ["_timestamp"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                                        ["cam/image_array"] = $"backup/{fileName}",
+                                        ["cam/image_wb"] = $"wbimages/{backupFileName}",
+                                        ["user/angle"] = angle,
+                                        ["user/throttle"] = throttle
+                                    };
+
+                                jsonRecords.Add(backupRecord);
+                            }
+                        }
+
                         successCount++;
 
                         // 진행률 표시 (10%마다)
@@ -2631,6 +2853,95 @@ namespace Datamanager
                 flowLayout_arena.Controls.Add(thumb);
             }
         }
+
+        private void picboxImage_Paint(object sender, PaintEventArgs e)
+        {
+            if (predictions.Count == 0)
+                return;
+
+            var p = predictions[currentFrame];
+
+            using (Pen realPen = new Pen(Color.Lime, 4))
+            using (Pen predPen = new Pen(Color.Red, 4))
+            {
+                DrawDriveLine(
+                    e.Graphics,
+                    p.real_angle,
+                    p.real_throttle,
+                    realPen
+                );
+
+                DrawDriveLine(
+                    e.Graphics,
+                    p.pred_angle,
+                    p.pred_throttle,
+                    predPen
+                );
+            }
+        }
+
+        private void btnAfterFrame_Click(object sender, EventArgs e)
+        {
+            if (predictions.Count == 0)
+                return;
+
+            currentFrame++;
+
+            if (currentFrame >= predictions.Count)
+                currentFrame = predictions.Count - 1;
+
+            ShowFrame(currentFrame);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            LoadPredictions();
+        }
+
+        private void btnbeforeFrame_Click(object sender, EventArgs e)
+        {
+            if (predictions.Count == 0)
+                return;
+
+            currentFrame--;
+
+            if (currentFrame < 0)
+                currentFrame = predictions.Count - 1;
+
+            ShowFrame(currentFrame);
+        }
+
+        private void timer_pilot_Tick(object sender, EventArgs e)
+        {
+            if (predictions.Count == 0)
+                return;
+
+            currentFrame++;
+
+            if (currentFrame >= predictions.Count)
+                currentFrame = 0;
+
+            ShowFrame(currentFrame);
+        }
+
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            if (predictions.Count == 0)
+                return;
+
+            if (isPlaying)
+            {
+                timer_pilot.Stop();
+                isPlaying = false;
+                btnPlay.Text = "재생";
+            }
+            else
+            {
+                timer_pilot.Start();
+                isPlaying = true;
+                btnPlay.Text = "정지";
+            }
+        }
     }
 
 
@@ -2666,5 +2977,16 @@ namespace Datamanager
             base.WndProc(ref m);
         }
     }
-    
+
+    public class PredictionRecord
+    {
+        public string image { get; set; }
+
+        public double real_angle { get; set; }
+        public double real_throttle { get; set; }
+
+        public double pred_angle { get; set; }
+        public double pred_throttle { get; set; }
+    }
+
 }
