@@ -1926,15 +1926,20 @@ namespace Datamanager
             if (isScrolling) return;
             SetCurrentIndex(trackBar_frame.Value);
         }
+        private void btn_imgnext_Click(object sender, EventArgs e)
+        {
+            isScrolling = true;
+            listImages.ClearSelected();
+            SetCurrentIndex(currentIndex + 1);
+            isScrolling = false;
+        }
 
         private void btn_before_Click(object sender, EventArgs e)
         {
+            isScrolling = true;
+            listImages.ClearSelected();
             SetCurrentIndex(currentIndex - 1);
-        }
-
-        private void btn_imgnext_Click(object sender, EventArgs e)
-        {
-            SetCurrentIndex(currentIndex + 1);
+            isScrolling = false;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
