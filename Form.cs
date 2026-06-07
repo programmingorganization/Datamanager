@@ -1522,7 +1522,7 @@ namespace Datamanager
 
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "wsl";
-            psi.Arguments = $"bash -c \"cd {wslBase} && {pythonPath} {script} --data data --epochs 10\"";
+            psi.Arguments = $"bash -c \"cd {wslBase} && exec {pythonPath} {script} --data data --epochs 10\"";
 
             //디버그용
             this.Invoke((Action)(() =>
@@ -2765,6 +2765,8 @@ namespace Datamanager
 
         private void train_Click(object sender, EventArgs e)
         {
+            label_progressai.Text = "진행률:";
+
             if (combo_model.SelectedIndex < 0)
             {
                 MessageBox.Show("모델을 선택하세요");
@@ -2940,6 +2942,29 @@ namespace Datamanager
                 timer_pilot.Start();
                 isPlaying = true;
                 btnPlay.Text = "정지";
+            }
+        }
+
+        private void btn_stopTrain_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                if (trainProcess != null && !trainProcess.HasExited)
+                {
+                    // WSL bash에 Ctrl+C 전송
+                    trainProcess.StandardInput.WriteLine("\x3");
+                    trainProcess.StandardInput.Flush();
+
+                    list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🛑 Ctrl+C 전송");
+
+                    btn_train.Enabled = true;
+                    btn_stopTrain.Enabled = false;
+                }
+            }
+            catch
+            {
+                // fallback
+                trainProcess?.Kill(true);
             }
         }
     }
