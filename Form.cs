@@ -1143,10 +1143,10 @@ namespace Datamanager
 
                 var param = new KeyValuePair<ImwriteFlags, int>[]
                 {
-            new KeyValuePair<ImwriteFlags, int>(
-                ImwriteFlags.JpegQuality,
-                quality
-            )
+                    new KeyValuePair<ImwriteFlags, int>(
+                        ImwriteFlags.JpegQuality,
+                        quality
+                    )
                 };
 
                 // 작업 폴더(images)에 저장
@@ -1154,6 +1154,17 @@ namespace Datamanager
             }
 
             ReloadCurrentFolder();
+
+            var info = new
+            {
+                quality = quality,
+                scale = scale
+            };
+
+            File.WriteAllText(
+                Path.Combine(baseDir, "data", "compression_info.json"),
+                JsonConvert.SerializeObject(info, Formatting.Indented)
+            );
 
             MessageBox.Show("전체 이미지 압축 완료");
         }
@@ -1945,6 +1956,29 @@ namespace Datamanager
                 Directory.Exists(backupFolderPath) &&
                 Directory.GetFiles(backupFolderPath).Length > 0;    //  백업 폴더에 이미지가 존재하는 경우
 
+            bool useBackupForTraining = false;
+
+            string compressionFile =
+                Path.Combine(baseDir, "data", "compression_info.json");
+
+            try
+            {
+                if (File.Exists(compressionFile))
+                {
+                    dynamic info =
+                        JsonConvert.DeserializeObject(
+                            File.ReadAllText(compressionFile)
+                        );
+
+                    useBackupForTraining =
+                        info?.isCompressed ?? false;
+                }
+            }
+            catch
+            {
+                useBackupForTraining = false;
+            }
+
 
             // 1. 데이터 검증
             if (imageFiles == null || imageFiles.Length == 0)
@@ -1981,6 +2015,7 @@ namespace Datamanager
                 int skippedCount = 0;
                 int recordIndex = 0;
                 List<Dictionary<string, object>> jsonRecords = new List<Dictionary<string, object>>();
+                List<Dictionary<string, object>> backupRecords = new List<Dictionary<string, object>>();
                 List<string> failedImages = new List<string>();
 
                 int totalImages = imageFiles.Length;
@@ -2045,7 +2080,7 @@ namespace Datamanager
 
                         jsonRecords.Add(record);
 
-                        if (useBackupImages)
+                        if (useBackupImages && useBackupForTraining)
                         {
                             string backupImage =
                                 Path.Combine(
@@ -2101,7 +2136,7 @@ namespace Datamanager
                                         ["user/throttle"] = throttle
                                     };
 
-                                jsonRecords.Add(backupRecord);
+                                backupRecords.Add(backupRecord);
                             }
                         }
 
@@ -2137,6 +2172,8 @@ namespace Datamanager
                 }
 
                 // 4. training_data.catalog 저장
+                jsonRecords.AddRange(backupRecords);
+
                 string catalogPath = Path.Combine(baseDir, "data", "training_data.catalog");
                 list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 💾 카탈로그 파일 저장 중...");
 
