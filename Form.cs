@@ -1158,7 +1158,8 @@ namespace Datamanager
             var info = new
             {
                 quality = quality,
-                scale = scale
+                scale = scale,
+                isCompressed = (quality < 100 || scale < 1.0)
             };
 
             File.WriteAllText(
