@@ -499,7 +499,7 @@ namespace Datamanager
             trackImage.BackColor = Color.FromArgb(13, 13, 24);
             trackImage.TickStyle = TickStyle.None;
 
-            StyleProgressBar(progressSpeedAI, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progressSpeed, Color.FromArgb(79, 195, 247));
             StyleProgressBar(progressAngle, Color.FromArgb(79, 195, 247));
             StyleProgressBar(progressSpeedAI, Color.FromArgb(255, 167, 38));
             StyleProgressBar(progressAngleAI, Color.FromArgb(255, 167, 38));
@@ -1771,7 +1771,35 @@ namespace Datamanager
                 Image.FromFile(imagePath);
 
             picboxImage.Invalidate();
+                       
+            // 프레임 번호 표시
+            lblCurrentFrame2.Text = $"프레임: {index}";
+            // 실제 값 표시
+            var p = predictions[index];
+            label_compthroarenaNum.Text = p.real_throttle.ToString("F3");
+            label_compangarenaNum.Text = p.real_angle.ToString("F3");
 
+            // AI 예측값 표시
+            label_aithroarenaNum.Text = p.pred_throttle.ToString("F3");
+            label_aiangarenaNum.Text = p.pred_angle.ToString("F3");
+
+            // 프로그레스바 업데이트, 앵글은 절대값 방식
+            progressSpeed.Value = Math.Min(100, (int)(Math.Abs(p.real_throttle) * 100));
+            progressAngle.Value = Math.Min(100, (int)(Math.Abs(p.real_angle) * 100));
+            progressSpeedAI.Value = Math.Min(100, (int)(Math.Abs(p.pred_throttle) * 100));
+            progressAngleAI.Value = Math.Min(100, (int)(Math.Abs(p.pred_angle) * 100));
+
+            double speedError = Math.Abs(p.real_throttle - p.pred_throttle);
+            double angleError = Math.Abs(p.real_angle - p.pred_angle);
+
+            lblSpeedError.Text = $"오차: {speedError:F3}";
+            lblAngleError.Text = $"오차: {angleError:F3}";
+
+            // 오차 크기에 따라 색상 변경 0.1 미만이면 초록, 이상이면 빨강
+            lblSpeedError.ForeColor = speedError < 0.1 ? Color.FromArgb(102, 187, 106) : Color.FromArgb(239, 83, 80);
+            lblAngleError.ForeColor = angleError < 0.1 ? Color.FromArgb(102, 187, 106) : Color.FromArgb(239, 83, 80);
+            //현재 이미지 근처 이미지 로드
+            LoadArenaThumbnails(index);
         }
 
         private void DrawDriveLine(

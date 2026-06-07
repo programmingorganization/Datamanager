@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
             tabControl = new TabControl();
             tab_data = new TabPage();
             splitContainer_allwindow = new SplitContainer();
@@ -123,7 +123,7 @@
             lblAngleError = new Label();
             lblSpeedError = new Label();
             progressAngleAI = new ProgressBar();
-            progressSpeed2 = new ProgressBar();
+            progressSpeed = new ProgressBar();
             progressAngle = new ProgressBar();
             progressSpeedAI = new ProgressBar();
             label_aiangarena = new Label();
@@ -754,26 +754,26 @@
             // chart_data
             // 
             chart_data.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea1.Name = "ChartArea1";
-            chart_data.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            chart_data.Legends.Add(legend1);
+            chartArea3.Name = "ChartArea1";
+            chart_data.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            chart_data.Legends.Add(legend3);
             chart_data.Location = new Point(3, 64);
             chart_data.Name = "chart_data";
-            series1.BorderWidth = 2;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Color = Color.Green;
-            series1.Legend = "Legend1";
-            series1.Name = "Throttle";
-            series2.BorderWidth = 2;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Color = Color.FromArgb(79, 195, 247);
-            series2.Legend = "Legend1";
-            series2.Name = "Angle";
-            chart_data.Series.Add(series1);
-            chart_data.Series.Add(series2);
+            series5.BorderWidth = 2;
+            series5.ChartArea = "ChartArea1";
+            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series5.Color = Color.Green;
+            series5.Legend = "Legend1";
+            series5.Name = "Throttle";
+            series6.BorderWidth = 2;
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series6.Color = Color.FromArgb(79, 195, 247);
+            series6.Legend = "Legend1";
+            series6.Name = "Angle";
+            chart_data.Series.Add(series5);
+            chart_data.Series.Add(series6);
             chart_data.Size = new Size(613, 322);
             chart_data.TabIndex = 2;
             chart_data.Text = "chart1";
@@ -944,7 +944,7 @@
             splitContainer_ai.Panel2.Controls.Add(panel_grade);
             splitContainer_ai.Panel2.Controls.Add(label_aicompare);
             splitContainer_ai.Panel2.Controls.Add(panel_compare);
-            splitContainer_ai.Size = new Size(1194, 926);
+            splitContainer_ai.Size = new Size(1195, 926);
             splitContainer_ai.SplitterDistance = 793;
             splitContainer_ai.SplitterWidth = 2;
             splitContainer_ai.TabIndex = 5;
@@ -952,24 +952,24 @@
             // chart_loss
             // 
             chart_loss.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            chartArea2.Name = "ChartArea1";
-            chart_loss.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            chart_loss.Legends.Add(legend2);
+            chartArea4.Name = "ChartArea1";
+            chart_loss.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            chart_loss.Legends.Add(legend4);
             chart_loss.Location = new Point(1, 1);
             chart_loss.Margin = new Padding(1);
             chart_loss.Name = "chart_loss";
             chart_loss.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Legend = "Legend1";
-            series3.Name = "Epoch";
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series4.Legend = "Legend1";
-            series4.Name = "Loss";
-            chart_loss.Series.Add(series3);
-            chart_loss.Series.Add(series4);
+            series7.ChartArea = "ChartArea1";
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series7.Legend = "Legend1";
+            series7.Name = "Epoch";
+            series8.ChartArea = "ChartArea1";
+            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series8.Legend = "Legend1";
+            series8.Name = "Loss";
+            chart_loss.Series.Add(series7);
+            chart_loss.Series.Add(series8);
             chart_loss.Size = new Size(791, 924);
             chart_loss.TabIndex = 4;
             chart_loss.Text = "chart1";
@@ -995,7 +995,7 @@
             panel_grade.Controls.Add(progressBar_score);
             panel_grade.Location = new Point(9, 527);
             panel_grade.Name = "panel_grade";
-            panel_grade.Size = new Size(432, 392);
+            panel_grade.Size = new Size(435, 392);
             panel_grade.TabIndex = 2;
             // 
             // label_progreScore
@@ -1015,7 +1015,7 @@
             label_scoreUnit.Anchor = AnchorStyles.None;
             label_scoreUnit.AutoSize = true;
             label_scoreUnit.Font = new Font("맑은 고딕", 12F);
-            label_scoreUnit.Location = new Point(186, 136);
+            label_scoreUnit.Location = new Point(187, 136);
             label_scoreUnit.Name = "label_scoreUnit";
             label_scoreUnit.Size = new Size(65, 21);
             label_scoreUnit.TabIndex = 2;
@@ -1026,7 +1026,7 @@
             label_grade.Anchor = AnchorStyles.None;
             label_grade.AutoSize = true;
             label_grade.Font = new Font("맑은 고딕", 20F);
-            label_grade.Location = new Point(116, 198);
+            label_grade.Location = new Point(117, 198);
             label_grade.Name = "label_grade";
             label_grade.Size = new Size(71, 37);
             label_grade.TabIndex = 1;
@@ -1037,7 +1037,7 @@
             label_score.Anchor = AnchorStyles.None;
             label_score.AutoSize = true;
             label_score.Font = new Font("맑은 고딕", 40F);
-            label_score.Location = new Point(186, 28);
+            label_score.Location = new Point(187, 28);
             label_score.Name = "label_score";
             label_score.Size = new Size(60, 72);
             label_score.TabIndex = 1;
@@ -1048,7 +1048,7 @@
             progressBar_score.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             progressBar_score.Location = new Point(25, 298);
             progressBar_score.Name = "progressBar_score";
-            progressBar_score.Size = new Size(392, 42);
+            progressBar_score.Size = new Size(395, 42);
             progressBar_score.TabIndex = 0;
             // 
             // label_aicompare
@@ -1083,7 +1083,7 @@
             panel_compare.Controls.Add(combo_compare);
             panel_compare.Location = new Point(9, 63);
             panel_compare.Name = "panel_compare";
-            panel_compare.Size = new Size(432, 308);
+            panel_compare.Size = new Size(435, 308);
             panel_compare.TabIndex = 0;
             // 
             // progre_aiangle
@@ -1091,7 +1091,7 @@
             progre_aiangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aiangle.Location = new Point(181, 275);
             progre_aiangle.Name = "progre_aiangle";
-            progre_aiangle.Size = new Size(236, 23);
+            progre_aiangle.Size = new Size(239, 23);
             progre_aiangle.TabIndex = 2;
             // 
             // progre_aithro
@@ -1099,7 +1099,7 @@
             progre_aithro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aithro.Location = new Point(181, 234);
             progre_aithro.Name = "progre_aithro";
-            progre_aithro.Size = new Size(236, 23);
+            progre_aithro.Size = new Size(239, 23);
             progre_aithro.TabIndex = 2;
             // 
             // progre_compangle
@@ -1107,7 +1107,7 @@
             progre_compangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compangle.Location = new Point(181, 162);
             progre_compangle.Name = "progre_compangle";
-            progre_compangle.Size = new Size(236, 23);
+            progre_compangle.Size = new Size(239, 23);
             progre_compangle.TabIndex = 2;
             // 
             // progre_compthro
@@ -1115,7 +1115,7 @@
             progre_compthro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compthro.Location = new Point(181, 121);
             progre_compthro.Name = "progre_compthro";
-            progre_compthro.Size = new Size(236, 23);
+            progre_compthro.Size = new Size(239, 23);
             progre_compthro.TabIndex = 2;
             // 
             // label_aiangle
@@ -1190,7 +1190,7 @@
             label_ocha.AutoSize = true;
             label_ocha.Font = new Font("맑은 고딕", 12F);
             label_ocha.ForeColor = SystemColors.ButtonFace;
-            label_ocha.Location = new Point(316, 30);
+            label_ocha.Location = new Point(319, 30);
             label_ocha.Name = "label_ocha";
             label_ocha.Size = new Size(46, 21);
             label_ocha.TabIndex = 1;
@@ -1253,7 +1253,7 @@
             panel3.Controls.Add(lblAngleError);
             panel3.Controls.Add(lblSpeedError);
             panel3.Controls.Add(progressAngleAI);
-            panel3.Controls.Add(progressSpeed2);
+            panel3.Controls.Add(progressSpeed);
             panel3.Controls.Add(progressAngle);
             panel3.Controls.Add(progressSpeedAI);
             panel3.Controls.Add(label_aiangarena);
@@ -1302,13 +1302,13 @@
             progressAngleAI.Size = new Size(293, 23);
             progressAngleAI.TabIndex = 2;
             // 
-            // progressSpeed2
+            // progressSpeed
             // 
-            progressSpeed2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progressSpeed2.Location = new Point(104, 280);
-            progressSpeed2.Name = "progressSpeed2";
-            progressSpeed2.Size = new Size(293, 23);
-            progressSpeed2.TabIndex = 2;
+            progressSpeed.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            progressSpeed.Location = new Point(104, 82);
+            progressSpeed.Name = "progressSpeed";
+            progressSpeed.Size = new Size(293, 23);
+            progressSpeed.TabIndex = 2;
             // 
             // progressAngle
             // 
@@ -1321,7 +1321,7 @@
             // progressSpeedAI
             // 
             progressSpeedAI.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progressSpeedAI.Location = new Point(104, 82);
+            progressSpeedAI.Location = new Point(104, 280);
             progressSpeedAI.Name = "progressSpeedAI";
             progressSpeedAI.Size = new Size(293, 23);
             progressSpeedAI.TabIndex = 2;
@@ -1683,7 +1683,7 @@
         private FlowLayoutPanel flowLayout_arena;
         private Panel panel3;
         private ProgressBar progressAngleAI;
-        private ProgressBar progressSpeed2;
+        private ProgressBar progressSpeed;
         private ProgressBar progressAngle;
         private ProgressBar progressSpeedAI;
         private Label label_aiangarena;
