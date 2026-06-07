@@ -119,6 +119,7 @@
             label_compthrottle = new Label();
             combo_compare = new ComboBox();
             tabPilotArena = new TabPage();
+            button1 = new Button();
             panel3 = new Panel();
             lblAngleError = new Label();
             lblSpeedError = new Label();
@@ -143,6 +144,7 @@
             picboxImage = new PictureBox();
             btnbeforeFrame = new Button();
             timer1 = new System.Windows.Forms.Timer(components);
+            timer_pilot = new System.Windows.Forms.Timer(components);
             tabControl.SuspendLayout();
             tab_data.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer_allwindow).BeginInit();
@@ -1228,6 +1230,7 @@
             // tabPilotArena
             // 
             tabPilotArena.BackColor = Color.FromArgb(64, 64, 64);
+            tabPilotArena.Controls.Add(button1);
             tabPilotArena.Controls.Add(panel3);
             tabPilotArena.Controls.Add(lblCurrentFrame2);
             tabPilotArena.Controls.Add(btnAfterFrame);
@@ -1243,6 +1246,16 @@
             tabPilotArena.Size = new Size(1983, 1222);
             tabPilotArena.TabIndex = 2;
             tabPilotArena.Text = "파일럿 아레나";
+            // 
+            // button1
+            // 
+            button1.Location = new Point(361, 15);
+            button1.Name = "button1";
+            button1.Size = new Size(75, 23);
+            button1.TabIndex = 20;
+            button1.Text = "button1";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // panel3
             // 
@@ -1446,6 +1459,7 @@
             btnAfterFrame.TabIndex = 15;
             btnAfterFrame.Text = "프레임 ▶";
             btnAfterFrame.UseVisualStyleBackColor = false;
+            btnAfterFrame.Click += btnAfterFrame_Click;
             // 
             // btnStart
             // 
@@ -1459,6 +1473,7 @@
             btnStart.TabIndex = 14;
             btnStart.Text = "▶";
             btnStart.UseVisualStyleBackColor = false;
+            btnStart.Click += btnStart_Click;
             // 
             // trackImage
             // 
@@ -1484,8 +1499,10 @@
             picboxImage.Location = new Point(91, 49);
             picboxImage.Name = "picboxImage";
             picboxImage.Size = new Size(891, 568);
+            picboxImage.SizeMode = PictureBoxSizeMode.Zoom;
             picboxImage.TabIndex = 0;
             picboxImage.TabStop = false;
+            picboxImage.Paint += picboxImage_Paint;
             // 
             // btnbeforeFrame
             // 
@@ -1499,10 +1516,15 @@
             btnbeforeFrame.TabIndex = 5;
             btnbeforeFrame.Text = "프레임 ◀";
             btnbeforeFrame.UseVisualStyleBackColor = false;
+            btnbeforeFrame.Click += btnbeforeFrame_Click;
             // 
             // timer1
             // 
             timer1.Tick += timer1_Tick;
+            // 
+            // timer_pilot
+            // 
+            timer_pilot.Tick += timer_pilot_Tick;
             // 
             // Form1
             // 
@@ -1685,6 +1707,8 @@
         private Label label_compthrottlearena;
         private Label lblAngleError;
         private Label lblSpeedError;
+        private System.Windows.Forms.Timer timer_pilot;
+        private Button button1;
         private AutoScrollListBox list_log;
     }
 }

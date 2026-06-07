@@ -373,3 +373,4 @@ train_log.txt
 history.json
 history_lstm.json
 model_lstm.h5
+predictions.json
