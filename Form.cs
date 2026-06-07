@@ -1637,6 +1637,11 @@ namespace Datamanager
                     Task.Run(() =>
                     {
                         RunPredictionGeneration(modelType);
+
+                        this.Invoke((Action)(() =>
+                        {
+                            LoadPredictions();
+                        }));
                     });
 
                     LoadPredictions();
@@ -1715,27 +1720,37 @@ namespace Datamanager
 
                 if (proc.ExitCode == 0)
                 {
-                    list_log.Items.Add(
-                        $"[{DateTime.Now:HH:mm:ss}] ✅ 예측 데이터 생성 완료"
-                    );
+                    AddLog("✅ 예측 데이터 생성 완료");
 
-                    MessageBox.Show("예측 데이터 생성 완료");
+                    this.Invoke((Action)(() =>
+                    {
+                        MessageBox.Show("예측 데이터 생성 완료");
+                    }));
                 }
                 else
                 {
-                    list_log.Items.Add(
-                        $"[{DateTime.Now:HH:mm:ss}] ❌ 예측 생성 실패"
-                    );
+                    AddLog($"[{DateTime.Now:HH:mm:ss}] ❌ 예측 생성 실패");
 
-                    list_log.Items.Add(stderr);
+                    AddLog(stderr);
                 }
             }
             catch (Exception ex)
             {
-                list_log.Items.Add(
+                AddLog(
                     $"[{DateTime.Now:HH:mm:ss}] ❌ 예측 오류 : {ex.Message}"
                 );
             }
+        }
+
+        private void AddLog(string text)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => AddLog(text)));
+                return;
+            }
+
+            list_log.Items.Add(text);
         }
         private void ShowFrame(int index)
         {
