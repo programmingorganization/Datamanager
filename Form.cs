@@ -1947,8 +1947,13 @@ namespace Datamanager
             // 2. 초기화
             string imagesPath = Path.Combine(baseDir, "data", "images");
             string wbImagesPath = Path.Combine(baseDir, "data", "wbimages");
+
+            // ⭐ 학습 버튼 누를 때 프로그레스바와 상단 텍스트 레이블 즉시 초기화
             progressBar_learn.Value = 0;
+            label_progressai.Text = "진행률: 0% (0/10 epoch)"; // ← 이 부분을 추가하여 텍스트도 초기화합니다.
+
             list_log.Items.Clear();
+
             if (chart_loss.Series.IndexOf("Epoch") >= 0)
                 chart_loss.Series["Epoch"].Points.Clear();
             if (chart_loss.Series.IndexOf("Loss") >= 0)
@@ -1956,6 +1961,7 @@ namespace Datamanager
 
             Directory.CreateDirectory(wbImagesPath);
 
+            // 중복 호출 방지를 위해 버튼을 여기서 확실히 비활성화
             btn_train.Enabled = false;
             list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔍 원본 이미지 스캔 시작...");
             list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 카탈로그 레코드: {catalogData.Count}개");
