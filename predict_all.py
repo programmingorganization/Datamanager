@@ -45,6 +45,9 @@ results = []
 
 if model_type == "cnn":
 
+    images = []
+    image_names = []
+
     for record in records:
 
         image_path = os.path.join(
@@ -62,17 +65,35 @@ if model_type == "cnn":
             dtype=np.float32
         ) / 255.0
 
-        img = np.expand_dims(img,-1)
-        img = np.expand_dims(img,0)
-
-        pred = model.predict(
+        img = np.expand_dims(
             img,
-            verbose=0
-        )[0]
+            axis=-1
+        )
+
+        images.append(img)
+        image_names.append(os.path.basename(image_path))
+
+    X = np.array(
+        images,
+        dtype=np.float32
+    )
+
+    print(f"predict images: {len(X)}")
+
+    preds = model.predict(
+        X,
+        batch_size=128,
+        verbose=1
+    )
+
+    for record, pred, image_name in zip(
+        records,
+        preds,
+        image_names
+    ):
 
         results.append({
-            "image":
-                os.path.basename(image_path),
+            "image": image_name,
 
             "real_angle":
                 float(record["user/angle"]),
@@ -115,32 +136,35 @@ else:
 
         images.append(img)
 
+    sequences = []
+
     for i in range(
         SEQUENCE_LENGTH - 1,
         len(images)
     ):
-
         seq = images[
             i - SEQUENCE_LENGTH + 1:
             i + 1
         ]
 
-        seq = np.array(
-            seq,
-            dtype=np.float32
-        )
+        sequences.append(seq)
 
-        seq = np.expand_dims(
-            seq,
-            axis=0
-        )
+    X_seq = np.array(
+        sequences,
+        dtype=np.float32
+    )
 
-        pred = model.predict(
-            seq,
-            verbose=0
-        )[0]
+    preds = model.predict(
+        X_seq,
+        batch_size=128,
+        verbose=1
+    )
 
-        record = records[i]
+    for idx, pred in enumerate(preds):
+
+        record = records[
+            idx + SEQUENCE_LENGTH - 1
+        ]
 
         results.append({
             "image":
