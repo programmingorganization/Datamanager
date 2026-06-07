@@ -499,7 +499,7 @@ namespace Datamanager
             trackImage.BackColor = Color.FromArgb(13, 13, 24);
             trackImage.TickStyle = TickStyle.None;
 
-            StyleProgressBar(progressSpeedAI, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progressSpeed, Color.FromArgb(79, 195, 247));
             StyleProgressBar(progressAngle, Color.FromArgb(79, 195, 247));
             StyleProgressBar(progressSpeedAI, Color.FromArgb(255, 167, 38));
             StyleProgressBar(progressAngleAI, Color.FromArgb(255, 167, 38));
@@ -1782,7 +1782,35 @@ namespace Datamanager
                 Image.FromFile(imagePath);
 
             picboxImage.Invalidate();
+                       
+            // 프레임 번호 표시
+            lblCurrentFrame2.Text = $"프레임: {index}";
+            // 실제 값 표시
+            var p = predictions[index];
+            label_compthroarenaNum.Text = p.real_throttle.ToString("F3");
+            label_compangarenaNum.Text = p.real_angle.ToString("F3");
 
+            // AI 예측값 표시
+            label_aithroarenaNum.Text = p.pred_throttle.ToString("F3");
+            label_aiangarenaNum.Text = p.pred_angle.ToString("F3");
+
+            // 프로그레스바 업데이트, 앵글은 절대값 방식
+            progressSpeed.Value = Math.Min(100, (int)(Math.Abs(p.real_throttle) * 100));
+            progressAngle.Value = Math.Min(100, (int)(Math.Abs(p.real_angle) * 100));
+            progressSpeedAI.Value = Math.Min(100, (int)(Math.Abs(p.pred_throttle) * 100));
+            progressAngleAI.Value = Math.Min(100, (int)(Math.Abs(p.pred_angle) * 100));
+
+            double speedError = Math.Abs(p.real_throttle - p.pred_throttle);
+            double angleError = Math.Abs(p.real_angle - p.pred_angle);
+
+            lblSpeedError.Text = $"오차: {speedError:F3}";
+            lblAngleError.Text = $"오차: {angleError:F3}";
+
+            // 오차 크기에 따라 색상 변경 0.1 미만이면 초록, 이상이면 빨강
+            lblSpeedError.ForeColor = speedError < 0.1 ? Color.FromArgb(102, 187, 106) : Color.FromArgb(239, 83, 80);
+            lblAngleError.ForeColor = angleError < 0.1 ? Color.FromArgb(102, 187, 106) : Color.FromArgb(239, 83, 80);
+            //현재 이미지 근처 이미지 로드
+            LoadArenaThumbnails(index);
         }
 
         private void DrawDriveLine(
@@ -1909,15 +1937,20 @@ namespace Datamanager
             if (isScrolling) return;
             SetCurrentIndex(trackBar_frame.Value);
         }
+        private void btn_imgnext_Click(object sender, EventArgs e)
+        {
+            isScrolling = true;
+            listImages.ClearSelected();
+            SetCurrentIndex(currentIndex + 1);
+            isScrolling = false;
+        }
 
         private void btn_before_Click(object sender, EventArgs e)
         {
+            isScrolling = true;
+            listImages.ClearSelected();
             SetCurrentIndex(currentIndex - 1);
-        }
-
-        private void btn_imgnext_Click(object sender, EventArgs e)
-        {
-            SetCurrentIndex(currentIndex + 1);
+            isScrolling = false;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -1996,8 +2029,13 @@ namespace Datamanager
             // 2. 초기화
             string imagesPath = Path.Combine(baseDir, "data", "images");
             string wbImagesPath = Path.Combine(baseDir, "data", "wbimages");
+
+            // ⭐ 학습 버튼 누를 때 프로그레스바와 상단 텍스트 레이블 즉시 초기화
             progressBar_learn.Value = 0;
+            label_progressai.Text = "진행률: 0% (0/10 epoch)"; // ← 이 부분을 추가하여 텍스트도 초기화합니다.
+
             list_log.Items.Clear();
+
             if (chart_loss.Series.IndexOf("Epoch") >= 0)
                 chart_loss.Series["Epoch"].Points.Clear();
             if (chart_loss.Series.IndexOf("Loss") >= 0)
@@ -2005,6 +2043,7 @@ namespace Datamanager
 
             Directory.CreateDirectory(wbImagesPath);
 
+            // 중복 호출 방지를 위해 버튼을 여기서 확실히 비활성화
             btn_train.Enabled = false;
             list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔍 원본 이미지 스캔 시작...");
             list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 카탈로그 레코드: {catalogData.Count}개");
