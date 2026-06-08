@@ -1646,6 +1646,10 @@ namespace Datamanager
 
                     LoadCompareCombo();
 
+                    btnAfterFrame.Enabled = false;
+                    btnbeforeFrame.Enabled = false;
+                    btnStart.Enabled = false;
+
                     Task.Run(() =>
                     {
                         RunPredictionGeneration(modelType);
@@ -1653,10 +1657,12 @@ namespace Datamanager
                         this.Invoke((Action)(() =>
                         {
                             LoadPredictions();
+
+                            btnAfterFrame.Enabled = true;
+                            btnbeforeFrame.Enabled = true;
+                            btnStart.Enabled = true;
                         }));
                     });
-
-                    LoadPredictions();
                 }
                 else
                 {
@@ -1766,6 +1772,9 @@ namespace Datamanager
         }
         private void ShowFrame(int index)
         {
+            if (predictions == null || index < 0 || index >= predictions.Count)
+                return;
+
             currentFrame = index;
 
             string imagePath =
@@ -1775,6 +1784,12 @@ namespace Datamanager
                     "images",
                     predictions[index].image
                 );
+
+            if (!File.Exists(imagePath))
+            {
+                MessageBox.Show(imagePath + " 없음");
+                return;
+            }
 
             if (picboxImage.Image != null)
                 picboxImage.Image.Dispose();
@@ -2982,7 +2997,7 @@ namespace Datamanager
             currentFrame++;
 
             if (currentFrame >= predictions.Count)
-                currentFrame = predictions.Count - 1;
+                currentFrame = 0;
 
             ShowFrame(currentFrame);
         }
