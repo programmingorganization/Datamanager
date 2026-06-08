@@ -34,9 +34,15 @@ with open(
 ) as f:
 
     for line in f:
+
         line = line.strip()
 
         if not line:
+            continue
+
+        record = json.loads(line)
+
+        if record["cam/image_wb"].startswith("wbimages/original_"):
             continue
 
         records.append(json.loads(line))
