@@ -519,19 +519,24 @@ namespace Datamanager
             // 파일럿 아레나 버튼 이벤트
             btnbeforeFrame.Click += (s, e) =>
             {
-                SetCurrentIndex(currentIndex - 1);
-                LoadArenaThumbnails(currentIndex);
+                if (predictions.Count == 0) return;
+                currentFrame--;
+                if (currentFrame < 0)
+                    currentFrame = 0;
+                ShowFrame(currentFrame);
             };
-
             btnAfterFrame.Click += (s, e) =>
             {
-                SetCurrentIndex(currentIndex + 1);
-                LoadArenaThumbnails(currentIndex);
+                if (predictions.Count == 0) return;
+                currentFrame++;
+                if (currentFrame >= predictions.Count)
+                    currentFrame = predictions.Count - 1;
+                ShowFrame(currentFrame);
             };
 
             trackImage.Scroll += (s, e) =>
             {
-                SetCurrentIndex(trackImage.Value);
+                ShowFrame(trackImage.Value);
                 LoadArenaThumbnails(currentIndex);
             };
 
@@ -1701,6 +1706,13 @@ namespace Datamanager
                 JsonConvert.DeserializeObject<
                     List<PredictionRecord>
                 >(json);
+            // trackImage 최대값 설정
+            if (predictions != null && predictions.Count > 0)
+            {
+                trackImage.Minimum = 0;
+                trackImage.Maximum = predictions.Count - 1;
+                trackImage.Value = 0;
+            }
         }
 
         private void RunPredictionGeneration(string modelType)
@@ -1776,6 +1788,9 @@ namespace Datamanager
                 return;
 
             currentFrame = index;
+            // trackImage 연동
+            if (trackImage.Maximum >= index)
+                trackImage.Value = index;
 
             string imagePath =
                 Path.Combine(
@@ -2392,7 +2407,14 @@ namespace Datamanager
                 thumb.Click += (sender, e) =>
                 {
                     int thumbIndex = (int)((PictureBox)sender).Tag;
-                    SetCurrentIndex(thumbIndex);
+                    string fileName = Path.GetFileName(imageFiles[thumbIndex]);
+                    int predIndex = predictions.FindIndex(p => p.image == fileName);
+
+                    if (predIndex >= 0)
+                    {
+                        ShowFrame(predIndex);
+                        LoadArenaThumbnails(thumbIndex);
+                    }
                 };
 
                 flowPanel_thumbnails.Controls.Add(thumb);
@@ -2928,35 +2950,36 @@ namespace Datamanager
             HelpForm helpForm = new HelpForm();
             helpForm.ShowDialog(this);
         }
-        void LoadArenaThumbnails(int centerIndex)
+        void LoadArenaThumbnails(int centerPredIndex)
         {
-            if (imageFiles == null || imageFiles.Length == 0) return;
+            if (predictions == null || predictions.Count == 0) return;
 
             flowLayout_arena.Controls.Clear();
-
-            int start = Math.Max(0, centerIndex - 10);
-            int end = Math.Min(imageFiles.Length - 1, centerIndex + 10);
+            //썸네일 10장만 나오게
+            int start = Math.Max(0, centerPredIndex - 5);
+            int end = Math.Min(predictions.Count - 1, centerPredIndex + 5);
 
             for (int i = start; i <= end; i++)
             {
+                string imagePath = Path.Combine(baseDir, "data", "images", predictions[i].image);
+
                 PictureBox thumb = new PictureBox();
                 thumb.Size = new Size(160, 120);
                 thumb.SizeMode = PictureBoxSizeMode.Zoom;
                 thumb.BackColor = Color.FromArgb(7, 7, 15);
                 thumb.Cursor = Cursors.Hand;
-                thumb.Tag = i;
-                thumb.BorderStyle = i == centerIndex
+                thumb.Tag = i;  // predictions 인덱스
+                thumb.BorderStyle = i == centerPredIndex
                     ? BorderStyle.Fixed3D
                     : BorderStyle.FixedSingle;
 
-                try { thumb.Image = Image.FromFile(imageFiles[i]); }
+                try { thumb.Image = Image.FromFile(imagePath); }
                 catch { }
 
                 thumb.Click += (sender, e) =>
                 {
-                    int thumbIndex = (int)((PictureBox)sender).Tag;
-                    SetCurrentIndex(thumbIndex);
-                    LoadArenaThumbnails(thumbIndex);
+                    int predIndex = (int)((PictureBox)sender).Tag;
+                    ShowFrame(predIndex);
                 };
 
                 flowLayout_arena.Controls.Add(thumb);
