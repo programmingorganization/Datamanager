@@ -499,7 +499,7 @@ namespace Datamanager
             trackImage.BackColor = Color.FromArgb(13, 13, 24);
             trackImage.TickStyle = TickStyle.None;
 
-            StyleProgressBar(progressSpeedAI, Color.FromArgb(79, 195, 247));
+            StyleProgressBar(progressSpeed, Color.FromArgb(79, 195, 247));
             StyleProgressBar(progressAngle, Color.FromArgb(79, 195, 247));
             StyleProgressBar(progressSpeedAI, Color.FromArgb(255, 167, 38));
             StyleProgressBar(progressAngleAI, Color.FromArgb(255, 167, 38));
@@ -519,19 +519,24 @@ namespace Datamanager
             // 파일럿 아레나 버튼 이벤트
             btnbeforeFrame.Click += (s, e) =>
             {
-                SetCurrentIndex(currentIndex - 1);
-                LoadArenaThumbnails(currentIndex);
+                if (predictions.Count == 0) return;
+                currentFrame--;
+                if (currentFrame < 0)
+                    currentFrame = 0;
+                ShowFrame(currentFrame);
             };
-
             btnAfterFrame.Click += (s, e) =>
             {
-                SetCurrentIndex(currentIndex + 1);
-                LoadArenaThumbnails(currentIndex);
+                if (predictions.Count == 0) return;
+                currentFrame++;
+                if (currentFrame >= predictions.Count)
+                    currentFrame = predictions.Count - 1;
+                ShowFrame(currentFrame);
             };
 
             trackImage.Scroll += (s, e) =>
             {
-                SetCurrentIndex(trackImage.Value);
+                ShowFrame(trackImage.Value);
                 LoadArenaThumbnails(currentIndex);
             };
 
@@ -1143,10 +1148,10 @@ namespace Datamanager
 
                 var param = new KeyValuePair<ImwriteFlags, int>[]
                 {
-            new KeyValuePair<ImwriteFlags, int>(
-                ImwriteFlags.JpegQuality,
-                quality
-            )
+                    new KeyValuePair<ImwriteFlags, int>(
+                        ImwriteFlags.JpegQuality,
+                        quality
+                    )
                 };
 
                 // 작업 폴더(images)에 저장
@@ -1154,6 +1159,18 @@ namespace Datamanager
             }
 
             ReloadCurrentFolder();
+
+            var info = new
+            {
+                quality = quality,
+                scale = scale,
+                isCompressed = (quality < 100 || scale < 1.0)
+            };
+
+            File.WriteAllText(
+                Path.Combine(baseDir, "data", "compression_info.json"),
+                JsonConvert.SerializeObject(info, Formatting.Indented)
+            );
 
             MessageBox.Show("전체 이미지 압축 완료");
         }
@@ -1634,12 +1651,23 @@ namespace Datamanager
 
                     LoadCompareCombo();
 
+                    btnAfterFrame.Enabled = false;
+                    btnbeforeFrame.Enabled = false;
+                    btnStart.Enabled = false;
+
                     Task.Run(() =>
                     {
                         RunPredictionGeneration(modelType);
-                    });
 
-                    LoadPredictions();
+                        this.Invoke((Action)(() =>
+                        {
+                            LoadPredictions();
+
+                            btnAfterFrame.Enabled = true;
+                            btnbeforeFrame.Enabled = true;
+                            btnStart.Enabled = true;
+                        }));
+                    });
                 }
                 else
                 {
@@ -1678,6 +1706,13 @@ namespace Datamanager
                 JsonConvert.DeserializeObject<
                     List<PredictionRecord>
                 >(json);
+            // trackImage 최대값 설정
+            if (predictions != null && predictions.Count > 0)
+            {
+                trackImage.Minimum = 0;
+                trackImage.Maximum = predictions.Count - 1;
+                trackImage.Value = 0;
+            }
         }
 
         private void RunPredictionGeneration(string modelType)
@@ -1715,31 +1750,47 @@ namespace Datamanager
 
                 if (proc.ExitCode == 0)
                 {
-                    list_log.Items.Add(
-                        $"[{DateTime.Now:HH:mm:ss}] ✅ 예측 데이터 생성 완료"
-                    );
+                    AddLog("✅ 예측 데이터 생성 완료");
 
-                    MessageBox.Show("예측 데이터 생성 완료");
+                    this.Invoke((Action)(() =>
+                    {
+                        MessageBox.Show("예측 데이터 생성 완료");
+                    }));
                 }
                 else
                 {
-                    list_log.Items.Add(
-                        $"[{DateTime.Now:HH:mm:ss}] ❌ 예측 생성 실패"
-                    );
+                    AddLog($"[{DateTime.Now:HH:mm:ss}] ❌ 예측 생성 실패");
 
-                    list_log.Items.Add(stderr);
+                    AddLog(stderr);
                 }
             }
             catch (Exception ex)
             {
-                list_log.Items.Add(
+                AddLog(
                     $"[{DateTime.Now:HH:mm:ss}] ❌ 예측 오류 : {ex.Message}"
                 );
             }
         }
+
+        private void AddLog(string text)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => AddLog(text)));
+                return;
+            }
+
+            list_log.Items.Add(text);
+        }
         private void ShowFrame(int index)
         {
+            if (predictions == null || index < 0 || index >= predictions.Count)
+                return;
+
             currentFrame = index;
+            // trackImage 연동
+            if (trackImage.Maximum >= index)
+                trackImage.Value = index;
 
             string imagePath =
                 Path.Combine(
@@ -1749,6 +1800,12 @@ namespace Datamanager
                     predictions[index].image
                 );
 
+            if (!File.Exists(imagePath))
+            {
+                MessageBox.Show(imagePath + " 없음");
+                return;
+            }
+
             if (picboxImage.Image != null)
                 picboxImage.Image.Dispose();
 
@@ -1756,7 +1813,35 @@ namespace Datamanager
                 Image.FromFile(imagePath);
 
             picboxImage.Invalidate();
+                       
+            // 프레임 번호 표시
+            lblCurrentFrame2.Text = $"프레임: {index}";
+            // 실제 값 표시
+            var p = predictions[index];
+            label_compthroarenaNum.Text = p.real_throttle.ToString("F3");
+            label_compangarenaNum.Text = p.real_angle.ToString("F3");
 
+            // AI 예측값 표시
+            label_aithroarenaNum.Text = p.pred_throttle.ToString("F3");
+            label_aiangarenaNum.Text = p.pred_angle.ToString("F3");
+
+            // 프로그레스바 업데이트, 앵글은 절대값 방식
+            progressSpeed.Value = Math.Min(100, (int)(Math.Abs(p.real_throttle) * 100));
+            progressAngle.Value = Math.Min(100, (int)(Math.Abs(p.real_angle) * 100));
+            progressSpeedAI.Value = Math.Min(100, (int)(Math.Abs(p.pred_throttle) * 100));
+            progressAngleAI.Value = Math.Min(100, (int)(Math.Abs(p.pred_angle) * 100));
+
+            double speedError = Math.Abs(p.real_throttle - p.pred_throttle);
+            double angleError = Math.Abs(p.real_angle - p.pred_angle);
+
+            lblSpeedError.Text = $"오차: {speedError:F3}";
+            lblAngleError.Text = $"오차: {angleError:F3}";
+
+            // 오차 크기에 따라 색상 변경 0.1 미만이면 초록, 이상이면 빨강
+            lblSpeedError.ForeColor = speedError < 0.1 ? Color.FromArgb(102, 187, 106) : Color.FromArgb(239, 83, 80);
+            lblAngleError.ForeColor = angleError < 0.1 ? Color.FromArgb(102, 187, 106) : Color.FromArgb(239, 83, 80);
+            //현재 이미지 근처 이미지 로드
+            LoadArenaThumbnails(index);
         }
 
         private void DrawDriveLine(
@@ -1883,15 +1968,20 @@ namespace Datamanager
             if (isScrolling) return;
             SetCurrentIndex(trackBar_frame.Value);
         }
+        private void btn_imgnext_Click(object sender, EventArgs e)
+        {
+            isScrolling = true;
+            listImages.ClearSelected();
+            SetCurrentIndex(currentIndex + 1);
+            isScrolling = false;
+        }
 
         private void btn_before_Click(object sender, EventArgs e)
         {
+            isScrolling = true;
+            listImages.ClearSelected();
             SetCurrentIndex(currentIndex - 1);
-        }
-
-        private void btn_imgnext_Click(object sender, EventArgs e)
-        {
-            SetCurrentIndex(currentIndex + 1);
+            isScrolling = false;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -1930,6 +2020,29 @@ namespace Datamanager
                 Directory.Exists(backupFolderPath) &&
                 Directory.GetFiles(backupFolderPath).Length > 0;    //  백업 폴더에 이미지가 존재하는 경우
 
+            bool useBackupForTraining = false;
+
+            string compressionFile =
+                Path.Combine(baseDir, "data", "compression_info.json");
+
+            try
+            {
+                if (File.Exists(compressionFile))
+                {
+                    dynamic info =
+                        JsonConvert.DeserializeObject(
+                            File.ReadAllText(compressionFile)
+                        );
+
+                    useBackupForTraining =
+                        info?.isCompressed ?? false;
+                }
+            }
+            catch
+            {
+                useBackupForTraining = false;
+            }
+
 
             // 1. 데이터 검증
             if (imageFiles == null || imageFiles.Length == 0)
@@ -1947,8 +2060,13 @@ namespace Datamanager
             // 2. 초기화
             string imagesPath = Path.Combine(baseDir, "data", "images");
             string wbImagesPath = Path.Combine(baseDir, "data", "wbimages");
+
+            // ⭐ 학습 버튼 누를 때 프로그레스바와 상단 텍스트 레이블 즉시 초기화
             progressBar_learn.Value = 0;
+            label_progressai.Text = "진행률: 0% (0/10 epoch)"; // ← 이 부분을 추가하여 텍스트도 초기화합니다.
+
             list_log.Items.Clear();
+
             if (chart_loss.Series.IndexOf("Epoch") >= 0)
                 chart_loss.Series["Epoch"].Points.Clear();
             if (chart_loss.Series.IndexOf("Loss") >= 0)
@@ -1956,6 +2074,7 @@ namespace Datamanager
 
             Directory.CreateDirectory(wbImagesPath);
 
+            // 중복 호출 방지를 위해 버튼을 여기서 확실히 비활성화
             btn_train.Enabled = false;
             list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 🔍 원본 이미지 스캔 시작...");
             list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 📊 카탈로그 레코드: {catalogData.Count}개");
@@ -1966,6 +2085,7 @@ namespace Datamanager
                 int skippedCount = 0;
                 int recordIndex = 0;
                 List<Dictionary<string, object>> jsonRecords = new List<Dictionary<string, object>>();
+                List<Dictionary<string, object>> backupRecords = new List<Dictionary<string, object>>();
                 List<string> failedImages = new List<string>();
 
                 int totalImages = imageFiles.Length;
@@ -2030,7 +2150,7 @@ namespace Datamanager
 
                         jsonRecords.Add(record);
 
-                        if (useBackupImages)
+                        if (useBackupImages && useBackupForTraining)
                         {
                             string backupImage =
                                 Path.Combine(
@@ -2086,7 +2206,7 @@ namespace Datamanager
                                         ["user/throttle"] = throttle
                                     };
 
-                                jsonRecords.Add(backupRecord);
+                                backupRecords.Add(backupRecord);
                             }
                         }
 
@@ -2122,6 +2242,8 @@ namespace Datamanager
                 }
 
                 // 4. training_data.catalog 저장
+                jsonRecords.AddRange(backupRecords);
+
                 string catalogPath = Path.Combine(baseDir, "data", "training_data.catalog");
                 list_log.Items.Add($"[{DateTime.Now:HH:mm:ss}] 💾 카탈로그 파일 저장 중...");
 
@@ -2285,7 +2407,14 @@ namespace Datamanager
                 thumb.Click += (sender, e) =>
                 {
                     int thumbIndex = (int)((PictureBox)sender).Tag;
-                    SetCurrentIndex(thumbIndex);
+                    string fileName = Path.GetFileName(imageFiles[thumbIndex]);
+                    int predIndex = predictions.FindIndex(p => p.image == fileName);
+
+                    if (predIndex >= 0)
+                    {
+                        ShowFrame(predIndex);
+                        LoadArenaThumbnails(thumbIndex);
+                    }
                 };
 
                 flowPanel_thumbnails.Controls.Add(thumb);
@@ -2821,35 +2950,36 @@ namespace Datamanager
             HelpForm helpForm = new HelpForm();
             helpForm.ShowDialog(this);
         }
-        void LoadArenaThumbnails(int centerIndex)
+        void LoadArenaThumbnails(int centerPredIndex)
         {
-            if (imageFiles == null || imageFiles.Length == 0) return;
+            if (predictions == null || predictions.Count == 0) return;
 
             flowLayout_arena.Controls.Clear();
-
-            int start = Math.Max(0, centerIndex - 10);
-            int end = Math.Min(imageFiles.Length - 1, centerIndex + 10);
+            //썸네일 10장만 나오게
+            int start = Math.Max(0, centerPredIndex - 5);
+            int end = Math.Min(predictions.Count - 1, centerPredIndex + 5);
 
             for (int i = start; i <= end; i++)
             {
+                string imagePath = Path.Combine(baseDir, "data", "images", predictions[i].image);
+
                 PictureBox thumb = new PictureBox();
                 thumb.Size = new Size(160, 120);
                 thumb.SizeMode = PictureBoxSizeMode.Zoom;
                 thumb.BackColor = Color.FromArgb(7, 7, 15);
                 thumb.Cursor = Cursors.Hand;
-                thumb.Tag = i;
-                thumb.BorderStyle = i == centerIndex
+                thumb.Tag = i;  // predictions 인덱스
+                thumb.BorderStyle = i == centerPredIndex
                     ? BorderStyle.Fixed3D
                     : BorderStyle.FixedSingle;
 
-                try { thumb.Image = Image.FromFile(imageFiles[i]); }
+                try { thumb.Image = Image.FromFile(imagePath); }
                 catch { }
 
                 thumb.Click += (sender, e) =>
                 {
-                    int thumbIndex = (int)((PictureBox)sender).Tag;
-                    SetCurrentIndex(thumbIndex);
-                    LoadArenaThumbnails(thumbIndex);
+                    int predIndex = (int)((PictureBox)sender).Tag;
+                    ShowFrame(predIndex);
                 };
 
                 flowLayout_arena.Controls.Add(thumb);
@@ -2890,7 +3020,7 @@ namespace Datamanager
             currentFrame++;
 
             if (currentFrame >= predictions.Count)
-                currentFrame = predictions.Count - 1;
+                currentFrame = 0;
 
             ShowFrame(currentFrame);
         }
