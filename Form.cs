@@ -554,6 +554,7 @@ namespace Datamanager
                     timer1.Start();
                     btnStart.Text = "정지";
                 }
+            panel3.BackColor = Color.FromArgb(13, 13, 24);
             };
 
             LoadArenaThumbnails(currentIndex);
@@ -2496,9 +2497,9 @@ namespace Datamanager
         private void btn_delete_Click(object sender, EventArgs e)
         {
             // 1. 예외 처리
-            if (startFrameIndex == -1 || endFrameIndex == -1)
+            if (startFrameIndex != -1 && endFrameIndex == -1)
             {
-                MessageBox.Show("시작 프레임과 끝 프레임을 먼저 설정해 주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("끝 프레임을 설정해 주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
