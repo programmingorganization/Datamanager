@@ -1115,7 +1115,7 @@ namespace Datamanager
             return int.MaxValue;
         }
 
-        void CompressAllImages(int quality, double scale)
+        /*void CompressAllImages(int quality, double scale)
         {
             foreach (string imagePath in imageFiles)
             {
@@ -1173,6 +1173,38 @@ namespace Datamanager
                 JsonConvert.SerializeObject(info, Formatting.Indented)
             );
 
+            MessageBox.Show("전체 이미지 압축 완료");
+        }*/
+        void CompressAllImages(int quality, double scale)
+        {
+            foreach (string imagePath in imageFiles)
+            {
+                int index = ExtractNumber(Path.GetFileNameWithoutExtension(Path.GetFileName(imagePath)));
+
+                // 논리적 삭제된 이미지는 건너뜀
+                if (!catalogData.ContainsKey(index)) continue;
+
+                string fileName = Path.GetFileName(imagePath);
+                string backupPath = Path.Combine(backupFolderPath, fileName);
+
+                if (!File.Exists(backupPath))
+                    File.Copy(imagePath, backupPath);
+
+                Mat img = CvInvoke.Imread(backupPath);
+                if (img.IsEmpty) continue;
+
+                Mat resized = new Mat();
+                CvInvoke.Resize(img, resized, Size.Empty, scale, scale, Inter.Area);
+
+                var param = new KeyValuePair<ImwriteFlags, int>[]
+                {
+            new KeyValuePair<ImwriteFlags, int>(ImwriteFlags.JpegQuality, quality)
+                };
+
+                CvInvoke.Imwrite(imagePath, resized, param);
+            }
+
+            ReloadCurrentFolder();
             MessageBox.Show("전체 이미지 압축 완료");
         }
         void SaveDeleteHistory()    //  삭제 기록을 JSON 파일로 저장
@@ -2573,28 +2605,24 @@ namespace Datamanager
             SetCurrentIndex(minIdx);
 
         }
-
         void RefreshImageListUI()
         {
-            // 이벤트 중복 발생 및 UI 깜빡임 방지
             isScrolling = true;
             listImages.BeginUpdate();
-
             listImages.Items.Clear();
 
-            // validIndices에 살아남은 프레임들만 ListBox에 추가
             foreach (int idx in validIndices)
             {
-                // 예: "Frame 0015 (image_0015.jpg)" 형태로 보기 좋게 출력
-                // 원본 파일명을 보여주고 싶다면 Path.GetFileName(imageFiles[idx]) 활용
                 string fileName = Path.GetFileName(imageFiles[idx]);
                 listImages.Items.Add($"{fileName}");
             }
 
             listImages.EndUpdate();
             isScrolling = false;
-        }
 
+            // 삭제 후 유효 프레임 수 업데이트
+            lblTotalFrame.Text = $"전체 프레임: {validIndices.Count}";
+        }
         private void btn_restore_Click(object sender, EventArgs e)
         {
             // 1. 예외 처리: 선택된 항목이 없을 때
