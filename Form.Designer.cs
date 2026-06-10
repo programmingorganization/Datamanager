@@ -271,6 +271,7 @@
             // 
             // comboBox_play
             // 
+            comboBox_play.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             comboBox_play.FormattingEnabled = true;
             comboBox_play.Items.AddRange(new object[] { "x1.0배속", "x2.0배속", "x3.0배속" });
             comboBox_play.Location = new Point(178, 463);
@@ -282,6 +283,7 @@
             // 
             // btnHelp
             // 
+            btnHelp.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnHelp.BackColor = Color.Gray;
             btnHelp.Font = new Font("맑은 고딕", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 129);
             btnHelp.Location = new Point(895, 39);
@@ -294,6 +296,7 @@
             // 
             // lblTotalFrame
             // 
+            lblTotalFrame.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblTotalFrame.AutoSize = true;
             lblTotalFrame.BackColor = Color.Gray;
             lblTotalFrame.ForeColor = Color.Black;
@@ -306,6 +309,7 @@
             // 
             // lblCurrentFrame
             // 
+            lblCurrentFrame.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblCurrentFrame.AutoSize = true;
             lblCurrentFrame.BackColor = Color.Gray;
             lblCurrentFrame.ForeColor = Color.Black;
@@ -330,6 +334,7 @@
             // 
             // picEdge
             // 
+            picEdge.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             picEdge.BackColor = Color.White;
             picEdge.Location = new Point(140, 23);
             picEdge.Margin = new Padding(1);
@@ -341,6 +346,7 @@
             // 
             // picImage
             // 
+            picImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             picImage.BackColor = Color.White;
             picImage.Location = new Point(493, 23);
             picImage.Margin = new Padding(1);
@@ -352,6 +358,7 @@
             // 
             // btn_openfolder
             // 
+            btn_openfolder.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btn_openfolder.BackColor = Color.Gray;
             btn_openfolder.FlatStyle = FlatStyle.Flat;
             btn_openfolder.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -366,6 +373,7 @@
             // 
             // btn_imgnext
             // 
+            btn_imgnext.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btn_imgnext.BackColor = Color.Gray;
             btn_imgnext.FlatStyle = FlatStyle.Flat;
             btn_imgnext.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -380,6 +388,7 @@
             // 
             // btnPlay
             // 
+            btnPlay.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btnPlay.BackColor = Color.Gray;
             btnPlay.FlatStyle = FlatStyle.Flat;
             btnPlay.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -394,6 +403,7 @@
             // 
             // btn_changquality
             // 
+            btn_changquality.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btn_changquality.BackColor = Color.Gray;
             btn_changquality.FlatStyle = FlatStyle.Flat;
             btn_changquality.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -408,6 +418,7 @@
             // 
             // checkBox2
             // 
+            checkBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             checkBox2.AutoSize = true;
             checkBox2.Font = new Font("맑은 고딕", 13F, FontStyle.Bold);
             checkBox2.ForeColor = SystemColors.ButtonFace;
@@ -420,6 +431,7 @@
             // 
             // btn_before
             // 
+            btn_before.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btn_before.BackColor = Color.Gray;
             btn_before.FlatStyle = FlatStyle.Flat;
             btn_before.Font = new Font("맑은 고딕", 12F, FontStyle.Bold, GraphicsUnit.Point, 129);
@@ -434,6 +446,7 @@
             // 
             // panelTrackBarProgress
             // 
+            panelTrackBarProgress.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             panelTrackBarProgress.BackColor = Color.FromArgb(50, 50, 50);
             panelTrackBarProgress.Controls.Add(trackBar_frame);
             panelTrackBarProgress.Location = new Point(299, 401);
@@ -443,17 +456,18 @@
             // 
             // trackBar_frame
             // 
+            trackBar_frame.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             trackBar_frame.BackColor = Color.FromArgb(79, 195, 247);
-            trackBar_frame.Dock = DockStyle.Left;
             trackBar_frame.Location = new Point(0, 0);
             trackBar_frame.Margin = new Padding(1);
             trackBar_frame.Name = "trackBar_frame";
-            trackBar_frame.Size = new Size(614, 37);
+            trackBar_frame.Size = new Size(554, 45);
             trackBar_frame.TabIndex = 1;
             trackBar_frame.Scroll += trackBar_frame_Scroll;
             // 
             // checkBox_filter
             // 
+            checkBox_filter.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             checkBox_filter.AutoSize = true;
             checkBox_filter.Font = new Font("맑은 고딕", 13F, FontStyle.Bold);
             checkBox_filter.ForeColor = SystemColors.ButtonFace;
@@ -466,6 +480,7 @@
             // 
             // checkBox1
             // 
+            checkBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             checkBox1.AutoSize = true;
             checkBox1.Font = new Font("맑은 고딕", 13F, FontStyle.Bold);
             checkBox1.ForeColor = SystemColors.ButtonFace;
@@ -944,7 +959,7 @@
             splitContainer_ai.Panel2.Controls.Add(panel_grade);
             splitContainer_ai.Panel2.Controls.Add(label_aicompare);
             splitContainer_ai.Panel2.Controls.Add(panel_compare);
-            splitContainer_ai.Size = new Size(1200, 926);
+            splitContainer_ai.Size = new Size(1204, 926);
             splitContainer_ai.SplitterDistance = 793;
             splitContainer_ai.SplitterWidth = 2;
             splitContainer_ai.TabIndex = 5;
@@ -995,7 +1010,7 @@
             panel_grade.Controls.Add(progressBar_score);
             panel_grade.Location = new Point(9, 522);
             panel_grade.Name = "panel_grade";
-            panel_grade.Size = new Size(358, 392);
+            panel_grade.Size = new Size(370, 392);
             panel_grade.TabIndex = 2;
             // 
             // label_progreScore
@@ -1015,7 +1030,7 @@
             label_scoreUnit.Anchor = AnchorStyles.None;
             label_scoreUnit.AutoSize = true;
             label_scoreUnit.Font = new Font("맑은 고딕", 12F);
-            label_scoreUnit.Location = new Point(149, 136);
+            label_scoreUnit.Location = new Point(155, 136);
             label_scoreUnit.Name = "label_scoreUnit";
             label_scoreUnit.Size = new Size(65, 21);
             label_scoreUnit.TabIndex = 2;
@@ -1026,7 +1041,7 @@
             label_grade.Anchor = AnchorStyles.None;
             label_grade.AutoSize = true;
             label_grade.Font = new Font("맑은 고딕", 20F);
-            label_grade.Location = new Point(79, 198);
+            label_grade.Location = new Point(85, 198);
             label_grade.Name = "label_grade";
             label_grade.Size = new Size(71, 37);
             label_grade.TabIndex = 1;
@@ -1037,7 +1052,7 @@
             label_score.Anchor = AnchorStyles.None;
             label_score.AutoSize = true;
             label_score.Font = new Font("맑은 고딕", 40F);
-            label_score.Location = new Point(149, 28);
+            label_score.Location = new Point(155, 28);
             label_score.Name = "label_score";
             label_score.Size = new Size(60, 72);
             label_score.TabIndex = 1;
@@ -1048,7 +1063,7 @@
             progressBar_score.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             progressBar_score.Location = new Point(25, 298);
             progressBar_score.Name = "progressBar_score";
-            progressBar_score.Size = new Size(318, 42);
+            progressBar_score.Size = new Size(330, 42);
             progressBar_score.TabIndex = 0;
             // 
             // label_aicompare
@@ -1083,7 +1098,7 @@
             panel_compare.Controls.Add(combo_compare);
             panel_compare.Location = new Point(9, 58);
             panel_compare.Name = "panel_compare";
-            panel_compare.Size = new Size(358, 308);
+            panel_compare.Size = new Size(370, 308);
             panel_compare.TabIndex = 0;
             // 
             // progre_aiangle
@@ -1091,7 +1106,7 @@
             progre_aiangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aiangle.Location = new Point(181, 275);
             progre_aiangle.Name = "progre_aiangle";
-            progre_aiangle.Size = new Size(162, 23);
+            progre_aiangle.Size = new Size(174, 23);
             progre_aiangle.TabIndex = 2;
             // 
             // progre_aithro
@@ -1099,7 +1114,7 @@
             progre_aithro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_aithro.Location = new Point(181, 234);
             progre_aithro.Name = "progre_aithro";
-            progre_aithro.Size = new Size(162, 23);
+            progre_aithro.Size = new Size(174, 23);
             progre_aithro.TabIndex = 2;
             // 
             // progre_compangle
@@ -1107,7 +1122,7 @@
             progre_compangle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compangle.Location = new Point(181, 162);
             progre_compangle.Name = "progre_compangle";
-            progre_compangle.Size = new Size(162, 23);
+            progre_compangle.Size = new Size(174, 23);
             progre_compangle.TabIndex = 2;
             // 
             // progre_compthro
@@ -1115,7 +1130,7 @@
             progre_compthro.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             progre_compthro.Location = new Point(181, 121);
             progre_compthro.Name = "progre_compthro";
-            progre_compthro.Size = new Size(162, 23);
+            progre_compthro.Size = new Size(174, 23);
             progre_compthro.TabIndex = 2;
             // 
             // label_aiangle
@@ -1190,7 +1205,7 @@
             label_ocha.AutoSize = true;
             label_ocha.Font = new Font("맑은 고딕", 12F);
             label_ocha.ForeColor = SystemColors.ButtonFace;
-            label_ocha.Location = new Point(242, 30);
+            label_ocha.Location = new Point(254, 30);
             label_ocha.Name = "label_ocha";
             label_ocha.Size = new Size(46, 21);
             label_ocha.TabIndex = 1;
