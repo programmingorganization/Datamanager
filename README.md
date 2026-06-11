@@ -208,14 +208,27 @@ trainProcess.OutputDataReceived += (s, args) => { /* 실시간 로그 파싱 */ 
 
 ## 시스템 요구사항
 
-| 항목 | 요구사항 |
-|------|----------|
-| OS | Windows 10 / 11 |
+### 개발 및 테스트 환경
+
+| 항목 | 버전 |
+|------|------|
+| OS (Windows) | Windows 10 / 11 |
 | .NET | .NET 10.0 (Windows) |
-| WSL | WSL2 + Ubuntu (Python 학습 실행 시 필요) |
-| Python | 3.11 (conda 가상환경 권장) |
+| WSL | WSL2 |
+| Ubuntu | 22.04.5 LTS (Jammy) |
+| Python | 3.11.9 |
+| TensorFlow | 2.15.1 |
+| Donkeycar | 5.3.dev1 |
+| conda | Miniconda3 (권장) |
 | RAM | 4GB 이상 (권장 8GB) |
-| 주요 NuGet | Emgu.CV, Newtonsoft.Json, WinForms.DataVisualization |
+
+### 주요 NuGet 패키지
+
+| 패키지 | 버전 |
+|--------|------|
+| Emgu.CV | 4.13.0.5924 |
+| Newtonsoft.Json | 13.0.4 |
+| WinForms.DataVisualization | 1.10.2 |
 
 ---
 
@@ -288,8 +301,8 @@ Datamanager/
 
 ## 팀원 소개
 
-| 역할 | 이름 | 
-|------|------|
+| 역할 | 이름 | 담당 |
+|------|------|------|
 | 팀장 / 연동 | 김가희 |
 | UI | 강현우 |
 | 데이터 | 이정하 |
@@ -325,3 +338,7 @@ Datamanager/
 
 - **메모리 최적화**: 10,000장 이미지를 한꺼번에 로드하면 4GB 환경에서 크래시 발생 → 현재 인덱스 기준 **주변 20장만 가변 로드**하는 방식으로 최적화
 - **catalog 삭제 방식**: 파일을 직접 삭제하지 않고 `catalogData` 딕셔너리에서 제거하는 **논리적 삭제** 방식 채택 → `originalCatalogData` 백업으로 언제든 복구 가능
+
+---
+
+> 📅 개발 기간: 2026년 5월 ~ 6월 | KAIST 졸업 프로젝트
